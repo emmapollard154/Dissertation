@@ -1,0 +1,19 @@
+{
+  "name": "User A Chrome Extension",
+  "description": "Base Level Extension",
+  "version": "1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_icon": "bath_logo.png",
+    "default_title": "Click to open side panel"
+  },
+  "permissions": [
+    "sidePanel"
+  ],
+  "side_panel": {
+    "default_path": "side_panel.html"
+  },
+  "background": {
+        "service_worker": "background.js"
+    }
+}
