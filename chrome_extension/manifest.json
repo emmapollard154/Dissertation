@@ -8,12 +8,17 @@
     "default_title": "Click to open side panel"
   },
   "permissions": [
-    "sidePanel"
+    "sidePanel",
+    "activeTab"
   ],
-  "side_panel": {
-    "default_path": "side_panel.html"
-  },
-  "background": {
+    "background": {
         "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "side_panel.html",
+    "content_security_policy": {
+      "script_src": "'self' https://cdn.tailwindcss.com",
+      "object_src": "'self'"
     }
+  }
 }
