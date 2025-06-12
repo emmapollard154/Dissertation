@@ -15,10 +15,9 @@
         "service_worker": "background.js"
   },
   "side_panel": {
-    "default_path": "side_panel.html",
-    "content_security_policy": {
-      "script_src": "'self' https://cdn.tailwindcss.com",
-      "object_src": "'self'"
-    }
+    "default_path": "side_panel.html"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
   }
 }
