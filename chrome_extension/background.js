@@ -22,28 +22,11 @@ function getActiveTabUrl() {
 			} else {
 				var url = new URL(activeTab.url);
 				var hostname = url.hostname;
-				var path = url.pathname;
 				console.log("New tab URL: " + activeTab.url);
-				chrome.storage.local.get(['urlList'], function (result) {
-					var urlList = result.urlList;
-					if (urlList === undefined) {
-						urlList = [];
-					}
-					var index = urlList.findIndex(function (e) { return e.hostname == hostname; });
-					if (index === -1) { // not found
-						console.log("Saving new url");
-						urlList.push({
-							url: url,
-							hostname: hostname,
-							path: path,
-							timestamp: Date.now(),
-						});
-						chrome.storage.local.set({ 'urlList': urlList }, function () {
-						});
-					}
-                // send current url to side panel
-                chrome.runtime.sendMessage({ newUrlMessage: url });
-				});
+
+				// send current url to side panel
+				console.log("Sending URL background -> side_panel")
+                chrome.runtime.sendMessage({ newUrlMessage: [url,  Date.now()] });
 			}
 		}
 	});
