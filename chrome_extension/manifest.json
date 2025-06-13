@@ -24,11 +24,5 @@
       "script_src": "'self' https://cdn.tailwindcss.com",
       "object_src": "'self'"
     }
-  },
-  "content_scripts": [
-      {
-          "matches": ["<all_urls>"],
-          "js": ["content.js"]
-      }
-  ]
+  }
 }
