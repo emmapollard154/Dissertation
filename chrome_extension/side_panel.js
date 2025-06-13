@@ -5,4 +5,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     document.getElementById('currentURL').innerText = message.newUrlMessage[0];
     document.getElementById('currentTimestamp').innerText = message.newUrlMessage[1];
 
+
+    // TO DO: send url to node.js to store in database
+
 });

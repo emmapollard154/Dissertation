@@ -32,16 +32,6 @@ function getActiveTabUrl() {
 	});
 }
 
-
-
-
-
-
-
-
-
-
-
 // Event listener for when a tab is updated
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 	if (changeInfo.status === "complete") {
