@@ -41,6 +41,8 @@ function getActiveTabUrl() {
 						chrome.storage.local.set({ 'urlList': urlList }, function () {
 						});
 					}
+                // send current url to side panel
+                chrome.runtime.sendMessage({ newUrlMessage: url });
 				});
 			}
 		}

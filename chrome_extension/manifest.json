@@ -21,7 +21,7 @@
   "side_panel": {
     "default_path": "side_panel.html",
     "content_security_policy": {
-      "script_src": "'self' https://cdn.tailwindcss.com",
+      "script_src": "'self'",
       "object_src": "'self'"
     }
   }
