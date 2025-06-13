@@ -2,9 +2,9 @@
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log("side_panel received message:", message);
-    document.getElementById('messageDisplay').innerText = message.newUrlMessage;
+    document.getElementById('currentURL').innerText = message.newUrlMessage[0];
+    document.getElementById('currentTimestamp').innerText = message.newUrlMessage[1];
 
-    // sendResponse({ status: "Message received by side panel" });
 });
 
 
