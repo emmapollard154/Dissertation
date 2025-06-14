@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-// Main App component for our dashboard
+// Main App component for dashboard
 function App() {
   const [dashboardData, setDashboardData] = useState([]); // State to store fetched data
   const [loading, setLoading] = useState(true);         // State for loading indicator
@@ -65,17 +65,10 @@ function App() {
           >
             <h2 className="text-xl font-semibold text-gray-700 mb-2">{item.name}</h2>
             <p className="text-3xl font-bold text-blue-600 mb-2">
-              {/* Format value based on common scenarios */}
-              {item.name.includes('Revenue') || item.name.includes('Expenses') || item.name.includes('Profit') ?
-                `$${item.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` :
-                item.value.toLocaleString()
-              }
             </p>
-            <p className={`text-sm font-medium ${
-              item.status === 'High' || item.status === 'Increasing' || item.status === 'Stable' ? 'text-green-600' :
-              item.status === 'Medium' ? 'text-yellow-600' : 'text-red-600'
-            }`}>
-              Status: {item.status}
+            <p className={`text-sm font-medium`}>
+              url: {item.url}
+              time: {item.time}
             </p>
           </div>
         ))}
