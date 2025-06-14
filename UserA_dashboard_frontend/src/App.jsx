@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-// Main App component for our dashboard
+// Main App component for dashboard
 function App() {
   const [dashboardData, setDashboardData] = useState([]); // State to store fetched data
   const [loading, setLoading] = useState(true);         // State for loading indicator
@@ -52,40 +52,57 @@ function App() {
   }
 
   return (
+
     <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8 font-inter">
       <header className="bg-white shadow rounded-lg p-4 mb-6">
-        <h1 className="text-3xl font-semibold text-gray-800 text-center">Simple Dashboard</h1>
+        <h1 className="text-3xl font-semibold text-gray-800 text-center">User A Dashboard</h1>
       </header>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {dashboardData.map((item) => (
-          <div
-            key={item.id}
-            className="bg-white rounded-lg shadow-md p-6 border-b-4 border-blue-500 hover:shadow-lg transition-shadow duration-300"
-          >
-            <h2 className="text-xl font-semibold text-gray-700 mb-2">{item.name}</h2>
-            <p className="text-3xl font-bold text-blue-600 mb-2">
-              {/* Format value based on common scenarios */}
-              {item.name.includes('Revenue') || item.name.includes('Expenses') || item.name.includes('Profit') ?
-                `$${item.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` :
-                item.value.toLocaleString()
-              }
-            </p>
-            <p className={`text-sm font-medium ${
-              item.status === 'High' || item.status === 'Increasing' || item.status === 'Stable' ? 'text-green-600' :
-              item.status === 'Medium' ? 'text-yellow-600' : 'text-red-600'
-            }`}>
-              Status: {item.status}
-            </p>
-          </div>
-        ))}
+
+      <h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">Browsing History</h2>
+      <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+        {dashboardData.length > 0 ? (
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
+                >
+                  URL
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
+                >
+                  Time
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {dashboardData.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 border border-gray-200">
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                      {item.url}
+                    </a>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
+                    {item.time}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="p-6 text-center text-gray-500">No dashboard data available.</p>
+        )}
       </div>
 
-      <footer className="mt-8 text-center text-gray-600 text-sm">
-        <p>&copy; {new Date().getFullYear()} Simple Dashboard. All rights reserved.</p>
-        <p>Data fetched from Node.js backend.</p>
-      </footer>
-    </div>
+        <footer className="mt-8 text-center text-gray-600 text-sm">
+          <p>&copy; {new Date().getFullYear()} Emma Pollard. All rights reserved.</p>
+        </footer>
+      </div>
   );
 }
 

@@ -1,13 +1,14 @@
 // server.js
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
-const cors = require('cors'); // Import the cors middleware
+const sqlite3 = require('./node_modules/sqlite3').verbose();
+const cors = require('cors');
+const testingAddingMore = require('./trial_interact.js');
+const testingAddingExtension = require('../chrome_extension/trial_interaction_extension');
 
 const app = express();
-const port = 5000; // Port for our backend API
+const port = 5000; // Port for backend API
 
-// Use CORS middleware to allow requests from our React frontend
-// For development, we allow all origins. In production, you'd restrict this.
+// Use CORS to allow requests from React frontend
 app.use(cors());
 
 // Initialize SQLite database
@@ -16,34 +17,27 @@ const db = new sqlite3.Database('./dashboard.db', (err) => {
         console.error('Error connecting to database:', err.message);
     } else {
         console.log('Connected to the SQLite database.');
-        // Create items table if it doesn't exist
-        db.run(`CREATE TABLE IF NOT EXISTS items (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            value REAL NOT NULL,
-            status TEXT NOT NULL
+        // Create browsingHistory table if it doesn't exist
+        db.run(`CREATE TABLE IF NOT EXISTS browsingHistory (
+            url VARCHAR(255),
+            time DATETIME
         )`, (createErr) => {
             if (createErr) {
                 console.error('Error creating table:', createErr.message);
             } else {
-                console.log('Table "items" checked/created.');
+                console.log('Table "browsingHistory" created.');
                 // Insert some sample data if the table is empty
-                db.get('SELECT COUNT(*) AS count FROM items', (countErr, row) => {
+                db.get('SELECT COUNT(*) AS count FROM browsingHistory', (countErr, row) => {
                     if (countErr) {
                         console.error('Error checking item count:', countErr.message);
                         return;
                     }
                     if (row.count === 0) {
-                        console.log('Inserting sample data...');
-                        const stmt = db.prepare('INSERT INTO items (name, value, status) VALUES (?, ?, ?)');
-                        stmt.run('Revenue', 15000.50, 'High');
-                        stmt.run('Expenses', 8000.25, 'Medium');
-                        stmt.run('Profit', 7000.25, 'High');
-                        stmt.run('Users', 1200, 'Stable');
-                        stmt.run('Page Views', 55000, 'Increasing');
-                        stmt.run('Support Tickets', 45, 'Low');
+                        console.log('Inserting dummy data...');
+                        const stmt = db.prepare('INSERT INTO browsingHistory (url, time) VALUES (?, ?)');
+                        stmt.run('www.dummyurl.com', '2024-04-12 12:30');
                         stmt.finalize(() => {
-                            console.log('Sample data inserted.');
+                            console.log('Dummy data inserted.');
                         });
                     } else {
                         console.log('Database already contains data.');
@@ -54,13 +48,17 @@ const db = new sqlite3.Database('./dashboard.db', (err) => {
     }
 });
 
+
 // API endpoint to get dashboard data
 app.get('/api/dashboard-data', (req, res) => {
-    db.all('SELECT * FROM items', [], (err, rows) => {
+    db.all('SELECT * FROM browsingHistory', [], (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });
             return;
         }
+        testingAddingMore.insertExtraData(db, 'www.insertedurl.com', '2024-04-12 13:30');
+        testingAddingExtension.insertExtraDataExtension(db, 'www.insertedurlextension.com', '2024-04-12 14:30');
+        console.log("Successfully retrieved dashboard-data")
         res.json({
             message: 'Success',
             data: rows
@@ -71,7 +69,7 @@ app.get('/api/dashboard-data', (req, res) => {
 // Start the server
 app.listen(port, () => {
     console.log(`Backend server running on http://localhost:${port}`);
-    console.log('Remember to start your React frontend on a different port (e.g., 3000).');
+    console.log('Start React frontend on a different port (e.g., 3000).');
 });
 
 // Gracefully close the database connection when the app exits
