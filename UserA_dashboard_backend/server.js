@@ -2,6 +2,7 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
+const testingAddingMore = require('./trial_interact.js');
 
 const app = express();
 const port = 5000; // Port for backend API
@@ -45,6 +46,8 @@ const db = new sqlite3.Database('./dashboard.db', (err) => {
         });
     }
 });
+
+testingAddingMore.insertExtraData(db, 'www.insertedurl.com', '2024-04-12 13:30');
 
 // API endpoint to get dashboard data
 app.get('/api/dashboard-data', (req, res) => {
