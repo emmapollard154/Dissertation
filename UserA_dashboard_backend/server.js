@@ -56,8 +56,8 @@ app.get('/api/dashboard-data', (req, res) => {
             res.status(500).json({ error: err.message });
             return;
         }
-        testingAddingMore.insertExtraData(db, 'www.insertedurl.com', '2024-04-12 13:30');
-        testingAddingExtension.insertExtraDataExtension(db, 'www.insertedurlextension.com', '2024-04-12 14:30');
+        // testingAddingMore.insertExtraData(db, 'www.insertedurl.com', '2024-04-12 13:30');
+        // testingAddingExtension.insertExtraDataExtension(db, 'www.insertedurlextension.com', '2024-04-12 14:30');
         console.log("Successfully retrieved dashboard-data")
         res.json({
             message: 'Success',
@@ -71,6 +71,7 @@ app.listen(port, () => {
     console.log(`Backend server running on http://localhost:${port}`);
     console.log('Start React frontend on a different port (e.g., 3000).');
 });
+
 
 // Gracefully close the database connection when the app exits
 process.on('SIGINT', () => {
