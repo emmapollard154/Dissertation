@@ -12,10 +12,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         window.postMessage({
             type: 'BROWSING_DATA',
             payload: receivedData
-        }, 'http://localhost:5173'); // Ensure you specify the correct origin for your dashboard eg. window.location.origin
+        }, 'http://localhost:5173'); //   window.location.origin); // Ensure you specify the correct origin for your dashboard eg. window.location.origin
 
-        // Send a response back to the popup
-        console.log("TESTING LOG")
+        // send response to side_panel
         sendResponse({ status: 'content_script_received_and_processed', dataProcessed: receivedData });
     }
 });

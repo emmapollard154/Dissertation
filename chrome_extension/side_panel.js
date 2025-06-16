@@ -16,7 +16,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             newTime: timeReceived,
         };
 
-        chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        // chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        chrome.tabs.query({ url: "http://localhost:5173/*" }, (tabs) => {
             if (tabs && tabs.length > 0) {
                 const activeTab = tabs[0];
                 console.log('side_panel: Sending message to content script in tab:', activeTab.id);

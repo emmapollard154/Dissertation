@@ -1,16 +1,14 @@
-// This script runs on your dashboard page (e.g., http://localhost:5173)
+// script running on dashboard page (e.g., http://localhost:5173)
 
 window.addEventListener('message', function(event) {
-    // 1. IMPORTANT SECURITY CHECK: Verify the origin of the message
-    // This ensures you only process messages from trusted sources.
-    if (event.origin !== 'http://localhost:5173') { // Or your specific domain, e.g., 'https://yourdashboard.com'
+
+    if (event.origin !== 'http://localhost:5173') {
         console.warn('Dashboard: Message received from untrusted origin:', event.origin);
-        return; // Ignore messages from other origins
+        return;
     }
 
-    // 2. Check if the message has the expected type from your extension
     if (event.data && event.data.type === 'BROWSING_DATA') {
-        const receivedData = event.data.newUrlMessage;
+        const receivedData = event.data.payload;
         console.log('Dashboard: Received data from Chrome extension:', receivedData);
 
         // Now you have the `receivedData` object.
@@ -44,4 +42,4 @@ window.addEventListener('message', function(event) {
     }
 });
 
-console.log('Dashboard script loaded and listening for messages.');
+console.log('Dashboard script (dashboard_a_frontend) loaded and listening for messages.');
