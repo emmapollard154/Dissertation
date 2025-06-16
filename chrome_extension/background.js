@@ -26,7 +26,7 @@ function getActiveTabUrl() {
 
 				// send current url to side panel
 				console.log("Sending URL background -> side_panel")
-                chrome.runtime.sendMessage({ newUrlMessage: [url,  Date.now()] });
+                chrome.runtime.sendMessage({ action: 'sendUrlToDashboard', newUrlMessage: [url,  Date.now()] });
 			}
 		}
 	});
