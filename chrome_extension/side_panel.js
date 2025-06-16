@@ -1,31 +1,33 @@
 // sidepanel.js (script for side panel html)
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    console.log("side_panel received message:", message);
+    console.log("side_panel received message type:", message.action);
     document.getElementById('currentURL').innerText = message.newUrlMessage[0];
     document.getElementById('currentTimestamp').innerText = message.newUrlMessage[1];
 
 
     if (message.action === 'sendUrlToDashboard') {
-        const browserData = {
-            newUrl:  message.newUrlMessage[0],
-            newTime: message.newUrlMessage[1],
-        };
 
+        const urlReceived =  message.newUrlMessage[0];
+        const timeReceived =  message.newUrlMessage[1];
+
+        const browserData = {
+            newUrl:  urlReceived,
+            newTime: timeReceived,
+        };
 
         chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
             if (tabs && tabs.length > 0) {
                 const activeTab = tabs[0];
-                console.log('Popup: Sending message to content script in tab ID:', activeTab.id);
+                console.log('side_panel: Sending message to content script in tab:', activeTab.id);
 
-                // 3. Send message to the content script in the active tab
+                // send message to the content script in the active tab
                 chrome.tabs.sendMessage(activeTab.id, {
-                    action: 'messageForContentScript',
+                    action: 'browsingHistoryUpdate',
                     data: browserData
                 }, function(response) {
                     if (chrome.runtime.lastError) {
                         console.error('side_panel: Error sending message to content script:', chrome.runtime.lastError.message);
-                        // Handle cases where content script might not be injected or responsive
                         sendResponse({ status: 'failed', error: chrome.runtime.lastError.message });
                     } else {
                         console.log('side_panel: Content script responded:', response);
@@ -37,20 +39,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                 sendResponse({ status: 'failed', error: 'No active tab found' });
             }
         });
-        // Indicate that sendResponse will be called asynchronously
-        return true;
+        return true; // sendResponse is called asynchronously
     }
 });
-
-// function insertBrowsingHistory(db, url, time) {
-//     const stmt = db.prepare('INSERT INTO browsingHistory (url, time) VALUES (?, ?)');
-//     stmt.run(url, time);
-//     stmt.finalize(() => {
-//         console.log('Additional data inserted from side_panel.js.');
-//     });
-// }
-
-// module.exports = {
-//     insertBrowsingHistory
-// };
 

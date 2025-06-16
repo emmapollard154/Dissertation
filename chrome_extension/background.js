@@ -7,8 +7,9 @@ chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
   .then(() => console.log("Opening side panel"))
   .catch((error) => console.error("Error opening side panel:", error));
 
-// change to URL of fake email and banking environments
-const TARGET_URL = "https://www.google.com/";
+// URL of fake email and banking environments
+// const EMAIL_ENV = "https://www.google.com/";
+// const BANKING_ENV = "https://www.google.com/";
 
 // function to get URL of active tab
 function getActiveTabUrl() {
@@ -18,11 +19,11 @@ function getActiveTabUrl() {
 			if (activeTab.url === undefined) {
 				console.log("Active tab URL is undefined");
 			} else if (activeTab.url === "chrome://newtab/") {
-				console.log("Active tab URL is chrome://newtab/");
+				console.log("Active tab is new tab");
 			} else {
 				var url = new URL(activeTab.url);
 				var hostname = url.hostname;
-				console.log("New tab URL: " + activeTab.url);
+				console.log("New tab: " + activeTab.url);
 
 				// send current url to side panel
 				console.log("Sending URL background -> side_panel")
