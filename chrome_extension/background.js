@@ -2,14 +2,42 @@
 
 console.log("Starting service worker");
 
-// set side panel behaviour
-chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
-  .then(() => console.log("Opening side panel"))
-  .catch((error) => console.error("Error opening side panel:", error));
-
-// URL of fake email and banking environments
+const DASHBOARD_A_LOCATION = "http://localhost:5173";
 // const EMAIL_ENV = "https://www.google.com/";
 // const BANKING_ENV = "https://www.google.com/";
+
+// set side panel behaviour
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false })
+  .then(() => console.log("Side panel behaviour set: do not open by default"))
+  .catch((error) => console.error("Error setting side panel behaviour:", error));
+
+
+
+// open dashboard in a new tab when extension icon clicked
+chrome.action.onClicked.addListener((tab) => {
+
+  console.log(`Extension clicked. Opening dashboard in new tab.`);
+
+	// open side panel	
+	chrome.sidePanel.open({ tabId: tab.id })
+		.then(() => {
+			console.log('Side panel opened successfully for tab ID:', tab.id);
+		})
+		.catch((error) => {
+			console.error('Error opening side panel:', error);
+	});
+
+	chrome.tabs.create({ url: DASHBOARD_A_LOCATION })
+		.then((newTab) => {
+			console.log('New tab opened successfully:', newTab.url);
+		})
+		.catch((error) => {
+			console.error('Error opening new tab:', error);
+	});
+});
+
+
+
 
 // function to get URL of active tab
 function getActiveTabUrl() {
@@ -47,3 +75,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         chrome.tabs.create({ url: request.url });
     }
 });
+
+
+
+// // TO DO  open settings page on installation
+// chrome.runtime.onInstalled.addListener(({reason}) => {
+//   if (reason === 'install') {
+//     chrome.tabs.create({
+//       url: "onboarding.html"
+//     });
+//   }
+// });
