@@ -3,11 +3,10 @@ import React, { useState } from 'react';
 import './email_webpage.css'
 
 // strip tags to display email preview as one line in list
+// adapted from: https://stackoverflow.com/questions/74669280/removing-html-tags-from-string-in-react
 function stripTags(email) {
-  if (!email) return '';
-  const div = document.createElement('div');
-  div.innerHTML = email;
-  return div.textContent || div.innerText || '';
+const tags = /(<([^>]+)>)/gi;
+return email.replace(tags, "");
 }
 
 // Dummy data for emails
