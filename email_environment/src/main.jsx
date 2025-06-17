@@ -7,7 +7,6 @@ import EmailWebPage from './email_webpage.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {/* <App /> */}
     <EmailWebPage />
   </StrictMode>,
 )

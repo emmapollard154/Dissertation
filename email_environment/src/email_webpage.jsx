@@ -1,91 +1,94 @@
 // email_webpage.jsx
 import React, { useState } from 'react';
+import './email_webpage.css'
 
+// strip tags to display email preview as one line in list
+// adapted from: https://stackoverflow.com/questions/74669280/removing-html-tags-from-string-in-react
+function stripTags(email) {
+const tags = /(<([^>]+)>)/gi;
+return email.replace(tags, "");
+}
 
 // Dummy data for emails
 const emails = [
   {
     id: '1',
-    from: 'Alice Wonderland <alice@example.com>',
-    subject: 'Important Meeting Tomorrow',
+    from: 'Unknown Sender <acbdefg@example.com>',
+    subject: 'Congratulations!',
     body: `
-      <p>Hi team,</p>
-      <p>Just a reminder about our important meeting tomorrow at <strong>10:00 AM</strong> in Conference Room B. Please come prepared to discuss Q3 initiatives.</p>
-      <p>Here's a link to the agenda: <a href="https://example.com/agenda" target="_blank" class="text-blue-500 hover:underline">Meeting Agenda</a></p>
-      <p>Thanks,</p>
-      <p>Alice</p>
+      <p>You have won a prize!</p>
+      <p>Just click the link below to claim your prize worth £10,000!</p>
+      <p><a href="https://example.com/agenda" target="_blank" class="text-blue-500 hover:underline">CLICK HERE!</a></p>
     `,
-    date: '2025-06-16',
+    date: '29/07/2025',
     read: false,
     category: 'inbox',
   },
   {
     id: '2',
-    from: 'Bob The Builder <bob@example.com>',
-    subject: 'Project X Update',
+    from: 'Amazon <accounts@amaz0n.co.uk>',
+    subject: 'Password reset',
     body: `
-      <p>Hello,</p>
-      <p>The latest update for Project X has been deployed to staging. You can check it out here: <a href="https://example.com/project-x-staging" target="_blank" class="text-blue-500 hover:underline">Staging Link</a>.</p>
-      <p>Let me know if you find any issues.</p>
-      <p>Best,</p>
-      <p>Bob</p>
+      <p>Dear customer,</p>
+      <p>Your password has appeared in a data leak so needs to be reset immediately.</p>
+      <p>Click the link to reset your password: <a href="https://example.com/project-x-staging" target="_blank" class="text-blue-500 hover:underline">reset password</a>.</p>
+      <p>Amazon Accounts Team</p>
     `,
-    date: '2025-06-15',
-    read: true,
+    date: '28/07/2025',
+    read: false,
     category: 'inbox',
   },
   {
     id: '3',
-    from: 'Marketing Team <marketing@example.com>',
-    subject: 'Exclusive Offer Just For You!',
+    from: 'Unknown <qwerty@example.com>',
+    subject: 'URGENT',
     body: `
-      <p>Dear Valued Customer,</p>
-      <p>Get ready for our exclusive summer sale! Enjoy up to 50% off on selected items. This offer is valid for a limited time only.</p>
-      <p>Shop now: <a href="https://example.com/shop" target="_blank" class="text-blue-500 hover:underline">Our Store</a></p>
-      <p>Sincerely,</p>
-      <p>The Marketing Team</p>
+      <p>We have your bank details for account ending 1234. Reply to this email to arrange payment £20,000 in Bitcoin before your account is emptied.</p>
+      <p>You have one week.</p>
     `,
-    date: '2025-06-14',
+    date: '28/07/2025',
     read: false,
     category: 'inbox',
   },
   {
     id: '4',
     from: 'Spam Mail <spam@example.com>',
-    subject: 'YOU HAVE WON A MILLION DOLLARS!!!',
+    subject: 'YOU HAVE WON A MILLION POUNDS!!!',
     body: `
       <p>Congratulations! You have been selected as the lucky winner of our grand lottery. To claim your prize, please click on the link below and provide your bank details:</p>
       <p><a href="https://example.com/claim-prize" target="_blank" class="text-red-500 hover:underline">Claim Your Prize Now!</a></p>
       <p>Act fast! This offer expires soon.</p>
     `,
-    date: '2025-06-13',
+    date: '27/07/2025',
     read: false,
     category: 'spam',
   },
   {
     id: '5',
-    from: 'Charlie Brown <charlie@example.com>',
-    subject: 'Re: Project X Update',
+    from: 'Raymond <raymond@bettersoftware.com>',
+    subject: 'Protect your device now',
     body: `
-      <p>Hi Bob,</p>
-      <p>Thanks for the update. I've checked the staging environment and everything looks good so far. I'll do a more thorough review later today.</p>
-      <p>Cheers,</p>
-      <p>Charlie</p>
+      <p>Dear valued customer,</p>
+      <p>Improve your device performance by cleaning up junk files today. Download this free piece of software and click 'Run' and you're all set!</p>
+      <p><a href="https://example.com/" target="_blank" class="text-red-500 hover:underline">Download</a></p>
+      <p>All the best,</p>
+      <p>Raymond</p>
+      <p>Better Software Support Team</p>
     `,
-    date: '2025-06-15',
-    read: true,
-    category: 'sent',
+    date: '26/07/2025',
+    read: false,
+    category: 'inbox',
   },
   {
     id: '6',
-    from: 'Draft Email <draft@example.com>',
-    subject: 'Draft: Follow-up on new feature',
+    from: 'me <usera@mail.com>',
+    subject: 'Draft: Holiday Ideas',
     body: `
-      <p>Hi team,</p>
-      <p>I wanted to follow up on the discussion we had regarding the new feature. I've put together some initial thoughts and will share a detailed proposal soon.</p>
-      <p>Let me know if you have any immediate feedback.</p>
+      <p>Hi Steve,</p>
+      <p>Here is the link to where we stayed on holiday last year. It was great!</p>
+      <p><a href="https://example.com/" target="_blank" class="text-red-500 hover:underline">Bath Campsite</a></p>
     `,
-    date: '2025-06-17',
+    date: '24/07/2025',
     read: false,
     category: 'drafts',
   },
@@ -110,9 +113,8 @@ const Sidebar = ({ onSelectCategory, activeCategory }) => {
             <button
               onClick={() => onSelectCategory(category.name.toLowerCase())}
               className={`flex items-center w-full px-4 py-2 rounded-lg text-lg transition-all duration-200 ease-in-out
-                ${activeCategory === category.name.toLowerCase() ? 'bg-blue-500 text-white shadow-lg' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'}`}
+                ${activeCategory === category.name.toLowerCase() ? 'bg-blue-500 text-gray-700 shadow-lg' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'}`}
             >
-              {/* Using Lucide React icons for visual appeal */}
               {category.icon === 'Mails' && <Mails className="mr-3 w-5 h-5" />}
               {category.icon === 'Send' && <Send className="mr-3 w-5 h-5" />}
               {category.icon === 'FileText' && <FileText className="mr-3 w-5 h-5" />}
@@ -127,7 +129,7 @@ const Sidebar = ({ onSelectCategory, activeCategory }) => {
   );
 };
 
-// EmailList component to display a list of emails
+// component to display a list of emails
 const EmailList = ({ emails, onSelectEmail, selectedEmailId }) => {
   return (
     <div className="flex-1 overflow-y-auto bg-white border-r border-gray-200 shadow-lg">
@@ -156,7 +158,7 @@ const EmailList = ({ emails, onSelectEmail, selectedEmailId }) => {
                 <span className="text-xs text-gray-500">{email.date}</span>
               </div>
               <div className="text-md font-semibold mb-1 truncate">{email.subject}</div>
-              <div className="text-sm text-gray-500 truncate" dangerouslySetInnerHTML={{ __html: email.body }}></div>
+              <div className="text-sm text-gray-500 truncate">{stripTags(email.body)}</div>
             </li>
           ))
         )}
@@ -165,7 +167,7 @@ const EmailList = ({ emails, onSelectEmail, selectedEmailId }) => {
   );
 };
 
-// EmailDetail component to show the full content of an email
+// component to show the full email content
 const EmailDetail = ({ email }) => {
   if (!email) {
     return (
@@ -187,7 +189,7 @@ const EmailDetail = ({ email }) => {
       </div>
       <div className="email-body text-gray-800 leading-relaxed text-base" dangerouslySetInnerHTML={{ __html: email.body }}></div>
       <div className="mt-8 pt-4 border-t border-gray-200 flex space-x-4">
-        <button className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200 flex items-center">
+        <button className="px-6 py-2 bg-blue-600 text-gray-700 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200 flex items-center">
           <Reply className="mr-2 w-4 h-4" /> Reply
         </button>
         <button className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg shadow-md hover:bg-gray-300 transition-colors duration-200 flex items-center">
@@ -198,9 +200,7 @@ const EmailDetail = ({ email }) => {
   );
 };
 
-// Icons (using lucide-react for a modern look)
-// Define these at the top level or import them if using a library like lucide-react
-// For this example, I'll define simple SVG versions if lucide-react isn't available
+// icons
 const Mails = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
@@ -264,36 +264,29 @@ export default function EmailWebPage() {
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [activeCategory, setActiveCategory] = useState('inbox');
 
-  // Filter emails based on the active category
-  const filteredEmails = emails.filter(email => email.category === activeCategory);
+  const filteredEmails = emails.filter(email => email.category === activeCategory); // filter emails based on the active category
 
   return (
     <div className="min-h-screen bg-gray-100 font-inter antialiased flex flex-col">
-      {/* Header */}
       <header className="bg-gradient-to-r from-blue-600 to-purple-700 text-white p-4 shadow-xl">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-3xl font-extrabold tracking-tight">Fake Mail Client</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight">Email</h1>
           <div className="flex items-center space-x-4">
-            <span className="text-lg">John Doe</span>
+            <span className="text-lg">User A</span>
             <img
-              src="https://placehold.co/40x40/ADD8E6/000000?text=JD"
+              src="https://placehold.co/40x40/ADD8E6/000000?text=A"
               alt="User Avatar"
               className="rounded-full border-2 border-white"
-              onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/40x40/ADD8E6/000000?text=JD"; }}
+              onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/40x40/ADD8E6/000000?text=A"; }}
             />
           </div>
         </div>
       </header>
 
-      {/* Main Content Area */}
+
       <div className="flex flex-1 overflow-hidden container mx-auto my-6 rounded-xl shadow-2xl bg-white">
-        {/* Sidebar */}
         <Sidebar onSelectCategory={setActiveCategory} activeCategory={activeCategory} />
-
-        {/* Email List */}
         <EmailList emails={filteredEmails} onSelectEmail={setSelectedEmail} selectedEmailId={selectedEmail?.id} />
-
-        {/* Email Detail */}
         <EmailDetail email={selectedEmail} />
       </div>
     </div>
