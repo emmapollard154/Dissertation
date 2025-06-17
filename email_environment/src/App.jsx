@@ -1,6 +1,6 @@
 import React from 'react'
 import './App.css'
-import EmailWebPage from '../email_webpage.jsx'
+import EmailWebPage from './email_webpage.jsx'
 
 function App() {
 
