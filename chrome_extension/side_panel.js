@@ -14,6 +14,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         if (urlReceived === "http://localhost:5174/") { // email environment
             console.log("ON EMAIL WEBPAGE")
             document.getElementById('emailPageAnnouncement').innerText = "ON EMAIL WEBPAGE"
+        } else {
+            document.getElementById('emailPageAnnouncement').innerText = ""
         }
 
         const browserData = {
