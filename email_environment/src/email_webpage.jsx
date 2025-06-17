@@ -1,6 +1,14 @@
 // email_webpage.jsx
 import React, { useState } from 'react';
+import './email_webpage.css'
 
+// strip tags to display email preview as one line in list
+function stripTags(email) {
+  if (!email) return '';
+  const div = document.createElement('div');
+  div.innerHTML = email;
+  return div.textContent || div.innerText || '';
+}
 
 // Dummy data for emails
 const emails = [
@@ -28,7 +36,7 @@ const emails = [
       <p>Amazon Accounts Team</p>
     `,
     date: '28/07/2025',
-    read: true,
+    read: false,
     category: 'inbox',
   },
   {
@@ -69,7 +77,7 @@ const emails = [
       <p>Better Software Support Team</p>
     `,
     date: '26/07/2025',
-    read: true,
+    read: false,
     category: 'inbox',
   },
   {
@@ -106,7 +114,7 @@ const Sidebar = ({ onSelectCategory, activeCategory }) => {
             <button
               onClick={() => onSelectCategory(category.name.toLowerCase())}
               className={`flex items-center w-full px-4 py-2 rounded-lg text-lg transition-all duration-200 ease-in-out
-                ${activeCategory === category.name.toLowerCase() ? 'bg-blue-500 text-white shadow-lg' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'}`}
+                ${activeCategory === category.name.toLowerCase() ? 'bg-blue-500 text-gray-700 shadow-lg' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'}`}
             >
               {category.icon === 'Mails' && <Mails className="mr-3 w-5 h-5" />}
               {category.icon === 'Send' && <Send className="mr-3 w-5 h-5" />}
@@ -151,7 +159,7 @@ const EmailList = ({ emails, onSelectEmail, selectedEmailId }) => {
                 <span className="text-xs text-gray-500">{email.date}</span>
               </div>
               <div className="text-md font-semibold mb-1 truncate">{email.subject}</div>
-              <div className="text-sm text-gray-500 truncate" dangerouslySetInnerHTML={{ __html: email.body }}></div>
+              <div className="text-sm text-gray-500 truncate">{stripTags(email.body)}</div>
             </li>
           ))
         )}
@@ -263,7 +271,7 @@ export default function EmailWebPage() {
     <div className="min-h-screen bg-gray-100 font-inter antialiased flex flex-col">
       <header className="bg-gradient-to-r from-blue-600 to-purple-700 text-white p-4 shadow-xl">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-3xl font-extrabold tracking-tight">Fake Mail Client</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight">Email</h1>
           <div className="flex items-center space-x-4">
             <span className="text-lg">User A</span>
             <img
