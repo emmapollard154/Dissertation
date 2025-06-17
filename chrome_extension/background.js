@@ -36,8 +36,15 @@ chrome.action.onClicked.addListener((tab) => {
 	});
 });
 
+// function to get current time in sqlite datetime format
+function timeToDatetime() {
+    const now = new Date();
+    const nowStr = now.toISOString();
 
-
+    const [date, rawTime] = nowStr.split('T');
+    const time = rawTime.split('.')[0];
+    return `${date} ${time}`;
+}
 
 // function to get URL of active tab
 function getActiveTabUrl() {
@@ -50,12 +57,12 @@ function getActiveTabUrl() {
 				console.log("Active tab is new tab");
 			} else {
 				var url = new URL(activeTab.url);
-				var hostname = url.hostname;
 				console.log("New tab: " + activeTab.url);
 
 				// send current url to side panel
 				console.log("Sending URL background -> side_panel")
-                chrome.runtime.sendMessage({ action: 'sendUrlToDashboard', newUrlMessage: [url,  Date.now()] });
+				timestamp = timeToDatetime();
+                chrome.runtime.sendMessage({ action: 'sendUrlToDashboard', newUrlMessage: [url,  timestamp] });
 			}
 		}
 	});

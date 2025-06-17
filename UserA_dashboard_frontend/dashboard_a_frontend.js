@@ -18,7 +18,6 @@ async function sendHistoryToBackend(data) {
 
         const result = await response.json(); // Parse the JSON response from the backend
         console.log('Data sent successfully:', result);
-        // You can update your UI here based on the 'result' (e.g., show a success message)
         return result;
 
     } catch (error) {

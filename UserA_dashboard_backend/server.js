@@ -2,8 +2,6 @@
 const express = require('express');
 const sqlite3 = require('./node_modules/sqlite3').verbose();
 const cors = require('cors');
-const testingAddingMore = require('./trial_interact.js');
-const testingAddingExtension = require('../chrome_extension/trial_interaction_extension');
 
 const app = express();
 const port = 5000; // Port for backend API
@@ -17,7 +15,6 @@ const db = new sqlite3.Database('./dashboard.db', (err) => {
         console.error('Error connecting to database:', err.message);
     } else {
         console.log('Connected to the SQLite database.');
-        // Create browsingHistory table if it doesn't exist
         db.run(`CREATE TABLE IF NOT EXISTS browsingHistory (
             url VARCHAR(255),
             time DATETIME
@@ -56,8 +53,6 @@ app.get('/api/dashboard-data', (req, res) => {
             res.status(500).json({ error: err.message });
             return;
         }
-        // testingAddingMore.insertExtraData(db, 'www.insertedurl.com', '2024-04-12 13:30');
-        // testingAddingExtension.insertExtraDataExtension(db, 'www.insertedurlextension.com', '2024-04-12 14:30');
         console.log("Successfully retrieved dashboard-data")
         res.json({
             message: 'Success',
@@ -81,16 +76,8 @@ app.post('/api/dashboard-data', (req, res) => {
         console.error('Database insertion error:', err.message);
         return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
     }
-    console.log(`A row has been inserted with rowid ${this.lastID}`);
     res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
 
-    // // For now, let's just send a success response without DB interaction
-    // res.status(201).json({
-    //     message: 'Data received by backend successfully!',
-    //     receivedData: dataFromFrontend,
-    //     // You might return the ID of the new record from the database here
-    //     newId: Date.now() // Placeholder for a real database ID
-    // });
 });
 
 
