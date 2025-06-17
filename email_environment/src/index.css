@@ -1,8 +1,11 @@
 /* src/index.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+
+@import "tailwindcss"; /* THIS IS THE CRUCIAL LINE! */
+@theme; /* Also important for v4's CSS-first config */
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
