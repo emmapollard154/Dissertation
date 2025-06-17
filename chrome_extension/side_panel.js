@@ -11,12 +11,18 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         const urlReceived =  message.newUrlMessage[0];
         const timeReceived =  message.newUrlMessage[1];
 
+        if (urlReceived === "http://localhost:5174/") { // email environment
+            console.log("ON EMAIL WEBPAGE")
+            document.getElementById('emailPageAnnouncement').innerText = "ON EMAIL WEBPAGE"
+        } else {
+            document.getElementById('emailPageAnnouncement').innerText = ""
+        }
+
         const browserData = {
             newUrl:  urlReceived,
             newTime: timeReceived,
         };
 
-        // chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         chrome.tabs.query({ url: "http://localhost:5173/*" }, (tabs) => {
             if (tabs && tabs.length > 0) {
                 const activeTab = tabs[0];

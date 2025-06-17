@@ -34,8 +34,12 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"],
+      "js": ["content_dashboard_a.js"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["http://localhost:5174/"],
+      "js": ["content_email.js"]
     }
   ]
 }
