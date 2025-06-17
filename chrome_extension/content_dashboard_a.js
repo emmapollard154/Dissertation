@@ -17,4 +17,4 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     }
 });
 
-console.log('Content script loaded and listening for messages.');
+console.log('Content script (dashboard) loaded and listening for messages.');

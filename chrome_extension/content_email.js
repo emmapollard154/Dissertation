@@ -1,0 +1,1 @@
+console.log("Email content script running")
