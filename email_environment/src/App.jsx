@@ -6,7 +6,7 @@ function App() {
 
   return (
     <div className="App">
-      <EmailWebPage /> {/* Use your component here */}
+      <EmailWebPage />
     </div>
   )
 }
