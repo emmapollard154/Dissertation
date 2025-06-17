@@ -8,8 +8,8 @@ const testingAddingExtension = require('../chrome_extension/trial_interaction_ex
 const app = express();
 const port = 5000; // Port for backend API
 
-// Use CORS to allow requests from React frontend
-app.use(cors());
+app.use(cors()); // allow cross origin requests (from frontend)
+app.use(express.json()); // parses incoming JSON request bodies
 
 // Initialize SQLite database
 const db = new sqlite3.Database('./dashboard.db', (err) => {
@@ -65,6 +65,35 @@ app.get('/api/dashboard-data', (req, res) => {
         });
     });
 });
+
+
+// handler for frontend POST requests
+app.post('/api/dashboard-data', (req, res) => {
+    const dataFromFrontend = req.body; // data received from frontend
+
+    console.log('Received POST request data:', dataFromFrontend);
+
+    try{
+        const stmt = db.prepare('INSERT INTO browsingHistory (url, time) VALUES (?, ?)');
+        stmt.run(dataFromFrontend.data.newUrl, dataFromFrontend.data.newTime);
+    }
+    catch(err) {
+        console.error('Database insertion error:', err.message);
+        return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
+    }
+    console.log(`A row has been inserted with rowid ${this.lastID}`);
+    res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
+
+    // // For now, let's just send a success response without DB interaction
+    // res.status(201).json({
+    //     message: 'Data received by backend successfully!',
+    //     receivedData: dataFromFrontend,
+    //     // You might return the ID of the new record from the database here
+    //     newId: Date.now() // Placeholder for a real database ID
+    // });
+});
+
+
 
 // Start the server
 app.listen(port, () => {
