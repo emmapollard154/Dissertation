@@ -9,6 +9,22 @@ const tags = /(<([^>]+)>)/gi;
 return email.replace(tags, "");
 }
 
+function mouseDownReply() {
+  console.log("MOUSE DOWN REPLY")
+}
+
+function mouseDownForward() {
+  console.log("MOUSE DOWN FORWARD")
+}
+
+function mouseUpReply() {
+  console.log("MOUSE UP REPLY")
+}
+
+function mouseUpForward() {
+  console.log("MOUSE UP FORWARD")
+}
+
 // Dummy data for emails
 const emails = [
   {
@@ -189,10 +205,12 @@ const EmailDetail = ({ email }) => {
       </div>
       <div className="email-body text-gray-800 leading-relaxed text-base" dangerouslySetInnerHTML={{ __html: email.body }}></div>
       <div className="mt-8 pt-4 border-t border-gray-200 flex space-x-4">
-        <button className="px-6 py-2 bg-blue-600 text-gray-700 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200 flex items-center">
+        <button className="px-6 py-2 bg-blue-600 text-gray-700 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200 flex items-center"
+        onMouseDown={mouseDownReply} onMouseUp={mouseUpReply}>
           <Reply className="mr-2 w-4 h-4" /> Reply
         </button>
-        <button className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg shadow-md hover:bg-gray-300 transition-colors duration-200 flex items-center">
+        <button className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg shadow-md hover:bg-gray-300 transition-colors duration-200 flex items-center"
+        onMouseDown={mouseDownForward} onMouseUp={mouseUpForward}>
           <Forward className="mr-2 w-4 h-4" /> Forward
         </button>
       </div>
