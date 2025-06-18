@@ -8,8 +8,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         // const receivedData = request;
 
         document.addEventListener('click', function(event) {
-            console.log('Click detected!', event.target);
-            // You can get details like event.clientX, event.clientY, event.button, etc.
+            console.log('Click detected in email browser', event.target);
+
+            if (event.target.matches("button")) {
+                console.log("BUTTON CLICKED IN EMAIL BROWSER")
+            }
         });
         // sendResponse({ status: 'content_script_received_and_processed', dataProcessed: receivedData });
         sendResponse({ status: 'content_script_received_and_processed'});
