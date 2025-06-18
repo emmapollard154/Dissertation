@@ -3,7 +3,7 @@
 console.log("Starting service worker");
 
 const DASHBOARD_A_LOCATION = "http://localhost:5173";
-// const EMAIL_ENV = "https://www.google.com/";
+const EMAIL_ENV = "http://localhost:5174";
 // const BANKING_ENV = "https://www.google.com/";
 
 // set side panel behaviour
