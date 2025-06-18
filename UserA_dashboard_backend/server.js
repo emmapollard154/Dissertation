@@ -23,23 +23,6 @@ const db = new sqlite3.Database('./dashboard.db', (err) => {
                 console.error('Error creating table:', createErr.message);
             } else {
                 console.log('Table "browsingHistory" created.');
-                // Insert some sample data if the table is empty
-                db.get('SELECT COUNT(*) AS count FROM browsingHistory', (countErr, row) => {
-                    if (countErr) {
-                        console.error('Error checking item count:', countErr.message);
-                        return;
-                    }
-                    if (row.count === 0) {
-                        console.log('Inserting dummy data...');
-                        const stmt = db.prepare('INSERT INTO browsingHistory (url, time) VALUES (?, ?)');
-                        stmt.run('www.dummyurl.com', '2024-04-12 12:30');
-                        stmt.finalize(() => {
-                            console.log('Dummy data inserted.');
-                        });
-                    } else {
-                        console.log('Database already contains data.');
-                    }
-                });
             }
         });
     }

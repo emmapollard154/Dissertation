@@ -95,7 +95,7 @@ function App() {
             </tbody>
           </table>
         ) : (
-          <p className="p-6 text-center text-gray-500">No dashboard data available.</p>
+          <p className="p-6 text-center text-gray-500">Browsing history is empty.</p>
         )}
       </div>
 
