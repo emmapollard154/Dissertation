@@ -7,38 +7,22 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
         const eventDetected = "onEmailPage"
 
-        document.addEventListener('mousedown', function(event) {
+        document.addEventListener('click', function(event) {
             console.log('Mouse down detected in email browser', event.target);
 
             if (event.target.matches("button")) {
-                const eventDetected = "button pressed"
-                console.log("BUTTON PRESSED IN EMAIL BROWSER")
+                const eventDetected = "button pressed";
+                console.log("BUTTON PRESSED IN EMAIL BROWSER");
+                event.preventDefault();
             }
 
             if (event.target.matches("a")) {
-                const eventDetected = "link pressed"
-                console.log("LINK PRESSED IN EMAIL BROWSER")
+                const eventDetected = "link pressed";
+                console.log("LINK PRESSED IN EMAIL BROWSER");
+                event.preventDefault();
             }
 
-        });
-
-
-        document.addEventListener('mouseup', function(event) {
-            console.log('Mouse up detected in email browser', event.target);
-
-            if (event.target.matches("button")) {
-                const eventDetected = "button released"
-                console.log("BUTTON RELEASED IN EMAIL BROWSER")
-            }
-
-            if (event.target.matches("a")) {
-                const eventDetected = "link released"
-                console.log("LINK RELEASED IN EMAIL BROWSER")
-            }
-
-        });
-
-
+        }, true); // capturing listener
 
         sendResponse({ status: 'content_script_received_and_processed', eventDetected: eventDetected});
     }
