@@ -13,6 +13,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             if (event.target.matches("button")) {
                 console.log("BUTTON CLICKED IN EMAIL BROWSER")
             }
+
+            if (event.target.matches("a")) {
+                console.log("LINK CLICKED IN EMAIL BROWSER")
+            }
+
         });
         // sendResponse({ status: 'content_script_received_and_processed', dataProcessed: receivedData });
         sendResponse({ status: 'content_script_received_and_processed'});
