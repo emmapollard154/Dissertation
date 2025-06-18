@@ -13,7 +13,8 @@
     "tabs",
     "history",
     "notifications",
-    "storage"
+    "storage",
+    "scripting"
   ],
   "host_permissions": [
     "http://localhost:5173/*"
@@ -40,6 +41,12 @@
     {
       "matches": ["http://localhost:5174/"],
       "js": ["content_email.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["information_popup.html", "information_popup.css"],
+      "matches": ["http://localhost:5174/*"]
     }
   ]
 }
