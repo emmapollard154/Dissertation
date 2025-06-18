@@ -1,11 +1,27 @@
 <!-- html content to inject into email browser -->
 
 
-<div class="information_popup" id="infoPopup">
+<!-- <div class="information_popup" id="infoPopup">
 <form action="/action_page.php" class="info_container">
     <h1>Information</h1>
 
-    <button type="submit" class="btn">Okay</button>
-    <button type="button" class="btn cancel" onclick="cancelPopup()">Cancel</button>
+    <p>Some information here</p>
+
+    <button class="btn_okay">Okay</button>
+    <button class="btn_cancel" onclick="cancelPopup()">Cancel</button>
 </form>
+</div> -->
+
+
+
+<div class="info_popup_background" id="infoBackground">
+    <div class="info_popup" id="infoPopup">
+        <div class="info_popup_content">
+            <h1>Information</h1>
+            <p>Some information here updated</p>
+            <button class="btn_okay">Okay</button>
+            <!-- <button class="btn_cancel" onclick="cancelPopup()">Cancel</button> -->
+            <button class="btn_cancel">Cancel</button>
+        </div>
+    </div>
 </div>
