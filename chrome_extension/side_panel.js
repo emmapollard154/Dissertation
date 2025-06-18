@@ -52,7 +52,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                     // send message to the content script in the active tab
                     chrome.tabs.sendMessage(activeTab.id, {
                         action: 'clickedOnEmail',
-                        data: browserData
+                        // data: browserData
                     }, function(response) {
                         if (chrome.runtime.lastError) {
                             console.error('side_panel: Error sending message to content script:', chrome.runtime.lastError.message);
