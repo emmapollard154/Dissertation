@@ -7,15 +7,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
         // const receivedData = request;
 
-        document.addEventListener('click', function(event) {
-            console.log('Click detected in email browser', event.target);
+        document.addEventListener('mousedown', function(event) {
+            console.log('Mouse down detected in email browser', event.target);
 
             if (event.target.matches("button")) {
-                console.log("BUTTON CLICKED IN EMAIL BROWSER")
+                console.log("BUTTON PRESSED IN EMAIL BROWSER")
             }
 
             if (event.target.matches("a")) {
-                console.log("LINK CLICKED IN EMAIL BROWSER")
+                console.log("LINK PRESSED IN EMAIL BROWSER")
             }
 
         });
