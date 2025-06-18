@@ -1,52 +1,59 @@
 // content script for email browser
 
-let infoPopup = null; // reference to information popup
+// references to html elements
+let infoBackground = null;
+let infoPopup = null;
+let okayInfo = null;
+let cancelInfo = null;
 
 // function to fetch and inject HTML and attach event listeners
 async function injectInfoHtml() {
 
+    infoBackground = document.getElementById('infoBackground');
     infoPopup = document.getElementById('infoPopup');
-    if (infoPopup) {
-        console.log("infoPopup already exists");
-        infoPopup.style.display = 'block'; // show infoPopup
+    okayInfo = document.getElementById('okayInfo');
+    cancelInfo = document.getElementById('cancelInfo');
+
+    if (infoBackground && infoPopup && okayInfo && cancelInfo) {
+        console.log("All information html elements already exist");
+        infoBackground.style.display = 'block'; // show popup
         return;
     }
 
     try {
-        // Construct the full URL to your popup.html within the extension
-        const popupHtml = chrome.runtime.getURL('information_popup.html');
-        console.log("Fetching popup HTML from:", popupHtml);
+        const infoHtml = chrome.runtime.getURL('information_popup.html');
+        console.log("Fetching popup HTML from:", infoHtml);
 
-        const response = await fetch(popupHtml);
+        const response = await fetch(infoHtml);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        let popupHtmlContent = await response.text();
+        let infoHtmlContent = await response.text();
 
         // Replace the CSS link placeholder with the actual extension URL
         const cssUrl = chrome.runtime.getURL('information_popup.css');
-        popupHtmlContent = popupHtmlContent.replace('${chrome.runtime.getURL(\'information_popup.css\')}', cssUrl);
+        infoHtmlContent = infoHtmlContent.replace('${chrome.runtime.getURL(\'information_popup.css\')}', cssUrl);
         console.log("Injected popup HTML content prepared.");
 
         // Create a temporary div to parse the HTML string
         const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = popupHtmlContent;
+        tempDiv.innerHTML = infoHtmlContent;
 
         while (tempDiv.firstChild) {
             document.body.appendChild(tempDiv.firstChild);
         }
 
-        infoPopup = document.getElementById('infoPopup');
+        // infoPopup = document.getElementById('infoPopup');
+        infoBackground = document.getElementById('infoBackground');
+
         
-        if (infoPopup) {
+        if (infoBackground) {
             // document.body.appendChild(infoPopup);
             console.log("Popup HTML injected into the page body.");
 
-            // Now that it's in the DOM, attach event listeners
-            // attachPopupEventListeners(infoPopup);
+            attachPopupEventListeners(infoBackground);
 
-            // Show the popup (it's initially hidden by CSS)
-            infoPopup.style.display = 'block';
+            infoBackground.style.display = 'block'; // show popup, initially hidden by CSS
         } else {
             console.error("Failed to find #infoPopup within the fetched HTML content.");
         }
@@ -56,37 +63,33 @@ async function injectInfoHtml() {
     }
 }
 
-// // Function to attach event listeners to the buttons within the popup
-// function attachPopupEventListeners(popupEl) {
-//     if (!popupEl) return;
+// Function to attach event listeners to the buttons within the popup
+function attachPopupEventListeners(informationPopup) {
+    if (!informationPopup) return;
 
-//     const okayButton = popupEl.querySelector('.btn-okay');
-//     const cancelButton = popupEl.querySelector('.btn-cancel');
+    const okayInfo = document.getElementById('okayInfo');
+    const cancelInfo = document.getElementById('.cancelInfo');
 
-//     if (okayButton) {
-//         okayButton.addEventListener('click', function(event) {
-//             event.preventDefault(); // Prevent form submission
-//             console.log("Okay button clicked!");
-//             popupEl.style.display = 'none'; // Hide the popup
-//             // Optionally, send a message back to the background script
-//             chrome.runtime.sendMessage({ action: "popupAction", status: "okay" });
-//         });
-//     } else {
-//         console.warn("Okay button not found in popup.");
-//     }
+    if (okayInfo) {
+        okayInfo.addEventListener('click', function(event) {
+            // event.preventDefault(); // Prevent form submission
+            console.log("Okay button clicked!");
+            informationPopup.style.display = 'none';
+        });
+    } else {
+        console.warn("Okay button not found in popup.");
+    }
 
-//     if (cancelButton) {
-//         cancelButton.addEventListener('click', function(event) {
-//             event.preventDefault(); // Prevent default button behavior
-//             console.log("Cancel button clicked!");
-//             popupEl.style.display = 'none'; // Hide the popup
-//             // Optionally, send a message back to the background script
-//             chrome.runtime.sendMessage({ action: "popupAction", status: "cancel" });
-//         });
-//     } else {
-//         console.warn("Cancel button not found in popup.");
-//     }
-// }
+    if (cancelInfo) {
+        cancelInfo.addEventListener('click', function(event) {
+            // event.preventDefault(); // Prevent default button behavior
+            console.log("Cancel button clicked!");
+            informationPopup.style.display = 'none';
+        });
+    } else {
+        console.warn("Cancel button not found in popup.");
+    }
+}
 
 
 

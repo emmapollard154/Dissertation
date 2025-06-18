@@ -1,39 +1,3 @@
-/* 
-.information_popup {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  right: 15px;
-  border: 3px solid #f1f1f1;
-  z-index: 9;
-}
-
-.info_container {
-  max-width: 300px;
-  padding: 10px;
-  background-color: white;
-}
-
-.info_container .btn {
-  background-color: #04AA6D;
-  color: white;
-  padding: 16px 20px;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  margin-bottom:10px;
-  opacity: 0.8;
-}
-
-.info_container .cancel {
-  background-color: red;
-}
-
-.info_container .btn:hover, .open-button:hover {
-  opacity: 1;
-} */
-
-
 .info_popup_background {
     display: none;
     position: fixed;
