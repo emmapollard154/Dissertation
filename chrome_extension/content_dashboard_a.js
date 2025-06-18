@@ -1,11 +1,11 @@
 // content script for chrome extension
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log('content.js received message from:', sender.id, 'with data:', request);
+    console.log('content_dashboard_a.js received message from:', sender.id, 'with data:', request);
 
     if (request.action === 'browsingHistoryUpdate') { 
         const receivedData = request;
-        console.log('Content Script: Processing data from side_panel:', receivedData);
+        console.log('Content Script (Dashboard A): Processing data from side_panel:', receivedData);
 
         window.postMessage({
             type: 'BROWSING_DATA',
