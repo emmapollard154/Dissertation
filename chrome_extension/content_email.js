@@ -6,7 +6,13 @@ let infoPopup = null;
 let okayInfo = null;
 let cancelInfo = null;
 
-// function to fetch and inject HTML and attach event listeners
+let menuBackground = null;
+let menuPopup = null;
+// let OPTION BUTTONS / PANEL = null;
+let okayMenu = null;
+let backMenu = null;
+
+// function to fetch and inject HTML and attach listeners for information popup
 async function injectInfoHtml() {
 
     infoBackground = document.getElementById('infoBackground');
@@ -25,13 +31,13 @@ async function injectInfoHtml() {
         console.log("Fetching popup HTML from:", infoHtml);
 
         const response = await fetch(infoHtml);
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        let infoHtmlContent = await response.text();
 
-        // Replace the CSS link placeholder with the actual extension URL
-        const cssUrl = chrome.runtime.getURL('information_popup.css');
+        let infoHtmlContent = await response.text();
+        const cssUrl = chrome.runtime.getURL('information_popup.css'); // replace the CSS link placeholder with the actual extension URL
         infoHtmlContent = infoHtmlContent.replace('${chrome.runtime.getURL(\'information_popup.css\')}', cssUrl);
         console.log("Injected popup HTML content prepared.");
 
@@ -42,15 +48,15 @@ async function injectInfoHtml() {
         while (tempDiv.firstChild) {
             document.body.appendChild(tempDiv.firstChild);
         }
+
         infoBackground = document.getElementById('infoBackground');
 
-        
         if (infoBackground) {
             console.log("Popup HTML injected into the page body.");
-            attachPopupEventListeners(infoBackground);
+            attachInfoListeners(infoBackground);
             infoBackground.style.display = 'block'; // show popup, initially hidden
         } else {
-            console.error("Failed to find #infoPopup within the fetched HTML content.");
+            console.error("Failed to find infoBackground within the fetched HTML content.");
         }
 
     } catch (error) {
@@ -58,8 +64,63 @@ async function injectInfoHtml() {
     }
 }
 
-// Function to attach event listeners to the buttons within the popup
-function attachPopupEventListeners(informationPopup) {
+
+// function to fetch and inject HTML and attach listeners for menu popup
+async function injectMenuHtml() {
+
+    menuBackground = document.getElementById('menuBackground');
+    menuPopup = document.getElementById('menuPopup');
+    // TO DO OPTIONS PANEL
+    okayMenu = document.getElementById('okayMenu');
+    backMenu = document.getElementById('backMenu');
+
+    if (menuBackground && menuPopup && okayMenu && backMenu) {
+        console.log("All menu html elements already exist");
+        menuBackground.style.display = 'block'; // show popup
+        return;
+    }
+
+    try {
+        const menuHtml = chrome.runtime.getURL('menu_popup.html');
+        console.log("Fetching popup HTML from:", menuHtml);
+
+        const response = await fetch(menuHtml);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        let menuHtmlContent = await response.text();
+        const cssUrl = chrome.runtime.getURL('menu_popup.css'); // replace the CSS link placeholder with the actual extension URL
+        menuHtmlContent = menuHtmlContent.replace('${chrome.runtime.getURL(\'menu_popup.css\')}', cssUrl);
+        console.log("Injected popup HTML content prepared.");
+
+        // Create a temporary div to parse the HTML string
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = menuHtmlContent;
+
+        while (tempDiv.firstChild) {
+            document.body.appendChild(tempDiv.firstChild);
+        }
+
+        menuBackground = document.getElementById('menuBackground');
+
+        if (menuBackground) {
+            console.log("Popup HTML injected into the page body.");
+            attachMenuListeners(menuBackground);
+            menuBackground.style.display = 'block'; // show popup, initially hidden
+        } else {
+            console.error("Failed to find menuBackground within the fetched HTML content.");
+        }
+
+    } catch (error) {
+        console.error("Error injecting popup HTML:", error);
+    }
+}
+
+
+// Function to attach event listeners to the information popup buttons
+function attachInfoListeners(informationPopup) {
     if (!informationPopup) return;
 
     const okayInfo = document.getElementById('okayInfo');
@@ -68,7 +129,7 @@ function attachPopupEventListeners(informationPopup) {
     if (okayInfo) {
         okayInfo.addEventListener('click', function(event) {
             event.preventDefault();
-            console.log("Okay button clicked!");
+            console.log("Okay button clicked in info popup");
             informationPopup.style.display = 'none';
         });
     } else {
@@ -78,7 +139,7 @@ function attachPopupEventListeners(informationPopup) {
     if (cancelInfo) {
         cancelInfo.addEventListener('click', function(event) {
             event.preventDefault();
-            console.log("Cancel button clicked!");
+            console.log("Cancel button clicked in info popup");
             informationPopup.style.display = 'none';
         });
     } else {
@@ -87,7 +148,33 @@ function attachPopupEventListeners(informationPopup) {
 }
 
 
+// Function to attach event listeners to the menu popup buttons
+function attachMenuListeners(menuPopup) {
+    if (!menuPopup) return;
 
+    const okayMenu = document.getElementById('okayMenu');
+    const backMenu = document.getElementById('backMenu');
+
+    if (okayMenu) {
+        okayMenu.addEventListener('click', function(event) {
+            event.preventDefault();
+            console.log("Okay button clicked in menu");
+            menuPopup.style.display = 'none';
+        });
+    } else {
+        console.warn("Okay button not found in popup.");
+    }
+
+    if (backMenu) {
+        backMenu.addEventListener('click', function(event) {
+            event.preventDefault();
+            console.log("Back button clicked in menu");
+            menuPopup.style.display = 'none';
+        });
+    } else {
+        console.warn("Back button not found in popup.");
+    }
+}
 
 
 
@@ -113,19 +200,19 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 if (btnText.includes("Reply") || btnText.includes("Forward")) {
                     console.log("'Forward' or 'Reply' pressed");
                     event.preventDefault();
-                    injectInfoHtml();
+                    // injectInfoHtml();
+                    injectMenuHtml();
                 } else {
                     console.log("Safe button pressed");
                 }
-
-
             }
 
             if (event.target.matches("a")) {
                 const eventDetected = "link pressed";
                 console.log("LINK PRESSED IN EMAIL BROWSER");
                 event.preventDefault();
-                injectInfoHtml();
+                // injectInfoHtml();
+                injectMenuHtml();
             }
 
         }, true); // capturing listener

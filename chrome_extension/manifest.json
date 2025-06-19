@@ -45,7 +45,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["information_popup.html", "information_popup.css"],
+      "resources": ["information_popup.html", "information_popup.css", "menu_popup.html", "menu_popup.css"],
       "matches": ["http://localhost:5174/*"]
     }
   ]
