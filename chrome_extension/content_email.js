@@ -42,18 +42,13 @@ async function injectInfoHtml() {
         while (tempDiv.firstChild) {
             document.body.appendChild(tempDiv.firstChild);
         }
-
-        // infoPopup = document.getElementById('infoPopup');
         infoBackground = document.getElementById('infoBackground');
 
         
         if (infoBackground) {
-            // document.body.appendChild(infoPopup);
             console.log("Popup HTML injected into the page body.");
-
             attachPopupEventListeners(infoBackground);
-
-            infoBackground.style.display = 'block'; // show popup, initially hidden by CSS
+            infoBackground.style.display = 'block'; // show popup, initially hidden
         } else {
             console.error("Failed to find #infoPopup within the fetched HTML content.");
         }
