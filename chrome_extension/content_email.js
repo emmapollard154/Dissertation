@@ -63,11 +63,11 @@ function attachPopupEventListeners(informationPopup) {
     if (!informationPopup) return;
 
     const okayInfo = document.getElementById('okayInfo');
-    const cancelInfo = document.getElementById('.cancelInfo');
+    const cancelInfo = document.getElementById('cancelInfo');
 
     if (okayInfo) {
         okayInfo.addEventListener('click', function(event) {
-            // event.preventDefault(); // Prevent form submission
+            event.preventDefault();
             console.log("Okay button clicked!");
             informationPopup.style.display = 'none';
         });
@@ -77,7 +77,7 @@ function attachPopupEventListeners(informationPopup) {
 
     if (cancelInfo) {
         cancelInfo.addEventListener('click', function(event) {
-            // event.preventDefault(); // Prevent default button behavior
+            event.preventDefault();
             console.log("Cancel button clicked!");
             informationPopup.style.display = 'none';
         });
