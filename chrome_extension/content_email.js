@@ -22,7 +22,6 @@ async function injectInfoHtml() {
 
     if (infoBackground && infoPopup && okayInfo && cancelInfo) {
         console.log("All information html elements already exist");
-        infoBackground.style.display = 'block'; // show popup
         return;
     }
 
@@ -54,7 +53,6 @@ async function injectInfoHtml() {
         if (infoBackground) {
             console.log("Popup HTML injected into the page body.");
             attachInfoListeners(infoBackground);
-            infoBackground.style.display = 'block'; // show popup, initially hidden
         } else {
             console.error("Failed to find infoBackground within the fetched HTML content.");
         }
@@ -76,7 +74,6 @@ async function injectMenuHtml() {
 
     if (menuBackground && menuPopup && okayMenu && backMenu) {
         console.log("All menu html elements already exist");
-        menuBackground.style.display = 'block'; // show popup
         return;
     }
 
@@ -108,7 +105,6 @@ async function injectMenuHtml() {
         if (menuBackground) {
             console.log("Popup HTML injected into the page body.");
             attachMenuListeners(menuBackground);
-            menuBackground.style.display = 'block'; // show popup, initially hidden
         } else {
             console.error("Failed to find menuBackground within the fetched HTML content.");
         }
@@ -130,7 +126,12 @@ function attachInfoListeners(informationPopup) {
         okayInfo.addEventListener('click', function(event) {
             event.preventDefault();
             console.log("Okay button clicked in info popup");
-            informationPopup.style.display = 'none';
+            if (menuBackground) {
+                informationPopup.style.display = 'none'; // hide info popup
+                menuBackground.style.display = 'block'; // show menu popup
+            } else {
+                console.warn("Cannot find menu popup");
+            }
         });
     } else {
         console.warn("Okay button not found in popup.");
@@ -169,7 +170,10 @@ function attachMenuListeners(menuPopup) {
         backMenu.addEventListener('click', function(event) {
             event.preventDefault();
             console.log("Back button clicked in menu");
-            menuPopup.style.display = 'none';
+            if (infoBackground) {
+                menuBackground.style.display = 'none'; // hide menu popup
+                infoBackground.style.display = 'block'; // show info popup
+            }
         });
     } else {
         console.warn("Back button not found in popup.");
@@ -188,6 +192,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
         const eventDetected = "onEmailPage"
 
+        injectInfoHtml();
+        injectMenuHtml();
+
         document.addEventListener('click', function(event) {
             console.log('Mouse down detected in email browser', event.target);
 
@@ -200,8 +207,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 if (btnText.includes("Reply") || btnText.includes("Forward")) {
                     console.log("'Forward' or 'Reply' pressed");
                     event.preventDefault();
-                    // injectInfoHtml();
-                    injectMenuHtml();
+                    if (infoBackground) {
+                        infoBackground.style.display = 'block'; // show popup
+                    } else {
+                        console.warn("infoBackground not found");
+                    }
                 } else {
                     console.log("Safe button pressed");
                 }
@@ -211,8 +221,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 const eventDetected = "link pressed";
                 console.log("LINK PRESSED IN EMAIL BROWSER");
                 event.preventDefault();
-                // injectInfoHtml();
-                injectMenuHtml();
+                if (infoBackground) {
+                    infoBackground.style.display = 'block'; // show popup
+                } else {
+                    console.warn("infoBackground not found");
+                }
             }
 
         }, true); // capturing listener
