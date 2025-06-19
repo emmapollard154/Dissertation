@@ -104,12 +104,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         document.addEventListener('click', function(event) {
             console.log('Mouse down detected in email browser', event.target);
 
-            if (event.target.matches("button")) {
-                const eventDetected = "button pressed";
-                console.log("BUTTON PRESSED IN EMAIL BROWSER");
-                event.preventDefault();
-                injectInfoHtml();
-            }
+            // if (event.target.matches("button")) {
+            //     const eventDetected = "button pressed";
+            //     console.log("BUTTON PRESSED IN EMAIL BROWSER");
+            //     event.preventDefault();
+            //     injectInfoHtml();
+            // }
 
             if (event.target.matches("a")) {
                 const eventDetected = "link pressed";
