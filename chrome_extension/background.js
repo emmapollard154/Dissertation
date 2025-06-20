@@ -79,8 +79,8 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === "openDashboard") {
 		console.log("Opening dashboard in new tab");
-        chrome.tabs.create({ url: request.url });
-    }
+		chrome.tabs.create({ url: DASHBOARD_A_LOCATION });
+	}
 });
 
 

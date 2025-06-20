@@ -6,28 +6,29 @@
         <div class="menu_popup_content">
             <h1>Menu</h1>
 
-            <form action="${chrome.runtime.getURL('get_radio_result.js')}">
+            <form id="user_a_choice" name="menu-form">
                 <label class="options_container">Option 1
-                <input type="radio" name="user_a_choices">
+                <input type="radio" name="user_a_choices" value="Option 1" checked>
                 <span class="checkmark"></span>
                 </label>
                 <label class="options_container">Option 2
-                <input type="radio" name="user_a_choices">
+                <input type="radio" name="user_a_choices" value="Option 2">
                 <span class="checkmark"></span>
                 </label>
                 <label class="options_container">Option 3
-                <input type="radio" name="user_a_choices">
+                <input type="radio" name="user_a_choices" value="Option 3">
                 <span class="checkmark"></span>
                 </label>
                 <label class="options_container">Option 4
-                <input type="radio" name="user_a_choices">
+                <input type="radio" name="user_a_choices" value="Option 4">
                 <span class="checkmark"></span>
                 </label>
-                <input type="submit" value="Submit">
+
+                <button class="btn_okay" id="okayMenu">Okay</button>
+                <button class="btn_back" id="backMenu">Back</button>
+
             </form>
 
-            <button class="btn_okay" id="okayMenu">Okay</button>
-            <button class="btn_back" id="backMenu">Back</button>
 
         </div>
     </div>

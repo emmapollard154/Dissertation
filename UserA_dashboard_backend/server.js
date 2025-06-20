@@ -15,6 +15,8 @@ const db = new sqlite3.Database('./dashboard.db', (err) => {
         console.error('Error connecting to database:', err.message);
     } else {
         console.log('Connected to the SQLite database.');
+
+        // create table for browsing history
         db.run(`CREATE TABLE IF NOT EXISTS browsingHistory (
             url VARCHAR(255),
             time DATETIME
@@ -22,21 +24,39 @@ const db = new sqlite3.Database('./dashboard.db', (err) => {
             if (createErr) {
                 console.error('Error creating table:', createErr.message);
             } else {
-                console.log('Table "browsingHistory" created.');
+                console.log('browsingHistory table created.');
             }
         });
+
+        // create table for user A actions
+        db.run(`CREATE TABLE IF NOT EXISTS action (
+            actionID INT,
+            context VARCHAR(32),
+            userAChoice CHARACTER(1),
+            time DATETIME,
+            response CHARACTER(1),
+            responseOutcome CHARACTER(1)
+        )`, (createErr) => {
+            if (createErr) {
+                console.error('Error creating table:', createErr.message);
+            } else {
+                console.log('action table created.');
+            }
+        });
+
     }
 });
 
 
-// API endpoint to get dashboard data
-app.get('/api/dashboard-data', (req, res) => {
+// API endpoints to get dashboard data
+app.get('/api/dashboard-data/browsingHistory', (req, res) => {
+
     db.all('SELECT * FROM browsingHistory', [], (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });
             return;
         }
-        console.log("Successfully retrieved dashboard-data")
+        console.log("Successfully retrieved dashboard-data/browsingHistory");
         res.json({
             message: 'Success',
             data: rows
@@ -44,22 +64,64 @@ app.get('/api/dashboard-data', (req, res) => {
     });
 });
 
+app.get('/api/dashboard-data/action', (req, res) => {
+
+    db.all('SELECT * FROM action', [], (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        console.log("Successfully retrieved dashboard-data/action");
+        res.json({
+            message: 'Success',
+            data: rows
+        });
+    });
+});
 
 // handler for frontend POST requests
 app.post('/api/dashboard-data', (req, res) => {
-    const dataFromFrontend = req.body; // data received from frontend
 
-    console.log('Received POST request data:', dataFromFrontend);
+    const target = req.body.target;
+    const data = req.body.data;
 
-    try{
-        const stmt = db.prepare('INSERT INTO browsingHistory (url, time) VALUES (?, ?)');
-        stmt.run(dataFromFrontend.data.newUrl, dataFromFrontend.data.newTime);
+    console.log("POST target: ", target);
+
+    console.log('Received POST request data:', req.body);
+
+    if (target === 'BROWSING_DATA') {
+        
+        try{
+            console.log("Inserting into browsingHistory table");
+            const stmt = db.prepare('INSERT INTO browsingHistory (url, time) VALUES (?, ?)');
+            stmt.run(data.newUrl, data.newTime);
+        }
+        catch(err) {
+            console.error('Database insertion error:', err.message);
+            return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
+        }
+        res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
     }
-    catch(err) {
-        console.error('Database insertion error:', err.message);
-        return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
+
+    if (target === 'USER_A_CHOICE') {
+
+        const id = data.id;
+        const choice = data.choice;
+        const time = data.time;
+        const context = data.context;
+
+        
+        try{
+            console.log("Inserting into action table");
+            const stmt = db.prepare('INSERT INTO action (actionID, context, userAChoice, time, response, responseOutcome) VALUES (?, ?, ?, ?, ?, ?)');
+            stmt.run(id, context, choice, time, 'NULL', 'NULL');
+        }
+        catch(err) {
+            console.error('Database insertion error:', err.message);
+            return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
+        }
+        res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
     }
-    res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
 
 });
 

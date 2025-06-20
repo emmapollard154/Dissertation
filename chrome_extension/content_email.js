@@ -8,7 +8,7 @@ let cancelInfo = null;
 
 let menuBackground = null;
 let menuPopup = null;
-// let OPTION BUTTONS / PANEL = null;
+let menuChoice = null; // radio
 let okayMenu = null;
 let backMenu = null;
 
@@ -68,7 +68,7 @@ async function injectMenuHtml() {
 
     menuBackground = document.getElementById('menuBackground');
     menuPopup = document.getElementById('menuPopup');
-    // TO DO OPTIONS PANEL
+    menuChoice = document.getElementById('user_a_choice');
     okayMenu = document.getElementById('okayMenu');
     backMenu = document.getElementById('backMenu');
 
@@ -148,18 +148,52 @@ function attachInfoListeners(informationPopup) {
     }
 }
 
+// function to get current time in sqlite datetime format
+function timeToDatetime() {
+    const now = new Date().toISOString();
+
+    const [date, rawTime] = now.split('T');
+    const time = rawTime.split('.')[0];
+    return `${date} ${time}`;
+}
+
+// function to get unique ID for email actions
+function emailID() {
+    const now = new Date().toISOString();
+    var id = now.replace(/\D/g, ""); // keep only numeric values from timestamp
+    return `e${id}`;
+}
+
+// Function to send user selected choice in menu popup to background script
+function sendChoice(choice) {
+    const time =  timeToDatetime();
+    const id = emailID();
+    chrome.runtime.sendMessage({ action: "sendChoiceToDashboardA", id: id, choice: choice, time: time });
+}
 
 // Function to attach event listeners to the menu popup buttons
 function attachMenuListeners(menuPopup) {
     if (!menuPopup) return;
 
+    const menuChoice = document.getElementById('user_a_choice');
     const okayMenu = document.getElementById('okayMenu');
     const backMenu = document.getElementById('backMenu');
+
+    if (!menuChoice) {
+        console.warn("Form not found in menu popup.");
+    }
 
     if (okayMenu) {
         okayMenu.addEventListener('click', function(event) {
             event.preventDefault();
             console.log("Okay button clicked in menu");
+            const choice = menuChoice.elements["user_a_choices"].value;
+            if (choice) {
+                console.log("User A selected: ", choice);
+                sendChoice(choice);
+            } else {
+                console.warn("No choice made")
+            }
             menuPopup.style.display = 'none';
         });
     } else {
@@ -196,7 +230,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         injectMenuHtml();
 
         document.addEventListener('click', function(event) {
-            console.log('Mouse down detected in email browser', event.target);
 
             if (event.target.matches("button")) {
                 const eventDetected = "button pressed";

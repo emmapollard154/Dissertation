@@ -48,8 +48,7 @@
       "resources": ["information_popup.html",
                     "information_popup.css",
                     "menu_popup.html",
-                    "menu_popup.css",
-                    "get_radio_result.js"],
+                    "menu_popup.css"],
       "matches": ["http://localhost:5174/*"]
     }
   ]
