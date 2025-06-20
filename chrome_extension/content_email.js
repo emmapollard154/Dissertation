@@ -148,9 +148,27 @@ function attachInfoListeners(informationPopup) {
     }
 }
 
+// function to get current time in sqlite datetime format
+function timeToDatetime() {
+    const now = new Date().toISOString();
+
+    const [date, rawTime] = now.split('T');
+    const time = rawTime.split('.')[0];
+    return `${date} ${time}`;
+}
+
+// function to get unique ID for email actions
+function emailID() {
+    const now = new Date().toISOString();
+    var id = now.replace(/\D/g, ""); // keep only numeric values from timestamp
+    return `e${id}`;
+}
+
 // Function to send user selected choice in menu popup to background script
 function sendChoice(choice) {
-    chrome.runtime.sendMessage({ action: "sendChoiceToDashboardA", choice: choice });
+    const time =  timeToDatetime();
+    const id = emailID();
+    chrome.runtime.sendMessage({ action: "sendChoiceToDashboardA", id: id, choice: choice, time: time });
 }
 
 // Function to attach event listeners to the menu popup buttons

@@ -81,7 +81,9 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
     if (message.action === 'sendChoiceToDashboardA') {
 
+        const id = message.id;
         const choice = message.choice;
+        const time = message.time;
 
         chrome.tabs.query({ url: "http://localhost:5173/*" }, (tabs) => {
             if (tabs && tabs.length > 0) {
@@ -90,8 +92,11 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
                 // send message to the content script in the active tab
                 chrome.tabs.sendMessage(activeTab.id, {
-                    action: 'userAChoice',
-                    data: choice
+                    action: 'emailAChoice',
+                    id: id,
+                    // data: choice
+                    choice: choice,
+                    time: time
                 }, function(response) {
                     if (chrome.runtime.lastError) {
                         console.error('side_panel: Error sending message to content script:', chrome.runtime.lastError.message);

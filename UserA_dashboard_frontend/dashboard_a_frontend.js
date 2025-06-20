@@ -1,7 +1,7 @@
 // script running on dashboard page (e.g., http://localhost:5173)
 
 // function to send data from frontend to backend
-async function sendHistoryToBackend(data) {
+async function sendDataToBackend(data) {
     try {
         const response = await fetch('http://localhost:5000/api/dashboard-data', {
             method: 'POST',
@@ -22,9 +22,7 @@ async function sendHistoryToBackend(data) {
 
     } catch (error) {
         console.error('Error sending data to backend:', error);
-        // Handle network errors or other exceptions
-        // You can update your UI to show an error message
-        throw error; // Re-throw to allow further handling if needed
+        // throw error; // Re-throw to allow further handling if needed
     }
 }
 
@@ -38,17 +36,28 @@ window.addEventListener('message', function(event) {
 
     if (event.data && event.data.type === 'BROWSING_DATA') {
         const receivedData = event.data.payload;
-        console.log('Dashboard: Received data from Chrome extension:', receivedData);
+        console.log('Dashboard: Received data from Chrome extension:', receivedData.data);
 
-        sendHistoryToBackend(receivedData)
+        const data = {
+            data: receivedData.data,
+            target: 'BROWSING_DATA'
+        }
+
+        sendDataToBackend(data);
     }
 
     if (event.data && event.data.type === 'USER_A_CHOICE') {
-        const choice = event.data.payload;
-        console.log('Dashboard: Received choice data from Chrome extension:', choice);
 
-        // TO DO, send choice to backend
-        
+        const receivedData = event.data.payload;
+
+        console.log('Dashboard: Received choice data from Chrome extension:', receivedData);
+
+        const data = {
+            data: receivedData,
+            target: 'USER_A_CHOICE'
+        }
+
+        sendDataToBackend(data);
     }
 
 });

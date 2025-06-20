@@ -16,16 +16,26 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         sendResponse({ status: 'content_script_received_and_processed', dataProcessed: receivedData });
     }
 
-    if (request.action === "userAChoice") {
+    if (request.action === "emailAChoice") {
 
-        const choice = request.data;
+        const id = request.id
+        const choice = request.choice;
+        const time = request.time
+
+        const payload = {
+            id: id,
+            choice: choice,
+            time: time,
+            context: "Email"
+        }
+
 
 		console.log('Content Script (Dashboard A): choice received - ', choice)
 		console.log("Sending choice to dashboard A");
 
         window.postMessage({
             type: 'USER_A_CHOICE',
-            payload: choice
+            payload: payload
         }, 'http://localhost:5173');
 
         sendResponse({ status: 'content_script_received_and_processed', dataProcessed: choice });
