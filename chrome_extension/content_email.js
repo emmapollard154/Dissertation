@@ -8,8 +8,7 @@ let cancelInfo = null;
 
 let menuBackground = null;
 let menuPopup = null;
-let menuChoice = null; // radio result
-// let OPTION BUTTONS / PANEL = null;
+let menuChoice = null; // radio
 let okayMenu = null;
 let backMenu = null;
 
@@ -70,7 +69,6 @@ async function injectMenuHtml() {
     menuBackground = document.getElementById('menuBackground');
     menuPopup = document.getElementById('menuPopup');
     menuChoice = document.getElementById('user_a_choice');
-    // TO DO OPTIONS PANEL
     okayMenu = document.getElementById('okayMenu');
     backMenu = document.getElementById('backMenu');
 
@@ -158,14 +156,7 @@ function attachMenuListeners(menuPopup) {
     const okayMenu = document.getElementById('okayMenu');
     const backMenu = document.getElementById('backMenu');
 
-    if (menuChoice) {
-        menuChoice.addEventListener('submit', function(event) {
-            console.log("Submit detected")
-            event.preventDefault();
-            const choice = menuChoice.elements["user_a_choices"].value;
-            console.log("User A selected: ", choice);
-        });
-    } else {
+    if (!menuChoice) {
         console.warn("Form not found in menu popup.");
     }
 
@@ -173,9 +164,12 @@ function attachMenuListeners(menuPopup) {
         okayMenu.addEventListener('click', function(event) {
             event.preventDefault();
             console.log("Okay button clicked in menu");
-            // const choice = menuChoice.elements.user_a_choices.value;
             const choice = menuChoice.elements["user_a_choices"].value;
-            console.log("User A selected: ", choice);
+            if (choice) {
+                console.log("User A selected: ", choice);
+            } else {
+                console.warn("No choice made")
+            }
             menuPopup.style.display = 'none';
         });
     } else {
