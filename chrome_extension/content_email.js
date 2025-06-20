@@ -148,6 +148,11 @@ function attachInfoListeners(informationPopup) {
     }
 }
 
+// Function to send user selected choice in menu popup to background script
+function sendChoice(choice) {
+    chrome.runtime.sendMessage({ action: "sendChoiceToDashboardA", choice: choice });
+}
+
 // Function to attach event listeners to the menu popup buttons
 function attachMenuListeners(menuPopup) {
     if (!menuPopup) return;
@@ -167,6 +172,7 @@ function attachMenuListeners(menuPopup) {
             const choice = menuChoice.elements["user_a_choices"].value;
             if (choice) {
                 console.log("User A selected: ", choice);
+                sendChoice(choice);
             } else {
                 console.warn("No choice made")
             }

@@ -1,4 +1,4 @@
-// content script for chrome extension
+// content script for dashboard A from chrome extension
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     console.log('content_dashboard_a.js received message from:', sender.id, 'with data:', request);
@@ -15,6 +15,22 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         // send response to side_panel
         sendResponse({ status: 'content_script_received_and_processed', dataProcessed: receivedData });
     }
+
+    if (request.action === "userAChoice") {
+
+        const choice = request.data;
+
+		console.log('Content Script (Dashboard A): choice received - ', choice)
+		console.log("Sending choice to dashboard A");
+
+        window.postMessage({
+            type: 'USER_A_CHOICE',
+            payload: choice
+        }, 'http://localhost:5173');
+
+        sendResponse({ status: 'content_script_received_and_processed', dataProcessed: choice });
+    }	
+
 });
 
 console.log('Content script (dashboard) loaded and listening for messages.');

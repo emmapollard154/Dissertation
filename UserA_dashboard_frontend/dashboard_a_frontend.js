@@ -41,9 +41,16 @@ window.addEventListener('message', function(event) {
         console.log('Dashboard: Received data from Chrome extension:', receivedData);
 
         sendHistoryToBackend(receivedData)
-
-
     }
+
+    if (event.data && event.data.type === 'USER_A_CHOICE') {
+        const choice = event.data.payload;
+        console.log('Dashboard: Received choice data from Chrome extension:', choice);
+
+        // TO DO, send choice to backend
+        
+    }
+
 });
 
 console.log('Dashboard script (dashboard_a_frontend) loaded and listening for messages.');

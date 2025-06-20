@@ -2,8 +2,8 @@
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     console.log("side_panel received message type:", message.action);
-    document.getElementById('currentURL').innerText = message.newUrlMessage[0];
-    document.getElementById('currentTimestamp').innerText = message.newUrlMessage[1];
+    // document.getElementById('currentURL').innerText = message.newUrlMessage[0];
+    // document.getElementById('currentTimestamp').innerText = message.newUrlMessage[1];
 
 
     if (message.action === 'sendUrlToDashboard') {
@@ -73,5 +73,40 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
         return true; // sendResponse is called asynchronously
     }
+
+
+    if (message.action === 'sendChoiceToDashboardA') {
+
+        const choice = message.choice;
+
+        chrome.tabs.query({ url: "http://localhost:5173/*" }, (tabs) => {
+            if (tabs && tabs.length > 0) {
+                const activeTab = tabs[0];
+                console.log('side_panel: Sending message to content script in tab:', activeTab.id);
+
+                // send message to the content script in the active tab
+                chrome.tabs.sendMessage(activeTab.id, {
+                    action: 'userAChoice',
+                    data: choice
+                }, function(response) {
+                    if (chrome.runtime.lastError) {
+                        console.error('side_panel: Error sending message to content script:', chrome.runtime.lastError.message);
+                        sendResponse({ status: 'failed', error: chrome.runtime.lastError.message });
+                    } else {
+                        console.log('side_panel: Content script responded:', response);
+                        sendResponse({ status: 'success', contentScriptResponse: response });
+                    }
+                });
+            } else {
+                console.warn('side_panel: No active tab found to send message to.');
+                sendResponse({ status: 'failed', error: 'No active tab found' });
+            }
+        });
+
+
+
+    }    
+
+
 });
 
