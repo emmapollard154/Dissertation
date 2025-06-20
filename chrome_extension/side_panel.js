@@ -2,14 +2,18 @@
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     console.log("side_panel received message type:", message.action);
-    // document.getElementById('currentURL').innerText = message.newUrlMessage[0];
-    // document.getElementById('currentTimestamp').innerText = message.newUrlMessage[1];
 
 
     if (message.action === 'sendUrlToDashboard') {
 
+        // document.getElementById('currentURL').innerText = message.newUrlMessage[0];
+        // document.getElementById('currentTimestamp').innerText = message.newUrlMessage[1];
+
         const urlReceived =  message.newUrlMessage[0];
         const timeReceived =  message.newUrlMessage[1];
+
+        document.getElementById('currentURL').innerText = urlReceived;
+        document.getElementById('currentTimestamp').innerText = timeReceived;
 
         const browserData = {
             newUrl:  urlReceived,
