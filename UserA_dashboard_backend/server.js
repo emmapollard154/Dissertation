@@ -34,7 +34,7 @@ const db = new sqlite3.Database('./dashboard.db', (err) => {
             context VARCHAR(32),
             userAChoice CHARACTER(1),
             time DATETIME,
-            response CHARACTER(1),
+            resolved CHARACTER(1),
             responseOutcome CHARACTER(1)
         )`, (createErr) => {
             if (createErr) {
@@ -113,7 +113,7 @@ app.post('/api/dashboard-data', (req, res) => {
         
         try{
             console.log("Inserting into action table");
-            const stmt = db.prepare('INSERT INTO action (actionID, context, userAChoice, time, response, responseOutcome) VALUES (?, ?, ?, ?, ?, ?)');
+            const stmt = db.prepare('INSERT INTO action (actionID, context, userAChoice, time, resolved, responseOutcome) VALUES (?, ?, ?, ?, ?, ?)');
             stmt.run(id, context, choice, time, 'NULL', 'NULL');
         }
         catch(err) {
@@ -130,7 +130,6 @@ app.post('/api/dashboard-data', (req, res) => {
 // Start the server
 app.listen(port, () => {
     console.log(`Backend server running on http://localhost:${port}`);
-    console.log('Start React frontend on a different port (e.g., 3000).');
 });
 
 
