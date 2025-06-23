@@ -74,13 +74,10 @@ app.post('../UserA_dashboard_backend/api/dashboard-data', (req, res) => {
         res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
     }
 
-    if (target === 'USER_A_CHOICE') {
+    if (target === 'USER_B_RESPONSE') {
 
-        const id = data.id;
-        const choice = data.choice;
-        const time = data.time;
-        const context = data.context;
-
+        // TO DO: INITIALISE VARIABLES
+        // TO DO: INSERT VALUES INTO APPROPRIATE COLUMN
         
         try{
             console.log("Inserting into action table");
