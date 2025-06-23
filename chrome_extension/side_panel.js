@@ -2,7 +2,7 @@
 
 const EMAIL_ANNOUNCEMENT = "You are on the email webpage"
 
-document.getElementById('buttonToDashboard').addEventListener('click', function() {
+document.getElementById('dashBtn').addEventListener('click', function() {
     chrome.runtime.sendMessage({ action: "openDashboard"});
 });
 

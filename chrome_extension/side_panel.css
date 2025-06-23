@@ -13,19 +13,19 @@
 
 .top_container {
     background: #ffffff;
-    height: 75%;
+    height: 70%;
 }
 
 .bottom_container {
-    background: yellow;
-    height: 25%;
+    background: #ffffff;
+    height: 30%;
 }
 
 .bot_icon img {
     position: absolute;
-    bottom: 30%;
+    bottom: 35%;
     right: 5%;
-    width: 120px;
+    width: 100px;
 }
 
 .speech_bubble {
@@ -55,4 +55,42 @@
 	border-right: 0;
 	margin-left: -4px;
 	margin-bottom: -8px;
+}
+
+.button_panel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.button_panel button {
+    background-color: #ffffff;
+    font-family: Arial;
+    font-size: 25px;
+    color: grey;
+    text-align: left;
+    height: 33%;
+    border-color: transparent;
+    margin-left: 15px;
+}
+
+.button_panel button img {
+    height: 35px;
+}
+
+.hover_img {
+    display: none;
+}
+
+.button_panel button:hover {
+    color: black;
+    font-weight: 700;
+}
+
+.button_panel button:hover .default_img {
+    display: none;
+}
+
+.button_panel button:hover .hover_img {
+    display: inline;
 }
