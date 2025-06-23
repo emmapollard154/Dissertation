@@ -6,14 +6,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
     if (message.action === 'sendUrlToDashboard') {
 
-        // document.getElementById('currentURL').innerText = message.newUrlMessage[0];
-        // document.getElementById('currentTimestamp').innerText = message.newUrlMessage[1];
-
         const urlReceived =  message.newUrlMessage[0];
         const timeReceived =  message.newUrlMessage[1];
 
-        document.getElementById('currentURL').innerText = urlReceived;
-        document.getElementById('currentTimestamp').innerText = timeReceived;
+        // document.getElementById('currentURL').innerText = urlReceived;
+        // document.getElementById('currentTimestamp').innerText = timeReceived;
+        document.getElementById('speechContent').innerText = urlReceived;
 
         const browserData = {
             newUrl:  urlReceived,
@@ -111,11 +109,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                 sendResponse({ status: 'failed', error: 'No active tab found' });
             }
         });
-
-
-
     }    
-
-
 });
 
