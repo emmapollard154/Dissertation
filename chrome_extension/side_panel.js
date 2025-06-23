@@ -1,19 +1,19 @@
 // sidepanel.js (script for side panel html)
 
+const EMAIL_ANNOUNCEMENT = "You are on the email webpage"
+
+document.getElementById('dashBtn').addEventListener('click', function() {
+    chrome.runtime.sendMessage({ action: "openDashboard"});
+});
+
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     console.log("side_panel received message type:", message.action);
 
 
     if (message.action === 'sendUrlToDashboard') {
 
-        // document.getElementById('currentURL').innerText = message.newUrlMessage[0];
-        // document.getElementById('currentTimestamp').innerText = message.newUrlMessage[1];
-
         const urlReceived =  message.newUrlMessage[0];
         const timeReceived =  message.newUrlMessage[1];
-
-        document.getElementById('currentURL').innerText = urlReceived;
-        document.getElementById('currentTimestamp').innerText = timeReceived;
 
         const browserData = {
             newUrl:  urlReceived,
@@ -45,8 +45,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         });
 
         if (urlReceived === "http://localhost:5174/") { // email environment
-            console.log("ON EMAIL WEBPAGE")
-            document.getElementById('emailPageAnnouncement').innerText = "ON EMAIL WEBPAGE"
+            console.log("On email webpage");
+            document.getElementById('speechContent').innerText = EMAIL_ANNOUNCEMENT;
 
             chrome.tabs.query({ url: "http://localhost:5174/*" }, (tabs) => {
                 if (tabs && tabs.length > 0) {
@@ -72,7 +72,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                 }
             });
         } else {
-            document.getElementById('emailPageAnnouncement').innerText = ""
+            document.getElementById('speechContent').innerText = "";
         }
 
         return true; // sendResponse is called asynchronously
@@ -111,11 +111,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                 sendResponse({ status: 'failed', error: 'No active tab found' });
             }
         });
-
-
-
     }    
-
-
 });
 

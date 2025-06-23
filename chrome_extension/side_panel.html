@@ -2,16 +2,44 @@
 <html lang="en">
 <head>
 
-<p id="currentURL"></p>
-<p id="currentTimestamp"></p>
+<div class="side_panel" id="sidePanel">
+    <link rel="stylesheet" href="./side_panel.css">
+
+
+    <div class="top_container" id="topContainer">
+
+        <div class="speech_bubble">
+            <p id="speechContent"></p>
+        </div>
+
+        <div class="bot_icon">
+            <img src="bot_icon.png" alt="bot icon">
+        </div>
+    </div>
+
+    <div class="bottom_container" id="bottomContainer">
+        <div class="button_panel" id="buttonPanel">
+            <button id="statBtn">
+                <img class="default_img" src = "./icons/status_grey.png">
+                <img class="hover_img" src = "./icons/status_black.png">
+                &emsp;Status
+            </button>
+            <button id="msgBtn">
+                <img class="default_img" src = "./icons/message_grey.png">
+                <img class="hover_img" src = "./icons/message_black.png">
+                &emsp;Messages
+            </button>
+            <button id="dashBtn">
+                <img class="default_img" src = "./icons/settings_grey.png">
+                <img class="hover_img" src = "./icons/settings_black.png">
+                &emsp;Dashboard
+            </button>
+        </div>
+    </div>
+
+</div>
+
 <script src='side_panel.js'></script>
-
-
-<button id="buttonToDashboard">Dashboard</button>
-<script src='extension_button.js'></script>
-
-<p id="emailPageAnnouncement"></p>
-
 
 </body>
 </html>
