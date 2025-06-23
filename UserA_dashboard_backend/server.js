@@ -130,7 +130,6 @@ app.post('/api/dashboard-data', (req, res) => {
 // Start the server
 app.listen(port, () => {
     console.log(`Backend server running on http://localhost:${port}`);
-    console.log('Start React frontend on a different port (e.g., 3000).');
 });
 
 

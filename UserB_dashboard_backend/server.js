@@ -10,46 +10,17 @@ app.use(cors()); // allow cross origin requests (from frontend)
 app.use(express.json()); // parses incoming JSON request bodies
 
 // Initialize SQLite database
-const db = new sqlite3.Database('./dashboard.db', (err) => {
+const db = new sqlite3.Database('../UserA_dashboard_backend/dashboard.db', (err) => {
     if (err) {
         console.error('Error connecting to database:', err.message);
     } else {
         console.log('Connected to the SQLite database.');
-
-        // create table for browsing history
-        db.run(`CREATE TABLE IF NOT EXISTS browsingHistory (
-            url VARCHAR(255),
-            time DATETIME
-        )`, (createErr) => {
-            if (createErr) {
-                console.error('Error creating table:', createErr.message);
-            } else {
-                console.log('browsingHistory table created.');
-            }
-        });
-
-        // create table for user A actions
-        db.run(`CREATE TABLE IF NOT EXISTS action (
-            actionID INT,
-            context VARCHAR(32),
-            userAChoice CHARACTER(1),
-            time DATETIME,
-            resolved CHARACTER(1),
-            responseOutcome CHARACTER(1)
-        )`, (createErr) => {
-            if (createErr) {
-                console.error('Error creating table:', createErr.message);
-            } else {
-                console.log('action table created.');
-            }
-        });
-
     }
 });
 
 
 // API endpoints to get dashboard data
-app.get('/api/dashboard-data/browsingHistory', (req, res) => {
+app.get('../UserA_dashboard_backend/api/dashboard-data/browsingHistory', (req, res) => {
 
     db.all('SELECT * FROM browsingHistory', [], (err, rows) => {
         if (err) {
@@ -64,7 +35,7 @@ app.get('/api/dashboard-data/browsingHistory', (req, res) => {
     });
 });
 
-app.get('/api/dashboard-data/action', (req, res) => {
+app.get('../UserA_dashboard_backend/api/dashboard-data/action', (req, res) => {
 
     db.all('SELECT * FROM action', [], (err, rows) => {
         if (err) {
@@ -80,7 +51,7 @@ app.get('/api/dashboard-data/action', (req, res) => {
 });
 
 // handler for frontend POST requests
-app.post('/api/dashboard-data', (req, res) => {
+app.post('../UserA_dashboard_backend/api/dashboard-data', (req, res) => {
 
     const target = req.body.target;
     const data = req.body.data;
@@ -130,7 +101,6 @@ app.post('/api/dashboard-data', (req, res) => {
 // Start the server
 app.listen(port, () => {
     console.log(`Backend server running on http://localhost:${port}`);
-    console.log('Start React frontend on a different port (e.g., 3000).');
 });
 
 
