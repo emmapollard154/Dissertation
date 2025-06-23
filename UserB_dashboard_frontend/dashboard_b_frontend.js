@@ -1,4 +1,4 @@
-// script running on dashboard page (e.g., http://localhost:5173)
+// script running on dashboard page (e.g., http://localhost:6173)
 
 // function to send data from frontend to backend
 async function sendDataToBackend(data) {
@@ -22,39 +22,26 @@ async function sendDataToBackend(data) {
 
     } catch (error) {
         console.error('Error sending data to backend:', error);
-        // throw error; // Re-throw to allow further handling if needed
     }
 }
 
 
 window.addEventListener('message', function(event) {
 
-    if (event.origin !== 'http://localhost:5173') {
+    if (event.origin !== 'http://localhost:6173') {
         console.warn('Dashboard: Message received from untrusted origin:', event.origin);
         return;
     }
 
-    if (event.data && event.data.type === 'BROWSING_DATA') {
-        const receivedData = event.data.payload;
-        console.log('Dashboard: Received data from Chrome extension:', receivedData.data);
-
-        const data = {
-            data: receivedData.data,
-            target: 'BROWSING_DATA'
-        }
-
-        sendDataToBackend(data);
-    }
-
-    if (event.data && event.data.type === 'USER_A_CHOICE') {
+    if (event.data && event.data.type === 'USER_B_RESPONSE') {
 
         const receivedData = event.data.payload;
 
-        console.log('Dashboard: Received choice data from Chrome extension:', receivedData);
+        console.log('Dashboard B: sending user B response to backend:', receivedData);
 
         const data = {
             data: receivedData,
-            target: 'USER_A_CHOICE'
+            target: 'USER_B_RESPONSE'
         }
 
         sendDataToBackend(data);
@@ -62,4 +49,4 @@ window.addEventListener('message', function(event) {
 
 });
 
-console.log('Dashboard script (dashboard_a_frontend) loaded and listening for messages.');
+console.log('Dashboard script (dashboard_b_frontend) loaded and listening for messages.');
