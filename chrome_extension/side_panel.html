@@ -2,16 +2,27 @@
 <html lang="en">
 <head>
 
-<p id="currentURL"></p>
-<p id="currentTimestamp"></p>
-<script src='side_panel.js'></script>
+<div class="side_panel" id="sidePanel">
+    <link rel="stylesheet" href="./side_panel.css">
 
 
-<button id="buttonToDashboard">Dashboard</button>
-<script src='extension_button.js'></script>
+    <div class="top_container" id="topContainer">
+        <img src="bot_icon.png" alt="bot icon">
+    </div>
 
-<p id="emailPageAnnouncement"></p>
+    <div class="bottom_container" id="bottomContainer">
+        <p id="currentURL"></p>
+        <p id="currentTimestamp"></p>
+        <script src='side_panel.js'></script>
 
+
+        <button id="buttonToDashboard">Dashboard</button>
+        <script src='extension_button.js'></script>
+
+        <p id="emailPageAnnouncement"></p>
+    </div>
+
+</div>
 
 </body>
 </html>
