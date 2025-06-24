@@ -120,7 +120,6 @@ app.post('/api/dashboard-data', (req, res) => {
 
         const responseOutcome = "0";
 
-        
         try {
             console.log("Inserting into action table");
             const stmt = db.prepare('INSERT INTO action (actionID, context, userAChoice, time, resolved, responseOutcome) VALUES (?, ?, ?, ?, ?, ?)');

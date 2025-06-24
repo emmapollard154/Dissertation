@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { act } from 'react';
+// import processAction from '../process_actions';
 
 // Main App component for dashboard
 function App() {
@@ -8,15 +9,23 @@ function App() {
   const [loading, setLoading] = useState(true);         // State for loading indicator
   const [error, setError] = useState(null);             // State for error messages
 
+  let UNRESOLVED = [];
+
+  function processAction(unresolved) {
+    console.log("process_actions.js: unresolved: ", unresolved);
+  };
+
   function processActionID(data) {
     const action_ids = data.map(row => [row.actionID, row.resolved]);
     for (let i=0; i < action_ids.length; i++) {
-      if (action_ids[i][1] === "N") { // collect unresolved actions
+      if (action_ids[i][1] === "N" && !UNRESOLVED.includes(action_ids[i][0])) { // collect unresolved actions
         console.log("action ", action_ids[i][0], "is unresolved");
+        UNRESOLVED.push(action_ids[i][0]);
       } else {
         console.log("action ", action_ids[i][0], "is resolved");
       }
     }
+    processAction(UNRESOLVED);
   }
 
 
@@ -71,9 +80,7 @@ function App() {
     };
 
     fetchBrowserData(); //  fetch data
-    console.log("FETCHED BROWSER DATA")
     fetchActionData();
-    console.log("FETCHED ACTION DATA")
   }, []); // effect runs once after the initial render
 
   // Render loading state
@@ -100,7 +107,6 @@ function App() {
       <header className="bg-white shadow rounded-lg p-4 mb-6">
         <h1 className="text-3xl font-semibold text-gray-800 text-center">User A Dashboard</h1>
       </header>
-
 
       <h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">Browsing History</h2>
       <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
@@ -217,6 +223,7 @@ function App() {
         ) : (
           <p className="p-6 text-center text-gray-500">Action history is empty.</p>
         )}
+        <script src="../process_actions.js"></script>
       </div>
 
 
