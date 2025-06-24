@@ -101,7 +101,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                 chrome.tabs.sendMessage(activeTab.id, {
                     action: 'emailAChoice',
                     id: id,
-                    // data: choice
                     choice: choice,
                     time: time
                 }, function(response) {

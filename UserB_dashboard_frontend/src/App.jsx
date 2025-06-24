@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { act } from 'react';
+import './App.css'
 
 // Main App component for dashboard
 function App() {
@@ -7,6 +8,35 @@ function App() {
   const [actionData, setActionData] = useState([]);   // State to store fetched action data
   const [loading, setLoading] = useState(true);         // State for loading indicator
   const [error, setError] = useState(null);             // State for error messages
+
+  let UNRESOLVED = [];
+
+  function processAction(unresolved) {
+    console.log("process_actions.js: unresolved: ", unresolved);
+    document.getElementById('unresolved_actions').innerHTML = UNRESOLVED
+    if (unresolved.length > 0) {
+      document.getElementById('unresolved_number').innerHTML = unresolved.length + " unresolved actions";
+    } else {
+      document.getElementById('unresolved_number').innerHTML = "No unresolved actions";
+    }
+  };
+
+  function processActionID(data) {
+    const action_ids = data.map(row => [row.actionID, row.resolved]);
+    for (let i=0; i < action_ids.length; i++) {
+      if (action_ids[i][1] === "N" && !UNRESOLVED.includes(action_ids[i][0])) { // collect unresolved actions
+        console.log("action ", action_ids[i][0], "is unresolved");
+        UNRESOLVED.push(action_ids[i][0]);
+      } else {
+        console.log("action ", action_ids[i][0], "is resolved");
+      }
+    }
+    processAction(UNRESOLVED);
+  }
+
+
+
+
 
   // useEffect hook to fetch data when the component mounts
   useEffect(() => {
@@ -46,6 +76,7 @@ function App() {
         const result = await response.json(); // Parse the JSON response
         console.log('Fetched action data:', result.data); // Log the fetched data for debugging
         setActionData(result.data); // Update the state with the fetched data
+        processActionID(result.data);
       } catch (e) {
         console.error("Error fetching dashboard data:", e); // Log any errors
         setError(e.message); // Set error state
@@ -55,9 +86,7 @@ function App() {
     };
 
     fetchBrowserData(); //  fetch data
-    console.log("FETCHED BROWSER DATA")
     fetchActionData();
-    console.log("FETCHED ACTION DATA")
   }, []); // effect runs once after the initial render
 
   // Render loading state
@@ -72,19 +101,22 @@ function App() {
   // Render error state
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-red-100 font-inter">
-        <p className="text-xl text-red-700">Error: {error}. Please ensure the Node.js backend is running.</p>
+      <div className="error_class">
+        <p className="error_message">Error: {error}. Please ensure the Node.js backend is running.</p>
       </div>
     );
   }
 
   return (
 
-    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8 font-inter">
+    <div className="dashboard_title">
       <header className="bg-white shadow rounded-lg p-4 mb-6">
-        <h1 className="text-3xl font-semibold text-gray-800 text-center">User A Dashboard</h1>
+        <h1>User B Dashboard</h1>
       </header>
 
+      <h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">Unresolved Actions</h2>
+      <p id="unresolved_number"></p>
+      <p id="unresolved_actions"></p>
 
       <h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">Browsing History</h2>
       <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
@@ -163,7 +195,7 @@ function App() {
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
                 >
-                  Response
+                  Resolved
                 </th>
                 <th
                   scope="col"
@@ -189,7 +221,7 @@ function App() {
                     {item.time}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
-                    {item.response}
+                    {item.resolved}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
                     {item.responseOutcome}
@@ -201,17 +233,14 @@ function App() {
         ) : (
           <p className="p-6 text-center text-gray-500">Action history is empty.</p>
         )}
+        <script src="../process_actions.js"></script>
       </div>
-
-
-
-
-
 
         <footer className="mt-8 text-center text-gray-600 text-sm">
           <p>&copy; {new Date().getFullYear()} Emma Pollard. All rights reserved.</p>
         </footer>
       </div>
+
   );
 }
 
