@@ -8,6 +8,42 @@ function App() {
   const [loading, setLoading] = useState(true);         // State for loading indicator
   const [error, setError] = useState(null);             // State for error messages
 
+  const ALL_ACTION_IDS = [];
+  const CURRENT_ACTION_IDS = [];
+
+  function processActionID(data) {
+    console.log("ProcessActionID: ", data);
+    const action_ids = data.map(row => row.actionID);
+    console.log("action_ids: ", action_ids);
+    if (JSON.stringify(action_ids) === JSON.stringify(ALL_ACTION_IDS)){
+      // no new updates
+      console.log("No new actions");
+    } else {
+      if (ALL_ACTION_IDS.length >= action_ids.length) {
+        // actions have been deleted in database
+        for (let i = 0; i < action_ids.length; i++) {
+          ALL_ACTION_IDS[i] = action_ids[i]; // update ALL_ACTION_IDS, remove old values
+        }
+      } else { // new actions in database
+        for (let i = 0; i < action_ids.length; i++) {
+          if (!ALL_ACTION_IDS.includes(action_ids[i])) {
+            console.log(action_ids[i], " not in ALL_ACTION_IDS");
+            // add new actions to arrays
+            ALL_ACTION_IDS.push(action_ids[i]);
+            CURRENT_ACTION_IDS.push(action_ids[i]);
+          }
+        }
+      }
+    }
+  }
+
+
+
+  // NOT CATCHING NEW ACTIONS
+
+
+
+
   // useEffect hook to fetch data when the component mounts
   useEffect(() => {
     const fetchBrowserData = async () => {
@@ -46,6 +82,7 @@ function App() {
         const result = await response.json(); // Parse the JSON response
         console.log('Fetched action data:', result.data); // Log the fetched data for debugging
         setActionData(result.data); // Update the state with the fetched data
+        processActionID(result.data);
       } catch (e) {
         console.error("Error fetching dashboard data:", e); // Log any errors
         setError(e.message); // Set error state
@@ -202,10 +239,6 @@ function App() {
           <p className="p-6 text-center text-gray-500">Action history is empty.</p>
         )}
       </div>
-
-
-
-
 
 
         <footer className="mt-8 text-center text-gray-600 text-sm">

@@ -6,9 +6,6 @@ const cors = require('cors');
 const app = express();
 const port = 6000;
 
-const ALL_ACTION_IDS = [];
-const CURRENT_ACTION_IDS = [];
-
 app.use(cors());
 app.use(express.json());
 
@@ -20,35 +17,7 @@ const db = new sqlite3.Database('../UserA_dashboard_backend/dashboard.db', (err)
     }
 });
 
-// API endpoints to get dashboard data
-app.get('../UserA_dashboard_backend/api/dashboard-data/browsingHistory', (req, res) => {
 
-    db.all('SELECT * FROM browsingHistory', [], (err, rows) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
-        }
-        console.log("Successfully retrieved dashboard-data/browsingHistory");
-        res.json({
-            message: 'Success',
-            data: rows
-        });
-    });
-});
-
-app.get('../UserA_dashboard_backend/api/dashboard-data/action', (req, res) => {
-
-    db.all('SELECT * FROM action', [], (err, rows) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
-        }
-        console.log("Successfully retrieved dashboard-data/action");
-        res.json({
-            message: 'Success',
-            data: rows
-        });
-    });
 
 
     // CHECK IF NEW ROW NOT MATCHING CURRENT/RESOLVED IDS HAS BEEN ADDED = NEW REQUEST
@@ -58,7 +27,10 @@ app.get('../UserA_dashboard_backend/api/dashboard-data/action', (req, res) => {
     // IF NEW REQUEST EXISTS, TRIGGER ACTION TO BE TAKEN
     // WHEN ACTION IS TAKEN, REMOVE FROM CURRENT IDS
 
-});
+
+
+
+
 
 // handler for frontend POST requests
 app.post('../UserA_dashboard_backend/api/dashboard-data', (req, res) => {
