@@ -1,42 +1,28 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+.error_class {
+  min-height: 100vh;
+  items: center;
+  justify: center;
+  background-color: red-100;
+  font-family: inter;
+}
+
+.error_message {
+  font-size: 50px;
+  text-color: red-700;
+}
+ 
+
+.dashboard_title {
+  min-height: 100vh;
+  background-color: gray-100;
+  padding: 4;
+  font-family: inter;
+}
+
+.dashboard_title h1 {
+  font-size: 30px;
+  line-height: 36px;
+  font-weight: 600;
+  color: gray-800;
   text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }

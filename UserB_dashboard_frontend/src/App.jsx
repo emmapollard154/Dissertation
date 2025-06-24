@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { act } from 'react';
+import './App.css'
 
 // Main App component for dashboard
 function App() {
@@ -100,17 +101,17 @@ function App() {
   // Render error state
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-red-100 font-inter">
-        <p className="text-xl text-red-700">Error: {error}. Please ensure the Node.js backend is running.</p>
+      <div className="error_class">
+        <p className="error_message">Error: {error}. Please ensure the Node.js backend is running.</p>
       </div>
     );
   }
 
   return (
 
-    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8 font-inter">
+    <div className="dashboard_title">
       <header className="bg-white shadow rounded-lg p-4 mb-6">
-        <h1 className="text-3xl font-semibold text-gray-800 text-center">User B Dashboard</h1>
+        <h1>User B Dashboard</h1>
       </header>
 
       <h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">Unresolved Actions</h2>
