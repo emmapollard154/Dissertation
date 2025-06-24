@@ -13,6 +13,11 @@ function App() {
   function processAction(unresolved) {
     console.log("process_actions.js: unresolved: ", unresolved);
     document.getElementById('unresolved_actions').innerHTML = UNRESOLVED
+    if (unresolved.length > 0) {
+      document.getElementById('unresolved_number').innerHTML = unresolved.length + " unresolved actions";
+    } else {
+      document.getElementById('unresolved_number').innerHTML = "No unresolved actions";
+    }
   };
 
   function processActionID(data) {
@@ -109,6 +114,7 @@ function App() {
       </header>
 
       <h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">Unresolved Actions</h2>
+      <p id="unresolved_number"></p>
       <p id="unresolved_actions"></p>
 
       <h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">Browsing History</h2>
@@ -228,13 +234,6 @@ function App() {
         )}
         <script src="../process_actions.js"></script>
       </div>
-
-        {/* <script>
-          window.onload = function() {
-          document.getElementById('unresolved_actions').innerHTML = UNRESOLVED
-        }
-        </script> */}
-
 
         <footer className="mt-8 text-center text-gray-600 text-sm">
           <p>&copy; {new Date().getFullYear()} Emma Pollard. All rights reserved.</p>
