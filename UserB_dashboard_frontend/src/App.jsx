@@ -8,38 +8,17 @@ function App() {
   const [loading, setLoading] = useState(true);         // State for loading indicator
   const [error, setError] = useState(null);             // State for error messages
 
-  const ALL_ACTION_IDS = [];
-  const CURRENT_ACTION_IDS = [];
-
   function processActionID(data) {
-    console.log("ProcessActionID: ", data);
-    const action_ids = data.map(row => row.actionID);
-    console.log("action_ids: ", action_ids);
-    if (JSON.stringify(action_ids) === JSON.stringify(ALL_ACTION_IDS)){
-      // no new updates
-      console.log("No new actions");
-    } else {
-      if (ALL_ACTION_IDS.length >= action_ids.length) {
-        // actions have been deleted in database
-        for (let i = 0; i < action_ids.length; i++) {
-          ALL_ACTION_IDS[i] = action_ids[i]; // update ALL_ACTION_IDS, remove old values
-        }
-      } else { // new actions in database
-        for (let i = 0; i < action_ids.length; i++) {
-          if (!ALL_ACTION_IDS.includes(action_ids[i])) {
-            console.log(action_ids[i], " not in ALL_ACTION_IDS");
-            // add new actions to arrays
-            ALL_ACTION_IDS.push(action_ids[i]);
-            CURRENT_ACTION_IDS.push(action_ids[i]);
-          }
-        }
+    const action_ids = data.map(row => [row.actionID, row.resolved]);
+    for (let i=0; i < action_ids.length; i++) {
+      if (action_ids[i][1] === "N") { // collect unresolved actions
+        console.log("action ", action_ids[i][0], "is unresolved");
+      } else {
+        console.log("action ", action_ids[i][0], "is resolved");
       }
     }
   }
 
-
-
-  // NOT CATCHING NEW ACTIONS
 
 
 
@@ -200,7 +179,7 @@ function App() {
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
                 >
-                  Response
+                  Resolved
                 </th>
                 <th
                   scope="col"
@@ -226,7 +205,7 @@ function App() {
                     {item.time}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
-                    {item.response}
+                    {item.resolved}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
                     {item.responseOutcome}

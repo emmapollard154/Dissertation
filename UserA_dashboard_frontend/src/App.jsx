@@ -163,7 +163,7 @@ function App() {
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
                 >
-                  Response
+                  Resolved
                 </th>
                 <th
                   scope="col"
@@ -189,7 +189,7 @@ function App() {
                     {item.time}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
-                    {item.response}
+                    {item.resolved}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
                     {item.responseOutcome}

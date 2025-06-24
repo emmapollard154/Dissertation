@@ -30,7 +30,7 @@ const db = new sqlite3.Database('./dashboard.db', (err) => {
 
         // create table for user A actions
         db.run(`CREATE TABLE IF NOT EXISTS action (
-            actionID INT,
+            actionID CHARACTER(18),
             context VARCHAR(32),
             userAChoice CHARACTER(1),
             time DATETIME,
@@ -109,12 +109,22 @@ app.post('/api/dashboard-data', (req, res) => {
         const choice = data.choice;
         const time = data.time;
         const context = data.context;
+        let resolved = "E";
+
+        // TEMP
+        if (choice === "1") {
+            resolved = "Y";
+        } else {
+            resolved = "N";
+        }
+
+        const responseOutcome = "0";
 
         
-        try{
+        try {
             console.log("Inserting into action table");
             const stmt = db.prepare('INSERT INTO action (actionID, context, userAChoice, time, resolved, responseOutcome) VALUES (?, ?, ?, ?, ?, ?)');
-            stmt.run(id, context, choice, time, 'NULL', 'NULL');
+            stmt.run(id, context, choice, time, resolved, responseOutcome);
         }
         catch(err) {
             console.error('Database insertion error:', err.message);
