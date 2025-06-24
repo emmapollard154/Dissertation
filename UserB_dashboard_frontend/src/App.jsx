@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { act } from 'react';
-// import processAction from '../process_actions';
 
 // Main App component for dashboard
 function App() {
@@ -13,6 +12,7 @@ function App() {
 
   function processAction(unresolved) {
     console.log("process_actions.js: unresolved: ", unresolved);
+    document.getElementById('unresolved_actions').innerHTML = UNRESOLVED
   };
 
   function processActionID(data) {
@@ -105,8 +105,11 @@ function App() {
 
     <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8 font-inter">
       <header className="bg-white shadow rounded-lg p-4 mb-6">
-        <h1 className="text-3xl font-semibold text-gray-800 text-center">User A Dashboard</h1>
+        <h1 className="text-3xl font-semibold text-gray-800 text-center">User B Dashboard</h1>
       </header>
+
+      <h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">Unresolved Actions</h2>
+      <p id="unresolved_actions"></p>
 
       <h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">Browsing History</h2>
       <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
@@ -226,11 +229,18 @@ function App() {
         <script src="../process_actions.js"></script>
       </div>
 
+        {/* <script>
+          window.onload = function() {
+          document.getElementById('unresolved_actions').innerHTML = UNRESOLVED
+        }
+        </script> */}
+
 
         <footer className="mt-8 text-center text-gray-600 text-sm">
           <p>&copy; {new Date().getFullYear()} Emma Pollard. All rights reserved.</p>
         </footer>
       </div>
+
   );
 }
 
