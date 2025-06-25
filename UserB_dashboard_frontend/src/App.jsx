@@ -216,7 +216,6 @@ function App() {
               ) : (
                 <p className="p-6 text-center text-gray-500">Action history is empty.</p>
               )}
-              <script src="../process_actions.js"></script>
 
 
           </div>
