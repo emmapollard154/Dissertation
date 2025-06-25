@@ -6,18 +6,20 @@ import './App.css'
 function App() {
   const [browsingData, setBrowsingData] = useState([]);   // State to store fetched browsing history data
   const [actionData, setActionData] = useState([]);   // State to store fetched action data
+  const [unresolvedData, setUnresolvedData] = useState([]); 
   const [loading, setLoading] = useState(true);         // State for loading indicator
   const [error, setError] = useState(null);             // State for error messages
 
   let UNRESOLVED = [];
+  const noUnresolved = "No unresolved actions";
 
   function processAction(unresolved) {
     console.log("process_actions.js: unresolved: ", unresolved);
-    document.getElementById('unresolved_actions').innerHTML = UNRESOLVED
+    setUnresolvedData(unresolved);
     if (unresolved.length > 0) {
-      document.getElementById('unresolved_number').innerHTML = unresolved.length + " unresolved actions";
+      document.getElementById('unresolved_number_statement').innerHTML = unresolved.length + " unresolved action(s)";
     } else {
-      document.getElementById('unresolved_number').innerHTML = "No unresolved actions";
+      document.getElementById('unresolved_number_statement').innerHTML = noUnresolved;
     }
   };
 
@@ -123,7 +125,31 @@ function App() {
 
           <div className='top_container'>
             <h2 className="subtitle">Status</h2>
-            {/* TO DO: STATUS */}
+              <p id="unresolved_number_statement"></p>
+
+              {unresolvedData.length > 0 ? (
+                <table className="table_format">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="column_title">Action</th>
+                      <th scope="col" className="column_title">Response</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {unresolvedData.map((item) => (
+                      <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
+                        <td className="entry_format">{item}</td>
+                        <td className="entry_format">BUTTON</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="p-6 text-center text-gray-500">Browsing history is empty.</p>
+              )}
+
+
+
           </div>
 
         </div>
@@ -142,73 +168,28 @@ function App() {
 
           <div className='bottom_container'>
             <h2 className="subtitle">History</h2>
-            <p id="unresolved_number"></p>
-            <p id="unresolved_actions"></p>
 
-            <h2 className="subtitle">Actions</h2>
               {actionData.length > 0 ? (
                 <table className="table_format">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th
-                        scope="col"
-                        className="column_title"
-                      >
-                        Action ID
-                      </th>
-                      <th
-                        scope="col"
-                        className="column_title"
-                      >
-                        Context
-                      </th>
-                      <th
-                        scope="col"
-                        className="column_title"
-                      >
-                        User A Choice
-                      </th>
-                      <th
-                        scope="col"
-                        className="column_title"
-                      >
-                        Time
-                      </th>
-                      <th
-                        scope="col"
-                        className="column_title"
-                      >
-                        Resolved
-                      </th>
-                      <th
-                        scope="col"
-                        className="column_title"
-                      >
-                        Response Outcome
-                      </th>
+                      <th scope="col" className="column_title">Action ID</th>
+                      <th scope="col" className="column_title">Context</th>
+                      <th scope="col" className="column_title">User A Choice</th>
+                      <th scope="col" className="column_title">Time</th>
+                      <th scope="col" className="column_title">Resolved</th>
+                      <th scope="col" className="column_title">Response Outcome</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {actionData.map((item) => (
                       <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                        <td className="entry_format">
-                          {item.actionID}
-                        </td>
-                        <td className="entry_format">
-                          {item.context}
-                        </td>
-                        <td className="entry_format">
-                          {item.userAChoice}
-                        </td>
-                        <td className="entry_format">
-                          {item.time}
-                        </td>
-                        <td className="entry_format">
-                          {item.resolved}
-                        </td>
-                        <td className="entry_format">
-                          {item.responseOutcome}
-                        </td>
+                        <td className="entry_format">{item.actionID}</td>
+                        <td className="entry_format">{item.context}</td>
+                        <td className="entry_format">{item.userAChoice}</td>
+                        <td className="entry_format">{item.time}</td>
+                        <td className="entry_format">{item.resolved}</td>
+                        <td className="entry_format">{item.responseOutcome}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -232,31 +213,15 @@ function App() {
               <table className="table_format">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th
-                      scope="col"
-                      className="column_title"
-                    >
-                      URL
-                    </th>
-                    <th
-                      scope="col"
-                      className="column_title"
-                    >
-                      Time
-                    </th>
+                    <th scope="col" className="column_title">URL</th>
+                    <th scope="col" className="column_title">Time</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {browsingData.map((item) => (
                     <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                      <td className="entry_format">
-                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                          {item.url}
-                        </a>
-                      </td>
-                      <td className="entry_format">
-                        {item.time}
-                      </td>
+                      <td className="entry_format"><a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">{item.url}</a></td>
+                      <td className="entry_format">{item.time}</td>
                     </tr>
                   ))}
                 </tbody>
