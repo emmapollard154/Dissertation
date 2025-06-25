@@ -122,121 +122,16 @@ function App() {
         <div className='top_left_container'>
 
           <div className='top_container'>
-            <h2 className="subtitle">Browsing History</h2>
-              {browsingData.length > 0 ? (
-                <table className="table_format">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th
-                        scope="col"
-                        className="column_title"
-                      >
-                        URL
-                      </th>
-                      <th
-                        scope="col"
-                        className="column_title"
-                      >
-                        Time
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {browsingData.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                        <td className="entry_format">
-                          <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                            {item.url}
-                          </a>
-                        </td>
-                        <td className="entry_format">
-                          {item.time}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="p-6 text-center text-gray-500">Browsing history is empty.</p>
-              )}
+            <h2 className="subtitle">Status</h2>
+            {/* TO DO: STATUS */}
           </div>
 
         </div>
 
         <div className='top_right_container'>
           <div className='top_container'>
-            <h2 className="subtitle">Actions</h2>
-                    {actionData.length > 0 ? (
-                      <table className="table_format">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th
-                              scope="col"
-                              className="column_title"
-                            >
-                              Action ID
-                            </th>
-                            <th
-                              scope="col"
-                              className="column_title"
-                            >
-                              Context
-                            </th>
-                            <th
-                              scope="col"
-                              className="column_title"
-                            >
-                              User A Choice
-                            </th>
-                            <th
-                              scope="col"
-                              className="column_title"
-                            >
-                              Time
-                            </th>
-                            <th
-                              scope="col"
-                              className="column_title"
-                            >
-                              Resolved
-                            </th>
-                            <th
-                              scope="col"
-                              className="column_title"
-                            >
-                              Response Outcome
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {actionData.map((item) => (
-                            <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                              <td className="entry_format">
-                                {item.actionID}
-                              </td>
-                              <td className="entry_format">
-                                {item.context}
-                              </td>
-                              <td className="entry_format">
-                                {item.userAChoice}
-                              </td>
-                              <td className="entry_format">
-                                {item.time}
-                              </td>
-                              <td className="entry_format">
-                                {item.resolved}
-                              </td>
-                              <td className="entry_format">
-                                {item.responseOutcome}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    ) : (
-                      <p className="p-6 text-center text-gray-500">Action history is empty.</p>
-                    )}
-                    <script src="../process_actions.js"></script>
+            <h2 className="subtitle">Messages</h2>
+                  {/* TO DO: MESSAGES */}
           </div>
         </div>
       </div>
@@ -246,9 +141,84 @@ function App() {
         <div className='bottom_left_container'>
 
           <div className='bottom_container'>
-            <h2 className="subtitle">Unresolved Actions</h2>
+            <h2 className="subtitle">History</h2>
             <p id="unresolved_number"></p>
             <p id="unresolved_actions"></p>
+
+            <h2 className="subtitle">Actions</h2>
+              {actionData.length > 0 ? (
+                <table className="table_format">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th
+                        scope="col"
+                        className="column_title"
+                      >
+                        Action ID
+                      </th>
+                      <th
+                        scope="col"
+                        className="column_title"
+                      >
+                        Context
+                      </th>
+                      <th
+                        scope="col"
+                        className="column_title"
+                      >
+                        User A Choice
+                      </th>
+                      <th
+                        scope="col"
+                        className="column_title"
+                      >
+                        Time
+                      </th>
+                      <th
+                        scope="col"
+                        className="column_title"
+                      >
+                        Resolved
+                      </th>
+                      <th
+                        scope="col"
+                        className="column_title"
+                      >
+                        Response Outcome
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {actionData.map((item) => (
+                      <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
+                        <td className="entry_format">
+                          {item.actionID}
+                        </td>
+                        <td className="entry_format">
+                          {item.context}
+                        </td>
+                        <td className="entry_format">
+                          {item.userAChoice}
+                        </td>
+                        <td className="entry_format">
+                          {item.time}
+                        </td>
+                        <td className="entry_format">
+                          {item.resolved}
+                        </td>
+                        <td className="entry_format">
+                          {item.responseOutcome}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="p-6 text-center text-gray-500">Action history is empty.</p>
+              )}
+              <script src="../process_actions.js"></script>
+
+
           </div>
 
         </div>
@@ -256,9 +226,47 @@ function App() {
         <div className='bottom_middle_container'>
 
           <div className='bottom_container'>
-            <h2 className="subtitle">Unresolved Actions</h2>
-            <p id="unresolved_number"></p>
-            <p id="unresolved_actions"></p>
+            <h2 className="subtitle">Account Settings</h2>
+            <p>View browsing history</p>
+
+            {browsingData.length > 0 ? (
+              <table className="table_format">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th
+                      scope="col"
+                      className="column_title"
+                    >
+                      URL
+                    </th>
+                    <th
+                      scope="col"
+                      className="column_title"
+                    >
+                      Time
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {browsingData.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
+                      <td className="entry_format">
+                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                          {item.url}
+                        </a>
+                      </td>
+                      <td className="entry_format">
+                        {item.time}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="p-6 text-center text-gray-500">Browsing history is empty.</p>
+            )}
+
+
           </div>
 
         </div>
@@ -266,9 +274,7 @@ function App() {
         <div className='bottom_right_container'>
 
           <div className='bottom_container'>
-            <h2 className="subtitle">Unresolved Actions</h2>
-            <p id="unresolved_number"></p>
-            <p id="unresolved_actions"></p>
+            <h2 className="subtitle">Educational Resources</h2>
           </div>
 
         </div>
