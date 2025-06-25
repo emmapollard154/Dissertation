@@ -92,8 +92,8 @@ function App() {
   // Render loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 font-inter">
-        <p className="text-xl text-gray-700">Loading dashboard data...</p>
+      <div className="loading_class">
+        <p className="loading_message">Loading dashboard data...</p>
       </div>
     );
   }
@@ -109,138 +109,181 @@ function App() {
 
   return (
 
-    <div className="dashboard_title">
-      <header className="bg-white shadow rounded-lg p-4 mb-6">
-        <h1>User B Dashboard</h1>
-      </header>
+    <div className='dashboard_background'>
 
-      <h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">Unresolved Actions</h2>
-      <p id="unresolved_number"></p>
-      <p id="unresolved_actions"></p>
-
-      <h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">Browsing History</h2>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-        {browsingData.length > 0 ? (
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
-                >
-                  URL
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
-                >
-                  Time
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {browsingData.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 border border-gray-200">
-                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                      {item.url}
-                    </a>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
-                    {item.time}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="p-6 text-center text-gray-500">Browsing history is empty.</p>
-        )}
+      <div className='title_banner'>
+        <header className="dashboard_title">
+          <h1>User B Dashboard</h1>
+        </header>
       </div>
 
+      <div className='top_panel'>
 
+        <div className='top_left_container'>
 
+          <div className='top_container'>
+            <h2 className="subtitle">Status</h2>
+            {/* TO DO: STATUS */}
+          </div>
 
-<h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">Actions</h2>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
-        {actionData.length > 0 ? (
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
-                >
-                  Action ID
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
-                >
-                  Context
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
-                >
-                  User A Choice
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
-                >
-                  Time
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
-                >
-                  Resolved
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
-                >
-                  Response Outcome
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {actionData.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 border border-gray-200">
-                    {item.actionID}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
-                    {item.context}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
-                    {item.userAChoice}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 border border-gray-200">
-                    {item.time}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
-                    {item.resolved}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
-                    {item.responseOutcome}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="p-6 text-center text-gray-500">Action history is empty.</p>
-        )}
-        <script src="../process_actions.js"></script>
+        </div>
+
+        <div className='top_right_container'>
+          <div className='top_container'>
+            <h2 className="subtitle">Messages</h2>
+                  {/* TO DO: MESSAGES */}
+          </div>
+        </div>
       </div>
 
-        <footer className="mt-8 text-center text-gray-600 text-sm">
-          <p>&copy; {new Date().getFullYear()} Emma Pollard. All rights reserved.</p>
-        </footer>
+      <div className='bottom_panel'>
+
+        <div className='bottom_left_container'>
+
+          <div className='bottom_container'>
+            <h2 className="subtitle">History</h2>
+            <p id="unresolved_number"></p>
+            <p id="unresolved_actions"></p>
+
+            <h2 className="subtitle">Actions</h2>
+              {actionData.length > 0 ? (
+                <table className="table_format">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th
+                        scope="col"
+                        className="column_title"
+                      >
+                        Action ID
+                      </th>
+                      <th
+                        scope="col"
+                        className="column_title"
+                      >
+                        Context
+                      </th>
+                      <th
+                        scope="col"
+                        className="column_title"
+                      >
+                        User A Choice
+                      </th>
+                      <th
+                        scope="col"
+                        className="column_title"
+                      >
+                        Time
+                      </th>
+                      <th
+                        scope="col"
+                        className="column_title"
+                      >
+                        Resolved
+                      </th>
+                      <th
+                        scope="col"
+                        className="column_title"
+                      >
+                        Response Outcome
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {actionData.map((item) => (
+                      <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
+                        <td className="entry_format">
+                          {item.actionID}
+                        </td>
+                        <td className="entry_format">
+                          {item.context}
+                        </td>
+                        <td className="entry_format">
+                          {item.userAChoice}
+                        </td>
+                        <td className="entry_format">
+                          {item.time}
+                        </td>
+                        <td className="entry_format">
+                          {item.resolved}
+                        </td>
+                        <td className="entry_format">
+                          {item.responseOutcome}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="p-6 text-center text-gray-500">Action history is empty.</p>
+              )}
+
+
+          </div>
+
+        </div>
+
+        <div className='bottom_middle_container'>
+
+          <div className='bottom_container'>
+            <h2 className="subtitle">Account Settings</h2>
+            <p>View browsing history</p>
+
+            {browsingData.length > 0 ? (
+              <table className="table_format">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th
+                      scope="col"
+                      className="column_title"
+                    >
+                      URL
+                    </th>
+                    <th
+                      scope="col"
+                      className="column_title"
+                    >
+                      Time
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {browsingData.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
+                      <td className="entry_format">
+                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                          {item.url}
+                        </a>
+                      </td>
+                      <td className="entry_format">
+                        {item.time}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="p-6 text-center text-gray-500">Browsing history is empty.</p>
+            )}
+
+
+          </div>
+
+        </div>
+
+        <div className='bottom_right_container'>
+
+          <div className='bottom_container'>
+            <h2 className="subtitle">Educational Resources</h2>
+          </div>
+
+        </div>
+
       </div>
 
+          <footer className="footer">
+            <p>&copy; {new Date().getFullYear()} Emma Pollard. All rights reserved.</p>
+          </footer>
+    </div>
   );
 }
 
