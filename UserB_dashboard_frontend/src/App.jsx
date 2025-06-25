@@ -124,18 +124,18 @@ function App() {
           <div className='top_container'>
             <h2 className="subtitle">Browsing History</h2>
               {browsingData.length > 0 ? (
-                <table className="min-w-full divide-y divide-gray-200">
+                <table className="table_format">
                   <thead className="bg-gray-50">
                     <tr>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
+                        className="column_title"
                       >
                         URL
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
+                        className="column_title"
                       >
                         Time
                       </th>
@@ -144,12 +144,12 @@ function App() {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {browsingData.map((item) => (
                       <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 border border-gray-200">
+                        <td className="entry_format">
                           <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
                             {item.url}
                           </a>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
+                        <td className="entry_format">
                           {item.time}
                         </td>
                       </tr>
@@ -164,46 +164,45 @@ function App() {
         </div>
 
         <div className='top_right_container'>
-          {/* TEMP */}
           <div className='top_container'>
             <h2 className="subtitle">Actions</h2>
                     {actionData.length > 0 ? (
-                      <table className="min-w-full divide-y divide-gray-200">
+                      <table className="table_format">
                         <thead className="bg-gray-50">
                           <tr>
                             <th
                               scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
+                              className="column_title"
                             >
                               Action ID
                             </th>
                             <th
                               scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
+                              className="column_title"
                             >
                               Context
                             </th>
                             <th
                               scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
+                              className="column_title"
                             >
                               User A Choice
                             </th>
                             <th
                               scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
+                              className="column_title"
                             >
                               Time
                             </th>
                             <th
                               scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
+                              className="column_title"
                             >
                               Resolved
                             </th>
                             <th
                               scope="col"
-                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border border-gray-200"
+                              className="column_title"
                             >
                               Response Outcome
                             </th>
@@ -212,22 +211,22 @@ function App() {
                         <tbody className="bg-white divide-y divide-gray-200">
                           {actionData.map((item) => (
                             <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 border border-gray-200">
+                              <td className="entry_format">
                                 {item.actionID}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
+                              <td className="entry_format">
                                 {item.context}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
+                              <td className="entry_format">
                                 {item.userAChoice}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 border border-gray-200">
+                              <td className="entry_format">
                                 {item.time}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
+                              <td className="entry_format">
                                 {item.resolved}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 border border-gray-200">
+                              <td className="entry_format">
                                 {item.responseOutcome}
                               </td>
                             </tr>
