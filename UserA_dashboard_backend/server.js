@@ -85,9 +85,9 @@ app.post('/api/dashboard-data', (req, res) => {
     const target = req.body.target;
     const data = req.body.data;
 
-    console.log("POST target: ", target);
+    console.log("POST target (server A): ", target);
 
-    console.log('Received POST request data:', req.body);
+    console.log('Received POST request data (server A):', req.body);
 
     if (target === 'BROWSING_DATA') {
         
@@ -124,6 +124,25 @@ app.post('/api/dashboard-data', (req, res) => {
             console.log("Inserting into action table");
             const stmt = db.prepare('INSERT INTO action (actionID, context, userAChoice, time, resolved, responseOutcome) VALUES (?, ?, ?, ?, ?, ?)');
             stmt.run(id, context, choice, time, resolved, responseOutcome);
+        }
+        catch(err) {
+            console.error('Database insertion error:', err.message);
+            return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
+        }
+        res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
+    }
+
+    if (target === 'USER_B_RESPONSE') {
+        console.log("Attempting to insert action response");
+        console.log(data);
+
+        const id = data.id;
+        const outcome = data.outcome;
+
+        try{
+            console.log("Inserting into action table");
+            const stmt = db.prepare('UPDATE action SET resolved = ?, responseOutcome = ? WHERE actionID = ?');
+            stmt.run('Y', outcome, id);
         }
         catch(err) {
             console.error('Database insertion error:', err.message);

@@ -37,11 +37,12 @@ window.addEventListener('message', function(event) {
 
         const actionID = event.data.id;
         const outcome = event.data.outcome;
+
+        const receviedData = event.data;
         console.log("dashboard_b_frontend.js: received outcome " + outcome + " for event " + actionID);
 
         const data = {
-            actionID: actionID,
-            outcome: outcome,
+            data: event.data,
             target: 'USER_B_RESPONSE'
         }
 

@@ -23,9 +23,9 @@ app.post('../UserA_dashboard_backend/api/dashboard-data', (req, res) => {
     const target = req.body.target;
     const data = req.body;
 
-    console.log("POST target: ", target);
+    console.log("POST target (server B): ", target);
 
-    console.log('Received POST request data:', data);
+    console.log('Received POST request data (server B):', data);
 
     if (target === 'USER_B_RESPONSE') {
 
