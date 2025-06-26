@@ -3,7 +3,7 @@
 // function to send data from frontend to backend
 async function sendDataToBackend(data) {
     try {
-        const response = await fetch('http://localhost:5000/api/dashboard-data', {
+        const response = await fetch('http://localhost:8080/api/data-b-frontend', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
