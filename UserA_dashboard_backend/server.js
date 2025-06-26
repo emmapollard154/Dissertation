@@ -132,6 +132,40 @@ app.post('/api/dashboard-data', (req, res) => {
         res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
     }
 
+    // if (target === 'USER_B_RESPONSE') {
+    //     console.log("Attempting to insert action response");
+    //     console.log(data);
+
+    //     const id = data.id;
+    //     const outcome = data.outcome;
+
+    //     try{
+    //         console.log("Inserting into action table");
+    //         const stmt = db.prepare('UPDATE action SET resolved = ?, responseOutcome = ? WHERE actionID = ?');
+    //         stmt.run('Y', outcome, id);
+    //     }
+    //     catch(err) {
+    //         console.error('Database insertion error:', err.message);
+    //         return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
+    //     }
+    //     res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
+    // }
+
+});
+
+
+app.post('/api/data-from-b', (req, res) => {
+    // Basic API Key Authentication (add more robust validation in production)
+    // const apiKey = req.headers['x-api-key'];
+    // if (!apiKey || apiKey !== API_KEY_SECRET) {
+    //     return res.status(401).json({ message: 'Unauthorized: Invalid API Key' });
+    // }
+
+    console.log("request body: ", req.body);
+
+    const target = req.body.target;
+    const data = req.body.data;
+
     if (target === 'USER_B_RESPONSE') {
         console.log("Attempting to insert action response");
         console.log(data);
@@ -151,8 +185,13 @@ app.post('/api/dashboard-data', (req, res) => {
         res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
     }
 
-});
+    if (resolved === undefined || responseOutcome === undefined) {
+        return res.status(400).json({ message: 'Missing resolved or responseOutcome' });
+    }
 
+    console.log('Data successfully inserted into A\'s database by B:', newData);
+    res.status(201).json({ message: 'Data inserted successfully into A\'s database!', data: newData });
+});
 
 
 // Start the server
