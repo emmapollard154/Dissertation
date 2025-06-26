@@ -37,7 +37,46 @@ function App() {
   }
 
 
+// Function to attach event listeners to the menu popup buttons
+function attachButtonListeners() {
+    // if (!responseTable) return;
+    console.log("attachButtonListeners loaded")
 
+    const yesBtn = document.getElementById('btn_yes');
+    const noBtn = document.getElementById('btn_no');
+
+    if (yesBtn) {
+        yesBtn.addEventListener('click', function(event) {
+            // event.preventDefault();
+            console.log("Yes button clicked.");
+            // const actionID = // GET ACTION ID
+            // if (actionID) {
+            //     console.log("Action ID: ", actionID);
+            //     sendActionID(actionID);
+            // } else {
+            //     console.warn("No action ID found")
+            // }
+        });
+    } else {
+        console.warn("btn_yes not found.");
+    }
+
+    if (noBtn) {
+        noBtn.addEventListener('click', function(event) {
+            // event.preventDefault();
+            console.log("No button clicked.");
+            // const actionID = // GET ACTION ID
+            // if (actionID) {
+            //     console.log("Action ID: ", actionID);
+            //     sendActionID(actionID);
+            // } else {
+            //     console.warn("No action ID found")
+            // }
+        });
+    } else {
+        console.warn("btn_no not found.");
+    }
+}
 
 
   // useEffect hook to fetch data when the component mounts
@@ -128,18 +167,20 @@ function App() {
               <p id="unresolved_number_statement"></p>
 
               {unresolvedData.length > 0 ? (
-                <table className="table_format">
+                <table id="responseTable" className="table_format">
                   <thead className="bg-gray-50">
                     <tr>
                       <th scope="col" className="column_title">Action</th>
-                      <th scope="col" className="column_title">Response</th>
+                      <th scope="col" className="column_title">Response No</th>
+                      <th scope="col" className="column_title">Response Yes</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {unresolvedData.map((item) => (
                       <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
                         <td className="entry_format">{item}</td>
-                        <td className="entry_format">BUTTON</td>
+                        <td className="entry_format"><button id="btn_no" onClick={attachButtonListeners}>BUTTON NO</button></td>
+                        <td className="entry_format"><button id="btn_yes" onClick={attachButtonListeners}>BUTTON YES</button></td>
                       </tr>
                     ))}
                   </tbody>

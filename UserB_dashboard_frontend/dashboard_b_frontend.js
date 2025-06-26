@@ -49,4 +49,44 @@ window.addEventListener('message', function(event) {
 
 });
 
+// // Function to attach event listeners to the menu popup buttons
+// function attachButtonListeners(responseTable) {
+//     if (!responseTable) return;
+
+//     const yesBtn = document.getElementById('btn_yes');
+//     const noBtn = document.getElementById('btn_no');
+
+//     if (yesBtn) {
+//         yesBtn.addEventListener('click', function(event) {
+//             event.preventDefault();
+//             console.log("Yes button clicked.");
+//             // const actionID = // GET ACTION ID
+//             // if (actionID) {
+//             //     console.log("Action ID: ", actionID);
+//             //     sendActionID(actionID);
+//             // } else {
+//             //     console.warn("No action ID found")
+//             // }
+//         });
+//     } else {
+//         console.warn("btn_yes not found.");
+//     }
+
+//     if (noBtn) {
+//         noBtn.addEventListener('click', function(event) {
+//             event.preventDefault();
+//             console.log("No button clicked.");
+//             // const actionID = // GET ACTION ID
+//             // if (actionID) {
+//             //     console.log("Action ID: ", actionID);
+//             //     sendActionID(actionID);
+//             // } else {
+//             //     console.warn("No action ID found")
+//             // }
+//         });
+//     } else {
+//         console.warn("btn_no not found.");
+//     }
+// }
+
 console.log('Dashboard script (dashboard_b_frontend) loaded and listening for messages.');
