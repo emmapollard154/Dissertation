@@ -37,7 +37,34 @@ function App() {
   }
 
 
+// Function to attach event listeners to the menu popup buttons
+function responseYes(actionID) {
+  const yesBtn = document.getElementById('btn_yes');
+  if (yesBtn) {
+    console.log("Yes button clicked: ", actionID.item);
+    window.postMessage({
+      type: 'USER_B_RESPONSE',
+      id: actionID.item,
+      outcome: "Y"
+    }, 'http://localhost:6173');
+  } else {
+    console.warn("btn_yes not found.");
+  }
+}
 
+function responseNo(actionID) {
+  const noBtn = document.getElementById('btn_no');
+  if (noBtn) {
+    console.log("No button clicked: ", actionID.item);
+    window.postMessage({
+      type: 'USER_B_RESPONSE',
+      id: actionID.item,
+      outcome: "N"
+    }, 'http://localhost:6173');
+  } else {
+    console.warn("btn_no not found.");
+  }
+}
 
 
   // useEffect hook to fetch data when the component mounts
@@ -128,18 +155,20 @@ function App() {
               <p id="unresolved_number_statement"></p>
 
               {unresolvedData.length > 0 ? (
-                <table className="table_format">
+                <table id="responseTable" className="table_format">
                   <thead className="bg-gray-50">
                     <tr>
                       <th scope="col" className="column_title">Action</th>
-                      <th scope="col" className="column_title">Response</th>
+                      <th scope="col" className="column_title">Response No</th>
+                      <th scope="col" className="column_title">Response Yes</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {unresolvedData.map((item) => (
                       <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
                         <td className="entry_format">{item}</td>
-                        <td className="entry_format">BUTTON</td>
+                        <td className="entry_format"><button id="btn_no" onClick={() => responseNo({item})}>REJECT</button></td>
+                        <td className="entry_format"><button id="btn_yes" onClick={() => responseYes({item})}>ACCEPT</button></td>
                       </tr>
                     ))}
                   </tbody>

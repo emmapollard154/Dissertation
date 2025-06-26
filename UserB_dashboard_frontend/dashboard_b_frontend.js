@@ -35,15 +35,18 @@ window.addEventListener('message', function(event) {
 
     if (event.data && event.data.type === 'USER_B_RESPONSE') {
 
-        const receivedData = event.data.payload;
+        const actionID = event.data.id;
+        const outcome = event.data.outcome;
 
-        console.log('Dashboard B: sending user B response to backend:', receivedData);
+        const receviedData = event.data;
+        console.log("dashboard_b_frontend.js: received outcome " + outcome + " for event " + actionID);
 
         const data = {
-            data: receivedData,
+            data: event.data,
             target: 'USER_B_RESPONSE'
         }
 
+        console.log('dashboard_b_frontend.js: sending user B response to backend:', data);
         sendDataToBackend(data);
     }
 
