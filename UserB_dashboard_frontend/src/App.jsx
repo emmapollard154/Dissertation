@@ -38,16 +38,9 @@ function App() {
 
 
 // Function to attach event listeners to the menu popup buttons
-function attachButtonListeners() {
-    // if (!responseTable) return;
-    console.log("attachButtonListeners loaded")
-
+function responseYes() {
     const yesBtn = document.getElementById('btn_yes');
-    const noBtn = document.getElementById('btn_no');
-
     if (yesBtn) {
-        yesBtn.addEventListener('click', function(event) {
-            // event.preventDefault();
             console.log("Yes button clicked.");
             // const actionID = // GET ACTION ID
             // if (actionID) {
@@ -56,14 +49,15 @@ function attachButtonListeners() {
             // } else {
             //     console.warn("No action ID found")
             // }
-        });
+        // });
     } else {
         console.warn("btn_yes not found.");
     }
+}
 
+function responseNo() {
+    const noBtn = document.getElementById('btn_no');
     if (noBtn) {
-        noBtn.addEventListener('click', function(event) {
-            // event.preventDefault();
             console.log("No button clicked.");
             // const actionID = // GET ACTION ID
             // if (actionID) {
@@ -72,7 +66,7 @@ function attachButtonListeners() {
             // } else {
             //     console.warn("No action ID found")
             // }
-        });
+        // });
     } else {
         console.warn("btn_no not found.");
     }
@@ -179,8 +173,8 @@ function attachButtonListeners() {
                     {unresolvedData.map((item) => (
                       <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
                         <td className="entry_format">{item}</td>
-                        <td className="entry_format"><button id="btn_no" onClick={attachButtonListeners}>BUTTON NO</button></td>
-                        <td className="entry_format"><button id="btn_yes" onClick={attachButtonListeners}>BUTTON YES</button></td>
+                        <td className="entry_format"><button id="btn_no" onClick={responseNo}>BUTTON NO</button></td>
+                        <td className="entry_format"><button id="btn_yes" onClick={responseYes}>BUTTON YES</button></td>
                       </tr>
                     ))}
                   </tbody>
