@@ -35,58 +35,20 @@ window.addEventListener('message', function(event) {
 
     if (event.data && event.data.type === 'USER_B_RESPONSE') {
 
-        const receivedData = event.data.payload;
-
-        console.log('Dashboard B: sending user B response to backend:', receivedData);
+        const actionID = event.data.id;
+        const outcome = event.data.outcome;
+        console.log("dashboard_b_frontend.js: received outcome " + outcome + " for event " + actionID);
 
         const data = {
-            data: receivedData,
+            actionID: actionID,
+            outcome: outcome,
             target: 'USER_B_RESPONSE'
         }
 
+        console.log('dashboard_b_frontend.js: sending user B response to backend:', data);
         sendDataToBackend(data);
     }
 
 });
-
-// // Function to attach event listeners to the menu popup buttons
-// function attachButtonListeners(responseTable) {
-//     if (!responseTable) return;
-
-//     const yesBtn = document.getElementById('btn_yes');
-//     const noBtn = document.getElementById('btn_no');
-
-//     if (yesBtn) {
-//         yesBtn.addEventListener('click', function(event) {
-//             event.preventDefault();
-//             console.log("Yes button clicked.");
-//             // const actionID = // GET ACTION ID
-//             // if (actionID) {
-//             //     console.log("Action ID: ", actionID);
-//             //     sendActionID(actionID);
-//             // } else {
-//             //     console.warn("No action ID found")
-//             // }
-//         });
-//     } else {
-//         console.warn("btn_yes not found.");
-//     }
-
-//     if (noBtn) {
-//         noBtn.addEventListener('click', function(event) {
-//             event.preventDefault();
-//             console.log("No button clicked.");
-//             // const actionID = // GET ACTION ID
-//             // if (actionID) {
-//             //     console.log("Action ID: ", actionID);
-//             //     sendActionID(actionID);
-//             // } else {
-//             //     console.warn("No action ID found")
-//             // }
-//         });
-//     } else {
-//         console.warn("btn_no not found.");
-//     }
-// }
 
 console.log('Dashboard script (dashboard_b_frontend) loaded and listening for messages.');

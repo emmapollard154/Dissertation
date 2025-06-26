@@ -11,6 +11,7 @@ function App() {
   const [error, setError] = useState(null);             // State for error messages
 
   let UNRESOLVED = [];
+  const noUnresolved = "No unresolved actions";
 
   function processAction(unresolved) {
     console.log("process_actions.js: unresolved: ", unresolved);
