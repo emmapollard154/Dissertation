@@ -42,9 +42,9 @@ function App() {
             } else {
               console.log("Response from extension:", response);
               if (response && response.status === "success") {
-                alert("Message sent successfully to extension: " + response.message);
+                console.log("Message sent successfully to extension: " + response.message);
               } else {
-                alert("Failed to send message to extension or extension reported an error.");
+                console.error("Failed to send message to extension or extension reported an error.");
               }
             }
           }
