@@ -6,6 +6,20 @@ const DASHBOARD_A_LOCATION = "http://localhost:5173";
 const EMAIL_ENV = "http://localhost:5174";
 // const BANKING_ENV = "https://www.google.com/";
 
+// Function to initialise the number of pending requests and updates
+function setNums(pending, updates) {
+
+	if (pending >= 0) { // update pending only if valid number given
+		chrome.storage.local.set({ 'NUM_PENDING': pending }, function() {
+		console.log('Initialising NUM_PENDING to ', pending);
+		});
+	}
+
+    chrome.storage.local.set({ 'NUM_UPDATES': updates }, function() {
+    console.log('Initialising NUM_UPDATES to ', updates);
+    });
+}
+
 // set side panel behaviour
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false })
   .then(() => console.log("Side panel behaviour set: do not open by default"))
@@ -16,7 +30,10 @@ chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false })
 // open dashboard in a new tab when extension icon clicked
 chrome.action.onClicked.addListener((tab) => {
 
-  console.log(`Extension clicked. Opening dashboard in new tab.`);
+	console.log(`Extension clicked. Opening dashboard in new tab.`);
+
+	setNums(0,0); // initialise variables, updated by side panel
+
 
 	// open side panel	
 	chrome.sidePanel.open({ tabId: tab.id })
@@ -25,7 +42,7 @@ chrome.action.onClicked.addListener((tab) => {
 		})
 		.catch((error) => {
 			console.error('Error opening side panel:', error);
-	});
+		});
 
 	chrome.tabs.create({ url: DASHBOARD_A_LOCATION })
 		.then((newTab) => {
@@ -33,7 +50,9 @@ chrome.action.onClicked.addListener((tab) => {
 		})
 		.catch((error) => {
 			console.error('Error opening new tab:', error);
-	});
+		});
+
+
 });
 
 // function to get current time in sqlite datetime format
@@ -80,6 +99,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === "openDashboard") {
 		console.log("Opening dashboard in new tab");
 		chrome.tabs.create({ url: DASHBOARD_A_LOCATION });
+		setNums(-1, 0);
 	}
 });
 
