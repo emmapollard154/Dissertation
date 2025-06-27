@@ -7,13 +7,16 @@ const EMAIL_ENV = "http://localhost:5174";
 // const BANKING_ENV = "https://www.google.com/";
 
 // Function to initialise the number of pending requests and updates
-function initNums() {
-    chrome.storage.local.set({ 'NUM_PENDING': 0 }, function() {
-    console.log('Initialising NUM_PENDING to ', 0);
-    });
+function setNums(pending, updates) {
 
-    chrome.storage.local.set({ 'NUM_UPDATES': -1 }, function() {
-    console.log('Initialising NUM_UPDATES to ', -1);
+	if (pending >= 0) { // update pending only if valid number given
+		chrome.storage.local.set({ 'NUM_PENDING': pending }, function() {
+		console.log('Initialising NUM_PENDING to ', pending);
+		});
+	}
+
+    chrome.storage.local.set({ 'NUM_UPDATES': updates }, function() {
+    console.log('Initialising NUM_UPDATES to ', updates);
     });
 }
 
@@ -29,7 +32,7 @@ chrome.action.onClicked.addListener((tab) => {
 
 	console.log(`Extension clicked. Opening dashboard in new tab.`);
 
-	initNums();
+	setNums(0,-1); // initialise variables, updated by side panel
 
 
 	// open side panel	
@@ -96,6 +99,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === "openDashboard") {
 		console.log("Opening dashboard in new tab");
 		chrome.tabs.create({ url: DASHBOARD_A_LOCATION });
+		setNums(-1, 0);
 	}
 });
 

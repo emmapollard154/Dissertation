@@ -51,23 +51,23 @@ async function updateNumPending(newPending) {
 
         console.log("side_panel.js: received number pending: ", newPending);
         document.getElementById("numPending").innerHTML = newPending + " Pending Requests";
-        console.log("Number of updates before: ", oldUpdates);
-        console.log("Number of pending before: ", oldPending);
-        if (oldPending !== newPending) {
-            console.log("Number of pending requests has changed")
+
+        if (oldPending < newPending) { // a request has been resolved
+            console.log("Number of pending requests has reduced")
             setNums(newPending, oldUpdates + 1);
+
+            try {
+                const newUpdates = await getNumUpdates();
+                console.log('New number updates:', newUpdates);
+                document.getElementById("numUpdates").innerHTML = newUpdates + " Updates";
+            } catch (error) {
+                console.error('Error extracting value for new updates:', error);
+            }
+
         }
 
     } catch (error) {
         console.error('Error extracting values for pending/updates:', error);
-    }
-
-    try {
-        const newUpdates = await getNumUpdates();
-        console.log('New number updates:', newUpdates);
-        document.getElementById("numUpdates").innerHTML = newUpdates + " Updates";
-    } catch (error) {
-        console.error('Error extracting value for new updates:', error);
     }
 }
 
