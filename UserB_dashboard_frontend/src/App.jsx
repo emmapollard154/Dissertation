@@ -37,34 +37,33 @@ function App() {
   }
 
 
-// Function to attach event listeners to the menu popup buttons
-function responseYes(actionID) {
-  const yesBtn = document.getElementById('btn_yes');
-  if (yesBtn) {
-    console.log("Yes button clicked: ", actionID.item);
-    window.postMessage({
-      type: 'USER_B_RESPONSE',
-      id: actionID.item,
-      outcome: "Y"
-    }, 'http://localhost:6173');
-  } else {
-    console.warn("btn_yes not found.");
-  }
-}
+  // Function to allow user B to accept/reject a request
+  function responseBtn(btn, actionID) {
 
-function responseNo(actionID) {
-  const noBtn = document.getElementById('btn_no');
-  if (noBtn) {
-    console.log("No button clicked: ", actionID.item);
-    window.postMessage({
-      type: 'USER_B_RESPONSE',
-      id: actionID.item,
-      outcome: "N"
-    }, 'http://localhost:6173');
-  } else {
-    console.warn("btn_no not found.");
+    const yesBtn = document.getElementById('btn_yes');
+    const noBtn = document.getElementById('btn_no');
+
+    if (btn.id === 'btn_yes') {
+      console.log("Yes button clicked: ", actionID.item);
+      window.postMessage({
+        type: 'USER_B_RESPONSE',
+        id: actionID.item,
+        outcome: "Y"
+      }, 'http://localhost:6173');
+    } else if (btn.id === 'btn_no') {
+      console.log("No button clicked: ", actionID.item);
+      window.postMessage({
+        type: 'USER_B_RESPONSE',
+        id: actionID.item,
+        outcome: "N"
+      }, 'http://localhost:6173');
+    } else {
+      console.warn("Error: invalid button id found");
+    }
+    yesBtn.disabled = true;
+    noBtn.disabled = true;
+    location.reload();
   }
-}
 
 
   // useEffect hook to fetch data when the component mounts
@@ -167,8 +166,8 @@ function responseNo(actionID) {
                     {unresolvedData.map((item) => (
                       <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
                         <td className="entry_format">{item}</td>
-                        <td className="entry_format"><button id="btn_no" onClick={() => responseNo({item})}>REJECT</button></td>
-                        <td className="entry_format"><button id="btn_yes" onClick={() => responseYes({item})}>ACCEPT</button></td>
+                        <td className="entry_format"><button id="btn_no" onClick={(event) => responseBtn(event.target, {item})}>REJECT</button></td>
+                        <td className="entry_format"><button id="btn_yes" onClick={(event) => responseBtn(event.target, {item})}>ACCEPT</button></td>
                       </tr>
                     ))}
                   </tbody>

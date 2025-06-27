@@ -118,5 +118,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             }
         });
     }    
+
+    if (message.action === 'updateNumPending') {
+        console.log("side_panel.js: received number pending: ", message.numPending);
+    }
+
+
+
 });
 

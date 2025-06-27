@@ -10,7 +10,8 @@ const port = 8080;
 app.use(cors());
 app.use(express.json());
 
-const db = new sqlite3.Database('../UserA_dashboard_backend/dashboard.db', (err) => {
+// const db = new sqlite3.Database('../UserA_dashboard_backend/dashboard.db', (err) => {
+const db = new sqlite3.Database('../dashboard.db', (err) => {
     if (err) {
         console.error('Error connecting to database:', err.message);
     } else {

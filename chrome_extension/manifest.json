@@ -51,5 +51,10 @@
                     "menu_popup.css"],
       "matches": ["http://localhost:5174/*"]
     }
-  ]
+  ],
+  "externally_connectable": {
+    "matches": [
+      "http://localhost:5173/*"
+    ]
+  }
 }
