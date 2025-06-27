@@ -19,11 +19,18 @@
 
     <div class="bottom_container" id="bottomContainer">
         <div class="button_panel" id="buttonPanel">
-            <button id="statBtn">
+            <button id="statBtn" class="stat_btn">
                 <img class="default_img" src = "./icons/status_grey.png">
                 <img class="hover_img" src = "./icons/status_black.png">
                 &emsp;Status
+
+                <div class="status_dropdown">
+                <p id="numUpdates" class="dropdown_updates">? Updates</p>
+                <p id="numPending">? Pending Requests</p>
+                </div>
+
             </button>
+
             <button id="msgBtn">
                 <img class="default_img" src = "./icons/message_grey.png">
                 <img class="hover_img" src = "./icons/message_black.png">

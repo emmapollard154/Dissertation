@@ -3,8 +3,13 @@
 const DASHBOARD_A_LOCATION = "http://localhost:5173/";
 const EMAIL_ENV = "http://localhost:5174/";
 const EMAIL_ANNOUNCEMENT = "You are on the email webpage";
+var NUM_UPDATES = 0;
 
 document.getElementById('dashBtn').addEventListener('click', function() {
+    chrome.runtime.sendMessage({ action: "openDashboard"});
+});
+
+document.getElementById('numUpdates').addEventListener('click', function() {
     chrome.runtime.sendMessage({ action: "openDashboard"});
 });
 
@@ -121,6 +126,11 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
     if (message.action === 'updateNumPending') {
         console.log("side_panel.js: received number pending: ", message.numPending);
+        document.getElementById("numPending").innerHTML = message.numPending + " Pending Requests";
+        console.log("Number of updates before: ", NUM_UPDATES);
+        NUM_UPDATES += 1;
+        console.log("Number of updates after: ", NUM_UPDATES);
+        document.getElementById("numUpdates").innerHTML = NUM_UPDATES + " Updates";
     }
 
 
