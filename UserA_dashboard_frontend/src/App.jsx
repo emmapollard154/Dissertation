@@ -4,28 +4,65 @@ import './App.css'
 
 // Main App component for dashboard
 function App() {
-  const [browsingData, setBrowsingData] = useState([]);   // State to store fetched browsing history data
-  const [actionData, setActionData] = useState([]);   // State to store fetched action data
-  const [unresolvedData, setUnresolvedData] = useState([]); 
-  const [loading, setLoading] = useState(true);         // State for loading indicator
-  const [error, setError] = useState(null);             // State for error messages
+  const [browsingData, setBrowsingData] = useState([]);
+  const [actionData, setActionData] = useState([]);
+  const [unresolvedData, setUnresolvedData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   let UNRESOLVED = [];
   const noUnresolved = "No unresolved actions";
   const EXTENSION_ID = "bcdjfglkdcfeeekbkhbambhhjgdllcom";
 
-  function processAction(unresolved) {
-    console.log("process_actions.js: unresolved: ", unresolved);
-    setUnresolvedData(unresolved);
-    const length = unresolved.length;
+  function processActionID(data) {
+    const action_ids = data.map(row => [row.actionID, row.resolved]);
+    for (let i=0; i < action_ids.length; i++) {
+      if (action_ids[i][1] === "N" && !UNRESOLVED.includes(action_ids[i][0])) {
+        UNRESOLVED.push(action_ids[i][0]);
+      } // collect unresolved actions
+    }
+    setUnresolvedData(UNRESOLVED);
+    const length = UNRESOLVED.length;
     if (length > 0) {
       document.getElementById('unresolved_number_statement').innerHTML = length + " unresolved action(s)";
     } else {
       document.getElementById('unresolved_number_statement').innerHTML = noUnresolved;
     }
-
-    // TO DO: send unresolved.length to chrome extension
     sendToExt("NUM_PENDING", JSON.stringify(length));
+  }
+
+
+  const fetchBrowserData = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/dashboard-data/browsingHistory');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      setBrowsingData(result.data); // update the state with the fetched data
+    } catch (e) {
+      console.error("Error fetching dashboard data:", e);
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchActionData = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/dashboard-data/action');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      setActionData(result.data); // update the state with the fetched data
+      processActionID(result.data);
+    } catch (e) {
+      console.error("Error fetching dashboard data:", e);
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // function to send number of unresolved actions to chrome extension
@@ -35,7 +72,7 @@ function App() {
         chrome.runtime.sendMessage(
           EXTENSION_ID,
           { type: msgType, 
-            payload: msgContent }, // The message object (must be JSON-serializable)
+            payload: msgContent },
           function(response) {
             if (chrome.runtime.lastError) {
               console.error("Error sending message:", chrome.runtime.lastError.message);
@@ -57,74 +94,11 @@ function App() {
     }
   }
 
-
-  function processActionID(data) {
-    const action_ids = data.map(row => [row.actionID, row.resolved]);
-    for (let i=0; i < action_ids.length; i++) {
-      if (action_ids[i][1] === "N" && !UNRESOLVED.includes(action_ids[i][0])) { // collect unresolved actions
-        console.log("action ", action_ids[i][0], "is unresolved");
-        UNRESOLVED.push(action_ids[i][0]);
-      } else {
-        console.log("action ", action_ids[i][0], "is resolved");
-      }
-    }
-    processAction(UNRESOLVED);
-  }
-
-
-
-
-
-  // useEffect hook to fetch data when the component mounts
+  // hook to fetch data when the component mounts
   useEffect(() => {
-    const fetchBrowserData = async () => {
-      try {
-        // Fetch data from our Node.js backend API
-        // Make sure the backend server is running on port 5000
-        const response = await fetch('http://localhost:5000/api/dashboard-data/browsingHistory');
-
-        // Check if the HTTP response was successful
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json(); // Parse the JSON response
-        console.log('Fetched browser data:', result.data); // Log the fetched data for debugging
-        setBrowsingData(result.data); // Update the state with the fetched data
-      } catch (e) {
-        console.error("Error fetching dashboard data:", e); // Log any errors
-        setError(e.message); // Set error state
-      } finally {
-        setLoading(false); // Set loading to false once fetching is complete (or errors)
-      }
-    };
-
-    const fetchActionData = async () => {
-      try {
-        // Fetch data from our Node.js backend API
-        // Make sure the backend server is running on port 5000
-        const response = await fetch('http://localhost:5000/api/dashboard-data/action');
-
-        // Check if the HTTP response was successful
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json(); // Parse the JSON response
-        console.log('Fetched action data:', result.data); // Log the fetched data for debugging
-        setActionData(result.data); // Update the state with the fetched data
-        processActionID(result.data);
-      } catch (e) {
-        console.error("Error fetching dashboard data:", e); // Log any errors
-        setError(e.message); // Set error state
-      } finally {
-        setLoading(false); // Set loading to false once fetching is complete (or errors)
-      }
-    };
-
     fetchBrowserData(); //  fetch data
     fetchActionData();
-  }, []); // effect runs once after the initial render
+  }, []);
 
   // Render loading state
   if (loading) {
