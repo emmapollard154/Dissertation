@@ -52,7 +52,7 @@ async function updateNumPending(newPending) {
         console.log("side_panel.js: received number pending: ", newPending);
         document.getElementById("numPending").innerHTML = newPending + " Pending Requests";
 
-        if (oldPending < newPending) { // a request has been resolved
+        if (oldPending > newPending) { // a request has been resolved
             console.log("Number of pending requests has reduced")
             setNums(newPending, oldUpdates + 1);
 
@@ -63,7 +63,8 @@ async function updateNumPending(newPending) {
             } catch (error) {
                 console.error('Error extracting value for new updates:', error);
             }
-
+        } else {
+            document.getElementById("numUpdates").innerHTML = oldUpdates + " Updates";
         }
 
     } catch (error) {

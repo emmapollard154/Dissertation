@@ -32,7 +32,7 @@ chrome.action.onClicked.addListener((tab) => {
 
 	console.log(`Extension clicked. Opening dashboard in new tab.`);
 
-	setNums(0,-1); // initialise variables, updated by side panel
+	setNums(0,0); // initialise variables, updated by side panel
 
 
 	// open side panel	
