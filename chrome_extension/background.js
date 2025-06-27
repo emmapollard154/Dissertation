@@ -83,6 +83,45 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	}
 });
 
+// Listener for messages from external web pages
+chrome.runtime.onMessageExternal.addListener(
+  function(request, sender, sendResponse) {
+    const allowedOrigins = [
+      "http://localhost:5173"
+    ];
+
+    if (!allowedOrigins.includes(new URL(sender.url).origin)) {
+      console.warn("Blocked message from unauthorized origin:", sender.url);
+      return false;
+    }
+
+    console.log("Received message from frontend:", request);
+    console.log("Sender details:", sender);
+
+    // // You can inspect the 'request' object to determine the message type and data
+    // if (request.type === "DASHBOARD_DATA") {
+    //   console.log("Dashboard data received:", request.payload);
+    //   // Process the data, e.g., save to storage, trigger a notification, etc.
+    //   // Example: Save to extension's local storage
+    //   chrome.storage.local.set({ dashboardData: request.payload }, function() {
+    //     console.log('Dashboard data saved to extension storage');
+    //   });
+
+    //   // Send a response back to the frontend (optional)
+    //   sendResponse({ status: "success", message: "Data received by extension!" });
+    //   return true; // Indicates that you want to send an asynchronous response (if needed)
+    // } else if (request.type === "DASHBOARD_ACTION") {
+    //   console.log("Frontend requested action:", request.action);
+    //   // Perform an action based on the request
+    //   sendResponse({ status: "success", message: `Action '${request.action}' performed.` });
+    // } else {
+    //   console.log("Unknown message type:", request.type);
+    //   sendResponse({ status: "error", message: "Unknown message type." });
+    // }
+
+	return true;
+  }
+);
 
 
 // // TO DO  open settings page on installation

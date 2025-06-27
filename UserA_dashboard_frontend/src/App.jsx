@@ -12,16 +12,51 @@ function App() {
 
   let UNRESOLVED = [];
   const noUnresolved = "No unresolved actions";
+  const EXTENSION_ID = "bcdjfglkdcfeeekbkhbambhhjgdllcom";
 
   function processAction(unresolved) {
     console.log("process_actions.js: unresolved: ", unresolved);
     setUnresolvedData(unresolved);
-    if (unresolved.length > 0) {
-      document.getElementById('unresolved_number_statement').innerHTML = unresolved.length + " unresolved action(s)";
+    const length = unresolved.length;
+    if (length > 0) {
+      document.getElementById('unresolved_number_statement').innerHTML = length + " unresolved action(s)";
     } else {
       document.getElementById('unresolved_number_statement').innerHTML = noUnresolved;
     }
+
+    // TO DO: send unresolved.length to chrome extension
+    sendToExt("NUM_PENDING", JSON.stringify(length));
   };
+
+  // function to send number of unresolved actions to chrome extension
+  function sendToExt(msgType, msgContent) {
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+      try {
+        chrome.runtime.sendMessage(
+          EXTENSION_ID,
+          { type: msgType, 
+            payload: msgContent }, // The message object (must be JSON-serializable)
+          function(response) {
+            if (chrome.runtime.lastError) {
+              console.error("Error sending message:", chrome.runtime.lastError.message);
+            } else {
+              console.log("Response from extension:", response);
+              if (response && response.status === "success") {
+                alert("Message sent successfully to extension: " + response.message);
+              } else {
+                alert("Failed to send message to extension or extension reported an error.");
+              }
+            }
+          }
+        );
+      } catch (error) {
+        console.error("Could not send message to extension (likely not installed or wrong ID):", error);
+      }
+    } else {
+      console.warn("Chrome extension API (chrome.runtime) not available.");
+    }
+  }
+
 
   function processActionID(data) {
     const action_ids = data.map(row => [row.actionID, row.resolved]);
@@ -139,7 +174,7 @@ function App() {
                     {unresolvedData.map((item) => (
                       <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
                         <td className="entry_format">{item}</td>
-                        <td className="entry_format">BUTTON</td>
+                        <td className="entry_format">Pending</td>
                       </tr>
                     ))}
                   </tbody>
