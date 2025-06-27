@@ -13,28 +13,53 @@ function App() {
   let UNRESOLVED = [];
   const noUnresolved = "No unresolved actions";
 
-  function processAction(unresolved) {
-    console.log("process_actions.js: unresolved: ", unresolved);
-    setUnresolvedData(unresolved);
-    if (unresolved.length > 0) {
-      document.getElementById('unresolved_number_statement').innerHTML = unresolved.length + " unresolved action(s)";
+  const processActionID = (data) => {
+    const action_ids = data.map(row => [row.actionID, row.resolved]);
+    for (let i=0; i < action_ids.length; i++) {
+      if (action_ids[i][1] === "N" && !UNRESOLVED.includes(action_ids[i][0])) {
+        UNRESOLVED.push(action_ids[i][0]);
+      } // collect unresolved actions
+    }
+    setUnresolvedData(UNRESOLVED);
+    if (UNRESOLVED.length > 0) {
+      document.getElementById('unresolved_number_statement').innerHTML = UNRESOLVED.length + " unresolved action(s)";
     } else {
       document.getElementById('unresolved_number_statement').innerHTML = noUnresolved;
     }
+  }
+
+  const fetchBrowserData = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/dashboard-data/browsingHistory');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      setBrowsingData(result.data); // update the state with the fetched data
+    } catch (e) {
+      console.error("Error fetching dashboard data:", e);
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  function processActionID(data) {
-    const action_ids = data.map(row => [row.actionID, row.resolved]);
-    for (let i=0; i < action_ids.length; i++) {
-      if (action_ids[i][1] === "N" && !UNRESOLVED.includes(action_ids[i][0])) { // collect unresolved actions
-        console.log("action ", action_ids[i][0], "is unresolved");
-        UNRESOLVED.push(action_ids[i][0]);
-      } else {
-        console.log("action ", action_ids[i][0], "is resolved");
+  const fetchActionData = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/dashboard-data/action');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+      const result = await response.json();
+      setActionData(result.data); // update the state with the fetched data
+      processActionID(result.data);
+    } catch (e) {
+      console.error("Error fetching dashboard data:", e);
+      setError(e.message); // Set error state
+    } finally {
+      setLoading(false);
     }
-    processAction(UNRESOLVED);
-  }
+  };
 
 
   // Function to allow user B to accept/reject a request
@@ -65,57 +90,11 @@ function App() {
     location.reload();
   }
 
-
-  // useEffect hook to fetch data when the component mounts
+  // hook to fetch data when the component mounts
   useEffect(() => {
-    const fetchBrowserData = async () => {
-      try {
-        // Fetch data from our Node.js backend API
-        // Make sure the backend server is running on port 5000
-        const response = await fetch('http://localhost:5000/api/dashboard-data/browsingHistory');
-
-        // Check if the HTTP response was successful
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json(); // Parse the JSON response
-        console.log('Fetched browser data:', result.data); // Log the fetched data for debugging
-        setBrowsingData(result.data); // Update the state with the fetched data
-      } catch (e) {
-        console.error("Error fetching dashboard data:", e); // Log any errors
-        setError(e.message); // Set error state
-      } finally {
-        setLoading(false); // Set loading to false once fetching is complete (or errors)
-      }
-    };
-
-    const fetchActionData = async () => {
-      try {
-        // Fetch data from our Node.js backend API
-        // Make sure the backend server is running on port 5000
-        const response = await fetch('http://localhost:5000/api/dashboard-data/action');
-
-        // Check if the HTTP response was successful
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json(); // Parse the JSON response
-        console.log('Fetched action data:', result.data); // Log the fetched data for debugging
-        setActionData(result.data); // Update the state with the fetched data
-        processActionID(result.data);
-      } catch (e) {
-        console.error("Error fetching dashboard data:", e); // Log any errors
-        setError(e.message); // Set error state
-      } finally {
-        setLoading(false); // Set loading to false once fetching is complete (or errors)
-      }
-    };
-
-    fetchBrowserData(); //  fetch data
+    fetchBrowserData();
     fetchActionData();
-  }, []); // effect runs once after the initial render
+  }, []);
 
   // Render loading state
   if (loading) {
