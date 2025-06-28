@@ -87,7 +87,7 @@ function App() {
     }
     yesBtn.disabled = true;
     noBtn.disabled = true;
-    location.reload();
+    // location.reload();
   }
 
   // hook to fetch data when the component mounts

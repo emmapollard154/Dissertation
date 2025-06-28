@@ -168,7 +168,6 @@ app.post('/api/data-from-b', (req, res) => {
 
     if (target === 'USER_B_RESPONSE') {
         console.log("Attempting to insert action response");
-        console.log(data);
 
         const id = data.id;
         const outcome = data.outcome;
@@ -185,12 +184,8 @@ app.post('/api/data-from-b', (req, res) => {
         res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
     }
 
-    if (resolved === undefined || responseOutcome === undefined) {
-        return res.status(400).json({ message: 'Missing resolved or responseOutcome' });
-    }
-
-    console.log('Data successfully inserted into A\'s database by B:', newData);
-    res.status(201).json({ message: 'Data inserted successfully into A\'s database!', data: newData });
+    console.log("TO DO: SEND NOTIFICATION");
+    // res.status(201).json({ message: 'Data inserted successfully into A\'s database!'});
 });
 
 
