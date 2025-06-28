@@ -19,11 +19,10 @@ async function getNumPending() {
     try {
         const result = await getStorageData(['NUM_PENDING']);
         const numPending = result.NUM_PENDING;
-        console.log('NUM_PENDING retrieved: ' + numPending);
-        return numPending; // This will now return the value directly
+        return numPending;
     } catch (error) {
         console.error('Error retrieving NUM_PENDING:', error);
-        throw error; // Re-throw or handle the error as appropriate
+        throw error;
     }
 }
 
@@ -31,15 +30,12 @@ async function getNumUpdates() {
     try {
         const result = await getStorageData(['NUM_UPDATES']);
         const numUpdates = result.NUM_UPDATES;
-        console.log('NUM_UPDATES retrieved: ' + numUpdates);
-        return numUpdates; // This will now return the value directly
+        return numUpdates;
     } catch (error) {
         console.error('Error retrieving NUM_UPDATES:', error);
-        throw error; // Re-throw or handle the error as appropriate
+        throw error;
     }
 }
-
-
 
 async function updateNumPending(newPending) {
 
@@ -53,28 +49,22 @@ async function updateNumPending(newPending) {
         document.getElementById("numPending").innerHTML = newPending + " Pending Requests";
 
         if (oldPending > newPending) { // a request has been resolved
-            console.log("Number of pending requests has reduced")
             setNums(newPending, oldUpdates + 1);
-
             try {
                 const newUpdates = await getNumUpdates();
-                console.log('New number updates:', newUpdates);
                 document.getElementById("numUpdates").innerHTML = newUpdates + " Updates";
             } catch (error) {
                 console.error('Error extracting value for new updates:', error);
             }
         } else {
             document.getElementById("numUpdates").innerHTML = oldUpdates + " Updates";
+            setNums(newPending, oldUpdates);
         }
 
     } catch (error) {
         console.error('Error extracting values for pending/updates:', error);
     }
 }
-
-
-
-
 
 // Function to set the number of pending requests and updates
 function setNums(newPending, newUpdate) {
@@ -87,23 +77,6 @@ function setNums(newPending, newUpdate) {
     console.log('Setting NUM_UPDATES to ', newUpdate);
     });
 }
-
-// // Function to retrieve the number of pending requests
-// function getNumPending() {
-//     chrome.storage.local.get(['NUM_PENDING'], function(result) {
-//     console.log('NUM_PENDING retrieved: ' + result.NUM_PENDING);
-//     return result.NUM_PENDING;
-//     });
-// }
-
-// // Function to retrieve the number of updates
-// function getNumUpdates() {
-//     chrome.storage.local.get(['NUM_UPDATES'], function(result) {
-//     console.log('NUM_UPDATES retrieved: ' + result.NUM_UPDATES);
-//     return result.NUM_UPDATES;
-//     });
-// }
-
 
 document.getElementById('dashBtn').addEventListener('click', function() {
     NUM_UPDATES = 0; // clear updates
@@ -167,7 +140,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                         // send message to the content script in the active tab
                         chrome.tabs.sendMessage(activeTab.id, {
                             action: 'clickedOnEmail',
-                            // data: browserData
                         }, function(response) {
                             if (chrome.runtime.lastError) {
                                 console.error('side_panel: Error sending message to content script:', chrome.runtime.lastError.message);
@@ -185,8 +157,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             } else {
                 document.getElementById('speechContent').innerText = "";
             }
-
-            return true; // sendResponse is called asynchronously
+            return true;
         } else {
             console.log(`On dashboard A at ${EMAIL_ENV}`)
         }
@@ -227,26 +198,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     }    
 
     if (message.action === 'updateNumPending') {
-
         updateNumPending(message.numPending);
-
-        // const currUpdates = getNumUpdates();
-        // const oldPending = getNumPending();
-        // const newPending =  message.numPending;
-        // console.log("side_panel.js: received number pending: ", newPending);
-        // document.getElementById("numPending").innerHTML = newPending + " Pending Requests";
-        // console.log("Number of updates before: ", currUpdates);
-        // console.log("Number of pending before: ", oldPending);
-        // if (oldPending !== newPending) {
-        //     console.log("Number of pending requests has changed")
-        //     setNums(newPending, currUpdates + 1);
-        // }
-        // const newUpdates = getNumUpdates();
-        // console.log("Number of updates after: ", newUpdates);
-        // document.getElementById("numUpdates").innerHTML = newUpdates + " Updates";
     }
-
-
-
 });
 
