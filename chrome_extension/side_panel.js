@@ -40,9 +40,11 @@ async function getNumUpdates() {
 // Function to set the number of pending requests and updates
 function setNums(newPending, newUpdate) {
 
-    chrome.storage.local.set({ 'NUM_PENDING': newPending }, function() {
-    console.log('Setting NUM_PENDING to ', newPending);
-    });
+    if (newPending >= 0) {
+        chrome.storage.local.set({ 'NUM_PENDING': newPending }, function() {
+        console.log('Setting NUM_PENDING to ', newPending);
+        });
+    }
 
     chrome.storage.local.set({ 'NUM_UPDATES': newUpdate }, function() {
     console.log('Setting NUM_UPDATES to ', newUpdate);
@@ -79,31 +81,23 @@ async function updateNumPending(newPending) {
     } catch (error) {
         console.error('Error extracting values for pending/updates:', error);
     }
+    // location.reload();
 }
 
 document.getElementById('dashBtn').addEventListener('click', async function() {
-    try {
-        const pending = await getNumPending();
-        setNums(pending, 0);
-        chrome.runtime.sendMessage({ action: "openDashboard"});
-    } catch (error) {
-        console.error('Error extracting value for pending:', error);
-    }
+    setNums(-1, 0);
 });
 
 document.getElementById('numUpdates').addEventListener('click', async function() {
-    try {
-        const pending = await getNumPending();
-        setNums(pending, 0);
-        chrome.runtime.sendMessage({ action: "openDashboard"});
-    } catch (error) {
-        console.error('Error extracting value for pending:', error);
-    }
+    setNums(-1, 0);
 });
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     console.log("side_panel received message type:", message.action);
 
+    if (message.action === 'updateNumPending') {
+        updateNumPending(message.numPending);
+    }
 
     if (message.action === 'sendUrlToDashboard') {
 
@@ -172,7 +166,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             }
             return true;
         } else {
-            console.log(`On dashboard A at ${EMAIL_ENV}`)
+            console.log(`On dashboard A at ${DASHBOARD_A_LOCATION}`);
+            setNums(-1, 0);
         }
     }
 
@@ -209,9 +204,5 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             }
         });
     }    
-
-    if (message.action === 'updateNumPending') {
-        updateNumPending(message.numPending);
-    }
 });
 

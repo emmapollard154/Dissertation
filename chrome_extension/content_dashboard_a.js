@@ -39,7 +39,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         }, 'http://localhost:5173');
 
         sendResponse({ status: 'content_script_received_and_processed', dataProcessed: choice });
-    }	
+        location.reload();
+    }
 
 });
 

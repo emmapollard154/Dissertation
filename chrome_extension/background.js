@@ -77,8 +77,6 @@ function getActiveTabUrl() {
 			} else {
 				var url = new URL(activeTab.url);
 				console.log("New tab: " + activeTab.url);
-
-				// send current url to side panel
 				console.log("Sending URL background -> side_panel")
 				timestamp = timeToDatetime();
                 chrome.runtime.sendMessage({ action: 'sendUrlToDashboard', newUrlMessage: [url,  timestamp] });
@@ -118,20 +116,11 @@ chrome.runtime.onMessageExternal.addListener(
     console.log("Received message from frontend:", request);
     console.log("Sender details:", sender);
 
-    // You can inspect the 'request' object to determine the message type and data
     if (request.type === "NUM_PENDING") {
 		console.log("background.js: received number of pending unresolved actions");
 		chrome.runtime.sendMessage({ action: 'updateNumPending', numPending: request.payload });
 		sendResponse({ status: "success", message: "Data received by extension!" });
 		return true;
-    // } else if (request.type === "DASHBOARD_ACTION") {
-    //   console.log("Frontend requested action:", request.action);
-    //   // Perform an action based on the request
-    //   sendResponse({ status: "success", message: `Action '${request.action}' performed.` });
-    // } else {
-    //   console.log("Unknown message type:", request.type);
-    //   sendResponse({ status: "error", message: "Unknown message type." });
-    // }
 	}
   }
 );
