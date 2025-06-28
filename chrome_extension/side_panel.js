@@ -37,19 +37,34 @@ async function getNumUpdates() {
     }
 }
 
+// Function to set the number of pending requests and updates
+function setNums(newPending, newUpdate) {
+
+    chrome.storage.local.set({ 'NUM_PENDING': newPending }, function() {
+    console.log('Setting NUM_PENDING to ', newPending);
+    });
+
+    chrome.storage.local.set({ 'NUM_UPDATES': newUpdate }, function() {
+    console.log('Setting NUM_UPDATES to ', newUpdate);
+    });
+}
+
+function updateAlert() {
+
+}
+
 async function updateNumPending(newPending) {
 
     try {
         const oldPending = await getNumPending();
         const oldUpdates = await getNumUpdates();
-        console.log('Old number pending:', oldPending);
-        console.log('Old number updates:', oldUpdates);
 
         console.log("side_panel.js: received number pending: ", newPending);
         document.getElementById("numPending").innerHTML = newPending + " Pending Requests";
 
         if (oldPending > newPending) { // a request has been resolved
             setNums(newPending, oldUpdates + 1);
+            updateAlert(); // send alert to User A
             try {
                 const newUpdates = await getNumUpdates();
                 document.getElementById("numUpdates").innerHTML = newUpdates + " Updates";
@@ -66,26 +81,24 @@ async function updateNumPending(newPending) {
     }
 }
 
-// Function to set the number of pending requests and updates
-function setNums(newPending, newUpdate) {
-
-    chrome.storage.local.set({ 'NUM_PENDING': newPending }, function() {
-    console.log('Setting NUM_PENDING to ', newPending);
-    });
-
-    chrome.storage.local.set({ 'NUM_UPDATES': newUpdate }, function() {
-    console.log('Setting NUM_UPDATES to ', newUpdate);
-    });
-}
-
-document.getElementById('dashBtn').addEventListener('click', function() {
-    NUM_UPDATES = 0; // clear updates
-    chrome.runtime.sendMessage({ action: "openDashboard"});
+document.getElementById('dashBtn').addEventListener('click', async function() {
+    try {
+        const pending = await getNumPending();
+        setNums(pending, 0);
+        chrome.runtime.sendMessage({ action: "openDashboard"});
+    } catch (error) {
+        console.error('Error extracting value for pending:', error);
+    }
 });
 
-document.getElementById('numUpdates').addEventListener('click', function() {
-    NUM_UPDATES = 0; // clear updates
-    chrome.runtime.sendMessage({ action: "openDashboard"});
+document.getElementById('numUpdates').addEventListener('click', async function() {
+    try {
+        const pending = await getNumPending();
+        setNums(pending, 0);
+        chrome.runtime.sendMessage({ action: "openDashboard"});
+    } catch (error) {
+        console.error('Error extracting value for pending:', error);
+    }
 });
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
