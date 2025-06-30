@@ -10,7 +10,7 @@ function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
   const [unresolvedData, setUnresolvedData] = useState([]);
-  const [messages, setMessages] = useState([]);
+  // const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -120,19 +120,19 @@ function App() {
 
     socket.on('connect_error', (error) => {
       console.error('Socket.IO connection error:', error);
-      setMessages(prevMessages => [...prevMessages, `Error: ${error.message}`]);
+      // setMessages(prevMessages => [...prevMessages, `Error: ${error.message}`]);
     });
 
     // Listen for 'message' events from the server
     socket.on('message', (msg) => {
         console.log('Frontend: received message from server:', msg);
-        setMessages(prevMessages => [...prevMessages, msg]);
+        // setMessages(prevMessages => [...prevMessages, msg]);
     });
 
-    // socket.on('update', (data) => { // Listen for 'update' events from the server (if applicable from your server.js)
-    //     console.log('Received update from server:', data);
-    //     setMessages(prevMessages => [...prevMessages, `Update: ${data}`]);
-    // });
+    socket.on('update', (data) => {
+        console.log('Received update from server:', data);
+        // setMessages(prevMessages => [...prevMessages, `Update: ${data}`]);
+    });
 
     // Clean up the socket connection when the component unmounts
     return () => {

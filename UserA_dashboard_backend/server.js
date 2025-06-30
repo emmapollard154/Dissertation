@@ -10,7 +10,7 @@ const PORT = 5000;
 const server = http.createServer(app);
 
 app.use(cors({
-    origin: 'http://localhost:5173', // frontend
+    origin: ['http://localhost:5173', 'http://localhost:6173'], // frontends A and B
     methods: ['GET', 'POST'],
     credentials: true
 }));
@@ -193,7 +193,9 @@ app.post('/api/data-from-b', (req, res) => {
     }
 
     console.log("TO DO: SEND NOTIFICATION");
-    // res.status(201).json({ message: 'Data inserted successfully into A\'s database!'});
+    io.emit('update', "USER B HAS RESPONDED");
+    console.log("server.js (A): sent update message to frontend A");
+
 });
 
 
