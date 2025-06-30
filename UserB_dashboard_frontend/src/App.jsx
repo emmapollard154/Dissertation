@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { act } from 'react';
 import './App.css'
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:8080');
 
 // Main App component for dashboard
 function App() {
   const [browsingData, setBrowsingData] = useState([]);   // State to store fetched browsing history data
   const [actionData, setActionData] = useState([]);   // State to store fetched action data
   const [unresolvedData, setUnresolvedData] = useState([]); 
+  // const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);         // State for loading indicator
   const [error, setError] = useState(null);             // State for error messages
 
@@ -90,10 +94,54 @@ function App() {
     // location.reload();
   }
 
+  // send message to backend using socket.io
+  function sendMessage() {
+    const messageInput = document.getElementById('messageInput')
+    const message = messageInput.value;
+    if (message) {
+        socket.emit('clientMessage', message);
+        console.log("sendMessage: sent ", message);
+        messageInput.value = '';
+    }
+  };
+
+
   // hook to fetch data when the component mounts
   useEffect(() => {
     fetchBrowserData();
     fetchActionData();
+
+    socket.on('connect', () => {
+        console.log('Connected to Socket.IO server on port 8080!');
+    });
+
+    socket.on('connect_error', (error) => {
+      console.error('Socket.IO connection error:', error);
+      // setMessages(prevMessages => [...prevMessages, `Error: ${error.message}`]);
+    });
+
+    // listen for welcome message from server
+    socket.on('welcome', (msg) => {
+        console.log('Frontend: received welcome message from server:', msg);
+    });
+
+    // listen for messages from server
+    socket.on('message', (msg) => {
+        console.log('Frontend: received message from server:', msg);
+    });
+
+    socket.on('update', (data) => {
+        console.log('Received update from server:', data);
+        // setMessages(prevMessages => [...prevMessages, `Update: ${data}`]);
+    });
+
+    // Clean up the socket connection when the component unmounts
+    return () => {
+      socket.off('message');
+      // socket.off('update');
+      socket.off('connect');
+      socket.off('connect_error');
+    };
   }, []);
 
   // Render loading state
@@ -164,7 +212,10 @@ function App() {
         <div className='top_right_container'>
           <div className='top_container'>
             <h2 className="subtitle">Messages</h2>
-                  {/* TO DO: MESSAGES */}
+
+              <input type="text" id="messageInput" placeholder="Type a message..."/>
+              <button onClick={sendMessage}>Send</button>
+
           </div>
         </div>
       </div>

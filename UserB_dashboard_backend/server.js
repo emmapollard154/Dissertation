@@ -3,12 +3,39 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const axios = require('axios');
+const http = require('http');
+const socketIO = require('socket.io');
 
 const app = express();
-const port = 8080;
+const PORT = 8080;
+const server = http.createServer(app);
 
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:5173', 'http://localhost:6173'], // frontends A and B
+    methods: ['GET', 'POST'],
+    credentials: true
+}));
 app.use(express.json());
+
+const io = socketIO(server, {
+    cors: {
+        origin: 'http://localhost:6173',
+        methods: ['GET', 'POST'],
+        credentials: true
+    }
+});
+
+// Listen for messages from the client
+io.on('connect', (socket) => {
+
+    socket.emit('welcome', 'server.js (B): backend connected');
+    console.log('server.js (B): backend sent welcome message');
+
+    socket.on('clientMessage', (data) => {
+        console.log('server.js (B) received message:', data);
+        socket.emit('message', `Server B recevied: ${data}`); // respond to frontend
+    });
+});
 
 // const db = new sqlite3.Database('../UserA_dashboard_backend/dashboard.db', (err) => {
 const db = new sqlite3.Database('../dashboard.db', (err) => {
@@ -67,11 +94,15 @@ app.post('/api/data-b-frontend', async (req, res) => {
 });
 
 
-// Start the server
-app.listen(port, () => {
-    console.log(`Backend server running on http://localhost:${port}`);
-});
+// // Start the server
+// app.listen(port, () => {
+//     console.log(`Backend server running on http://localhost:${port}`);
+// });
 
+// Start the server
+server.listen(PORT, () => {
+    console.log(`Backend server (B) running on http://localhost:${PORT}`);
+});
 
 // Gracefully close the database connection when the app exits
 process.on('SIGINT', () => {

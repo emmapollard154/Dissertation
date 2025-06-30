@@ -28,7 +28,7 @@ const io = socketIO(server, {
 // Listen for messages from the client
 io.on('connect', (socket) => {
 
-    socket.emit('message', 'server.js (A): backend connected');
+    socket.emit('welcome', 'server.js (A): backend connected');
     console.log('server.js (A): backend sent welcome message');
 
     socket.on('clientMessage', (data) => {
@@ -192,7 +192,7 @@ app.post('/api/data-from-b', (req, res) => {
         res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
     }
 
-    console.log("TO DO: SEND NOTIFICATION");
+    // send message to frontend in real time
     io.emit('update', "USER B HAS RESPONDED");
     console.log("server.js (A): sent update message to frontend A");
 
@@ -201,7 +201,7 @@ app.post('/api/data-from-b', (req, res) => {
 
 // Start the server
 server.listen(PORT, () => {
-    console.log(`Backend server  (A) running on http://localhost:${PORT}`);
+    console.log(`Backend server (A) running on http://localhost:${PORT}`);
 });
 
 process.on('SIGINT', () => {

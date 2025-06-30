@@ -123,10 +123,14 @@ function App() {
       // setMessages(prevMessages => [...prevMessages, `Error: ${error.message}`]);
     });
 
-    // Listen for 'message' events from the server
+    // listen for welcome message from server
+    socket.on('welcome', (msg) => {
+        console.log('Frontend: received welcome message from server:', msg);
+    });
+
+    // listen for messages from server
     socket.on('message', (msg) => {
         console.log('Frontend: received message from server:', msg);
-        // setMessages(prevMessages => [...prevMessages, msg]);
     });
 
     socket.on('update', (data) => {
