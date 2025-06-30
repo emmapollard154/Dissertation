@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { act } from 'react';
 import './App.css'
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:5000');
 
 // Main App component for dashboard
 function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
   const [unresolvedData, setUnresolvedData] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -94,11 +98,51 @@ function App() {
     }
   }
 
+  // send message to backend using socket.io
+  function sendMessage() {
+    const messageInput = document.getElementById('messageInput')
+    const message = messageInput.value;
+    if (message) {
+        socket.emit('clientMessage', message);
+        console.log("sendMessage: sent ", message);
+        messageInput.value = '';
+    }
+  };
+
   // hook to fetch data when the component mounts
   useEffect(() => {
     fetchBrowserData(); //  fetch data
     fetchActionData();
+
+    socket.on('connect', () => {
+        console.log('Connected to Socket.IO server on port 5000!');
+    });
+
+    socket.on('connect_error', (error) => {
+      console.error('Socket.IO connection error:', error);
+      setMessages(prevMessages => [...prevMessages, `Error: ${error.message}`]);
+    });
+
+    // Listen for 'message' events from the server
+    socket.on('message', (msg) => {
+        console.log('Frontend: received message from server:', msg);
+        setMessages(prevMessages => [...prevMessages, msg]);
+    });
+
+    // socket.on('update', (data) => { // Listen for 'update' events from the server (if applicable from your server.js)
+    //     console.log('Received update from server:', data);
+    //     setMessages(prevMessages => [...prevMessages, `Update: ${data}`]);
+    // });
+
+    // Clean up the socket connection when the component unmounts
+    return () => {
+      socket.off('message');
+      // socket.off('update');
+      socket.off('connect');
+      socket.off('connect_error');
+    };
   }, []);
+
 
   // Render loading state
   if (loading) {
@@ -163,7 +207,11 @@ function App() {
         <div className='top_right_container'>
           <div className='top_container'>
             <h2 className="subtitle">Messages</h2>
-                  {/* TO DO: MESSAGES */}
+
+              <input type="text" id="messageInput" placeholder="Type a message..."/>
+              <button onClick={sendMessage}>Send</button>
+
+
           </div>
         </div>
       </div>

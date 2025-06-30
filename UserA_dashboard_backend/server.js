@@ -2,14 +2,42 @@
 const express = require('express');
 const sqlite3 = require('./node_modules/sqlite3').verbose();
 const cors = require('cors');
+const http = require('http');
+const socketIO = require('socket.io');
 
 const app = express();
-const port = 5000; // Port for backend API
+const PORT = 5000;
+const server = http.createServer(app);
 
-app.use(cors()); // allow cross origin requests (from frontend)
-app.use(express.json()); // parses incoming JSON request bodies
+app.use(cors({
+    origin: 'http://localhost:5173', // frontend
+    methods: ['GET', 'POST'],
+    credentials: true
+}));
+app.use(express.json());
+app.use(express.static('../UserA_dashboard_frontend'));
 
-// Initialize SQLite database
+const io = socketIO(server, {
+    cors: {
+        origin: 'http://localhost:5173',
+        methods: ['GET', 'POST'],
+        credentials: true
+    }
+});
+
+// Listen for messages from the client
+io.on('connect', (socket) => {
+
+    socket.emit('message', 'server.js (A): backend connected');
+    console.log('server.js (A): backend sent welcome message');
+
+    socket.on('clientMessage', (data) => {
+        console.log('server.js (A) received message:', data);
+        socket.emit('message', `Server A recevied: ${data}`); // respond to frontend
+    });
+});
+
+// Initialize database
 const db = new sqlite3.Database('../dashboard.db', (err) => {
     if (err) {
         console.error('Error connecting to database:', err.message);
@@ -131,26 +159,6 @@ app.post('/api/dashboard-data', (req, res) => {
         }
         res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
     }
-
-    // if (target === 'USER_B_RESPONSE') {
-    //     console.log("Attempting to insert action response");
-    //     console.log(data);
-
-    //     const id = data.id;
-    //     const outcome = data.outcome;
-
-    //     try{
-    //         console.log("Inserting into action table");
-    //         const stmt = db.prepare('UPDATE action SET resolved = ?, responseOutcome = ? WHERE actionID = ?');
-    //         stmt.run('Y', outcome, id);
-    //     }
-    //     catch(err) {
-    //         console.error('Database insertion error:', err.message);
-    //         return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
-    //     }
-    //     res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
-    // }
-
 });
 
 
@@ -190,12 +198,10 @@ app.post('/api/data-from-b', (req, res) => {
 
 
 // Start the server
-app.listen(port, () => {
-    console.log(`Backend server running on http://localhost:${port}`);
+server.listen(PORT, () => {
+    console.log(`Backend server  (A) running on http://localhost:${PORT}`);
 });
 
-
-// Gracefully close the database connection when the app exits
 process.on('SIGINT', () => {
     db.close((err) => {
         if (err) {
