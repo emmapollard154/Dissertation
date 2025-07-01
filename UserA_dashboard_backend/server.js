@@ -53,20 +53,6 @@ hubSocket.on('connect_error', (error) => {
     console.error('Backend A: Hub connection error:', error.message);
 });
 
-// // send message from A -> hub -> B
-// app.post('/api/message-history', (req, res) => {
-//     const event = req.body.target;
-//     const data = req.body.data;
-//     console.log(`Backend A: "${event}" - `, data);
-
-//     if (event === 'USER_A_MESSAGE') {
-//         console.log("Server (A): User A posted a message");
-//         hubSocket.emit('backendMessage', { event, data });
-//     }
-//     res.status(200).json({ message: 'Backend A: Event processed and sent to hub.' });
-// });
-
-
 // Listen for messages from the client
 io.on('connect', (socket) => {
 
@@ -250,7 +236,6 @@ app.post('/api/dashboard-data', (req, res) => {
 
         console.log("Server (A): User A posted a message");
         hubSocket.emit('backendMessage', { target, message });
-        // res.status(200).json({ message: 'Backend A: Event processed and sent to hub.' });
     }
 
 });
@@ -288,7 +273,7 @@ app.post('/api/data-from-b', (req, res) => {
 
 
         // send message to frontend in real time
-        io.emit('update', "USER B HAS RESPONDED");
+        io.emit('b_response', outcome);
         console.log("server.js (A): sent update message to frontend A");
 
     }
@@ -315,7 +300,7 @@ app.post('/api/data-from-b', (req, res) => {
 
 
         // send message to frontend in real time
-        io.emit('update', "USER B HAS SENT A MESSAGE");
+        io.emit('b_message', message);
         console.log("server.js (A): sent update message to frontend A");
 
     }

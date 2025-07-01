@@ -159,15 +159,22 @@ function App() {
         console.log('Frontend: received message from server:', msg);
     });
 
-    socket.on('update', (data) => {
-        console.log('Received update from server:', data);
+    socket.on('b_response', (data) => {
+        console.log('App (A): User B has responded:', data);
+        // setMessages(prevMessages => [...prevMessages, `Update: ${data}`]);
+    });
+
+    socket.on('b_message', (data) => {
+        console.log('App (A): User B has sent a message:', data);
+        fetchMessageData();
         // setMessages(prevMessages => [...prevMessages, `Update: ${data}`]);
     });
 
     // Clean up the socket connection when the component unmounts
     return () => {
       socket.off('message');
-      // socket.off('update');
+      socket.off('b_message');
+      socket.off('b_response');
       socket.off('connect');
       socket.off('connect_error');
     };

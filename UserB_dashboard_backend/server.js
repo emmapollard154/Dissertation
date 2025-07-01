@@ -30,21 +30,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-
-// // send message from A -> hub -> B
-// app.post('/api/message-history', (req, res) => {
-//     const event = req.body.target;
-//     const data = req.body.data;
-//     console.log(`Backend A: "${event}" - `, data);
-
-//     if (event === 'USER_B_MESSAGE') {
-//         console.log("Server (B): User B posted a message");
-//         hubSocket.emit('backendMessage', { event, data });
-//     }
-//     res.status(200).json({ message: 'Backend B: Event processed and sent to hub.' });
-// });
-
-
 hubSocket.on('connect', () => {
     console.log('Backend B: Connected to Central Hub.');
     hubSocket.emit('registerBackend', 'BackendB'); // Identify self to hub
@@ -55,15 +40,14 @@ hubSocket.on('backendMessage', (message) => {
         console.log('Backend B: Received message from other backend via Hub:', message);
 
         if (message.event === 'USER_A_MESSAGE') {
-            console.log("Server B: User A has sent a message: ", message);
-            
-            console.log(`TO DO: add to B frontend: message from ${message.from}: ${message.data}`)
 
-            io.emit('msg-for-b', {
-                from: message.from,
-                data: message.data,
-                timestamp: new Date()
-            });
+            const msg = message.data;
+            console.log("Server B: User A has sent a message: ", msg);
+
+            // send message to frontend in real time
+            io.emit('a_message', msg);
+            console.log("server.js (B): sent update message to frontend B");
+
 
         }
     }
@@ -76,21 +60,6 @@ hubSocket.on('disconnect', () => {
 hubSocket.on('connect_error', (error) => {
     console.error('Backend B: Hub connection error:', error.message);
 });
-
-// app.get('/api/dashboard-data/message-history', (req, res) => {
-//     console.log("Server B: GET /api/dashboard-data/message-history request received.");
-//     db.all('SELECT * FROM message', [], (err, rows) => {
-//         if (err) {
-//             res.status(500).json({ error: err.message });
-//             return;
-//         }
-//         console.log("Successfully retrieved dashboard-data/action");
-//         res.json({
-//             message: 'Success',
-//             data: rows
-//         });
-//     });
-// });
 
 // Listen for messages from the client
 io.on('connect', (socket) => {
