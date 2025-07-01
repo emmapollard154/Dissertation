@@ -29,7 +29,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             context: "Email"
         }
 
-
 		console.log('Content Script (Dashboard A): choice received - ', choice)
 		console.log("Sending choice to dashboard A");
 
@@ -39,33 +38,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         }, 'http://localhost:5173');
 
         sendResponse({ status: 'content_script_received_and_processed', dataProcessed: choice });
-        // location.reload();
     }
-
-
-    // if (request.action === "userAMessage") {
-
-    //     const message = request.message;
-    //     const time = request.time;
-
-    //     const payload = {
-    //         message: message,
-    //         time: time,
-    //     }
-
-
-	// 	console.log('Content Script (Dashboard A): message received - ', payload);
-	// 	console.log("Sending choice to dashboard A");
-
-    //     window.postMessage({
-    //         type: 'USER_A_MESSAGE',
-    //         payload: payload
-    //     }, 'http://localhost:5173');
-
-    //     sendResponse({ status: 'content_script_received_and_processed', dataProcessed: payload });
-    //     // location.reload();
-    // }
-
 
 });
 

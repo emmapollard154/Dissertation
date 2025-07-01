@@ -162,6 +162,16 @@ function App() {
         fetchMessageData();
     });
 
+    socket.on('a_browser', (data) => {
+        console.log('App (B): User A has updated browsing history:', data);
+        fetchBrowserData();
+    });
+
+    socket.on('a_choice', () => {
+        console.log('App (B): User A has made a choice:');
+        fetchActionData();
+    });
+
     socket.on('b_response', (data) => {
         console.log('App (B): User B has sent a response:', data);
         fetchActionData();

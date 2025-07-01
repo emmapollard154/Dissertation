@@ -186,6 +186,10 @@ app.post('/api/dashboard-data', (req, res) => {
         }
         io.emit('a_browsing', '');
         res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
+
+        console.log("Server (A): User A has updated browsing history");
+        hubSocket.emit('backendMessage', { target });
+
     }
 
     if (target === 'USER_A_CHOICE') {
@@ -216,6 +220,10 @@ app.post('/api/dashboard-data', (req, res) => {
         }
         io.emit('a_choice', '');
         res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
+
+        console.log("Server (A): User A has made a choice");
+        hubSocket.emit('backendMessage', { target, choice });
+
     }
 
     if (target === 'USER_A_MESSAGE') {

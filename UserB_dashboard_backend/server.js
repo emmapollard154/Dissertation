@@ -47,8 +47,24 @@ hubSocket.on('backendMessage', (message) => {
             // send message to frontend in real time
             io.emit('a_message', msg);
             console.log("server.js (B): sent update message to frontend B");
+        }
 
+        if (message.event === 'BROWSING_DATA') {
 
+            console.log("Server B: User A has updated browsing history");
+
+            // send message to frontend in real time
+            io.emit('a_browser', );
+            console.log("server.js (B): sent browsing history update message to frontend B");
+        }
+
+        if (message.event === 'USER_A_CHOICE') {
+
+            console.log("Server B: User A has made a choice");
+
+            // send message to frontend in real time
+            io.emit('a_choice', );
+            console.log("server.js (B): sent choice update message to frontend B");
         }
     }
 });
