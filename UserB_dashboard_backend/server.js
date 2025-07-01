@@ -100,14 +100,16 @@ app.post('/api/data-b-frontend', async (req, res) => {
         // Check the response from A's backend
         if (response.status === 201) {
             console.log('Successfully forwarded data to A backend:', response.data);
-            if (data.type === 'USER_B_RESPONSE') {
-                console.log(`Backend B: Sending notification to hub`);
+
+            if (data.data.type === 'USER_B_RESPONSE') {
+                console.log(`Backend B: Sending response notification to hub`);
                 hubSocket.emit('backendMessage', { event: 'USER_B_RESPONSE' });
-            } else if (data.type === 'USER_B_MESSAGE') {
+                io.emit('b_response', '');
+            }
+            if (data.data.type === 'USER_B_MESSAGE') {
                 console.log(`Backend B: Sending message to hub`);
                 hubSocket.emit('backendMessage', { event: 'USER_B_MESSAGE' });
-            } else {
-                console.log("unidentified event from B");
+                
             }
             res.status(200).json({ message: 'Data sent to hub.' });
             console.log({ message: 'Data processed by B and inserted into A\'s database. Notification send to hub.', result: response.data });

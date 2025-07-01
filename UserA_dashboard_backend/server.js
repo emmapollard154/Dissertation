@@ -184,6 +184,7 @@ app.post('/api/dashboard-data', (req, res) => {
             console.error('Database insertion error:', err.message);
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
+        io.emit('a_browsing', '');
         res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
     }
 
@@ -213,6 +214,7 @@ app.post('/api/dashboard-data', (req, res) => {
             console.error('Database insertion error:', err.message);
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
+        io.emit('a_choice', '');
         res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
     }
 

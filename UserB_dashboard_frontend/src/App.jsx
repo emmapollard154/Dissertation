@@ -97,6 +97,7 @@ function App() {
         id: actionID.item,
         outcome: "Y"
       }, 'http://localhost:6173');
+
     } else if (btn.id === 'btn_no') {
       console.log("No button clicked: ", actionID.item);
       window.postMessage({
@@ -104,12 +105,12 @@ function App() {
         id: actionID.item,
         outcome: "N"
       }, 'http://localhost:6173');
+
     } else {
       console.warn("Error: invalid button id found");
     }
     yesBtn.disabled = true;
     noBtn.disabled = true;
-    // location.reload();
   }
 
   // send message to backend using socket.io
@@ -159,6 +160,11 @@ function App() {
     socket.on('a_message', (data) => {
         console.log('App (B): User A has sent a message:', data);
         fetchMessageData();
+    });
+
+    socket.on('b_response', (data) => {
+        console.log('App (B): User B has sent a response:', data);
+        fetchActionData();
     });
 
     // Clean up the socket connection when the component unmounts
