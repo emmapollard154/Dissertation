@@ -10,13 +10,13 @@ function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
   const [unresolvedData, setUnresolvedData] = useState([]);
-  // const [messages, setMessages] = useState([]);
+  const [messageData, setMessageData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   let UNRESOLVED = [];
   const noUnresolved = "No unresolved actions";
-  const EXTENSION_ID = "bcdjfglkdcfeeekbkhbambhhjgdllcom";
+  const EXTENSION_ID = "bcdjfglkdcfeeekbkhbambhhjgdllcom"; // TEMPORARY
 
   function processActionID(data) {
     const action_ids = data.map(row => [row.actionID, row.resolved]);
@@ -69,6 +69,23 @@ function App() {
     }
   };
 
+
+  const fetchMessageData = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/dashboard-data/message');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      setMessageData(result.data); // update the state with the fetched data
+    } catch (e) {
+      console.error("Error fetching dashboard data:", e);
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // function to send number of unresolved actions to chrome extension
   function sendToExt(msgType, msgContent) {
     if (typeof chrome !== 'undefined' && chrome.runtime) {
@@ -103,7 +120,15 @@ function App() {
     const messageInput = document.getElementById('messageInput')
     const message = messageInput.value;
     if (message) {
-        socket.emit('clientMessage', message);
+
+        // socket.emit('clientMessage', message);
+      const time = new Date().toISOString();
+
+      window.postMessage({
+        type: 'USER_A_MESSAGE',
+        payload: { message, time },
+      }, 'http://localhost:5173');
+
         console.log("sendMessage: sent ", message);
         messageInput.value = '';
     }
@@ -113,6 +138,7 @@ function App() {
   useEffect(() => {
     fetchBrowserData(); //  fetch data
     fetchActionData();
+    fetchMessageData();
 
     socket.on('connect', () => {
         console.log('Connected to Socket.IO server on port 5000!');
@@ -214,6 +240,26 @@ function App() {
 
               <input type="text" id="messageInput" placeholder="Type a message..."/>
               <button onClick={sendMessage}>Send</button>
+
+
+                <table className="table_format">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="column_title">User</th>
+                      <th scope="col" className="column_title">Message</th>
+                      <th scope="col" className="column_title">Time</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {messageData.map((item) => (
+                      <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
+                        <td className="entry_format">{item.userID}</td>
+                        <td className="entry_format">{item.message}</td>
+                        <td className="entry_format">{item.time}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
 
 
           </div>

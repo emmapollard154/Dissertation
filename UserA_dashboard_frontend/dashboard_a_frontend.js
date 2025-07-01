@@ -27,6 +27,33 @@ async function sendDataToBackend(data) {
 }
 
 
+
+// function to send message between endpoints via hub
+async function sendMessageToBackend(data) {
+    try {
+        const response = await fetch('http://localhost:5000/api/message-history', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json()
+            throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+        }
+
+        const result = await response.json();
+        console.log('Data sent successfully:', result);
+        return result;
+
+    } catch (error) {
+        console.error('Error sending data to backend:', error);
+    }
+}
+
+
 window.addEventListener('message', function(event) {
 
     if (event.origin !== 'http://localhost:5173') {
@@ -57,6 +84,21 @@ window.addEventListener('message', function(event) {
             target: 'USER_A_CHOICE'
         }
 
+        sendDataToBackend(data);
+    }
+
+    if (event.data && event.data.type === 'USER_A_MESSAGE') {
+
+        const msgContent = event.data.payload;
+
+        console.log('Dashboard A: Received message data from user A:', msgContent);
+
+        const data = {
+            data: msgContent,
+            target: 'USER_A_MESSAGE'
+        }
+
+        // sendMessageToBackend(data);
         sendDataToBackend(data);
     }
 

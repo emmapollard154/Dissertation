@@ -30,6 +30,21 @@ app.use(cors({
 }));
 app.use(express.json());
 
+
+// send message from A -> hub -> B
+app.post('/api/message-history', (req, res) => {
+    const event = req.body.target;
+    const data = req.body.data;
+    console.log(`Backend A: "${event}" - `, data);
+
+    if (event === 'USER_B_MESSAGE') {
+        console.log("Server (B): User B posted a message");
+        hubSocket.emit('backendMessage', { event, data });
+    }
+    res.status(200).json({ message: 'Backend B: Event processed and sent to hub.' });
+});
+
+
 hubSocket.on('connect', () => {
     console.log('Backend B: Connected to Central Hub.');
     hubSocket.emit('registerBackend', 'BackendB'); // Identify self to hub
@@ -38,10 +53,18 @@ hubSocket.on('connect', () => {
 hubSocket.on('backendMessage', (message) => {
     if (message.from !== 'BackendB') { // Avoid processing messages sent by self
         console.log('Backend B: Received message from other backend via Hub:', message);
-        // Process message, e.g., update inventory
-        if (message.event === 'ORDER_PLACED') {
-            console.log(`Backend B: Reducing inventory for order ${message.data.orderId}`);
-            // ... update inventory database
+
+        if (message.event === 'USER_A_MESSAGE') {
+            console.log("Server B: User A has sent a message: ", message);
+            
+            console.log(`TO DO: add to B frontend: message from ${message.from}: ${message.data}`)
+
+            io.emit('msg-for-b', {
+                from: message.from,
+                data: message.data,
+                timestamp: new Date()
+            });
+
         }
     }
 });
@@ -54,30 +77,20 @@ hubSocket.on('connect_error', (error) => {
     console.error('Backend B: Hub connection error:', error.message);
 });
 
-// // Example API endpoint on Backend B that sends messages via the Hub
-// app.post('/api/backendB-notification', (req, res) => {
-//     const { type, details } = req.body;
-//     console.log(`Backend B: Sending notification "${type}" with details:`, details);
-
-//     hubSocket.emit('backendMessage', { event: 'NOTIFICATION', payload: { type, details } });
-
-//     res.status(200).json({ message: 'Notification sent to hub.' });
-// });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+app.get('/api/dashboard-data/message-history', (req, res) => {
+    console.log("Server B: GET /api/dashboard-data/message-history request received.");
+    db.all('SELECT * FROM message', [], (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        console.log("Successfully retrieved dashboard-data/action");
+        res.json({
+            message: 'Success',
+            data: rows
+        });
+    });
+});
 
 // Listen for messages from the client
 io.on('connect', (socket) => {
@@ -91,7 +104,7 @@ io.on('connect', (socket) => {
     });
 });
 
-// const db = new sqlite3.Database('../UserA_dashboard_backend/dashboard.db', (err) => {
+
 const db = new sqlite3.Database('../dashboard.db', (err) => {
     if (err) {
         console.error('Error connecting to database:', err.message);
@@ -118,19 +131,17 @@ app.post('/api/data-b-frontend', async (req, res) => {
         // Check the response from A's backend
         if (response.status === 201) {
             console.log('Successfully forwarded data to A backend:', response.data);
-            // res.status(200).json({ message: 'Data processed by B and inserted into A\'s database', result: response.data });
-
-
-            console.log(`Backend B: Sending notification to hub`);
-
-            hubSocket.emit('backendMessage', { event: 'USER_B_RESPONSE' });
-
-            res.status(200).json({ message: 'Notification sent to hub.' });
-
+            if (data.type === 'USER_B_RESPONSE') {
+                console.log(`Backend B: Sending notification to hub`);
+                hubSocket.emit('backendMessage', { event: 'USER_B_RESPONSE' });
+            } else if (data.type === 'USER_B_MESSAGE') {
+                console.log(`Backend B: Sending message to hub`);
+                hubSocket.emit('backendMessage', { event: 'USER_B_MESSAGE' });
+            } else {
+                console.log("unidentified event from B");
+            }
+            res.status(200).json({ message: 'Data sent to hub.' });
             console.log({ message: 'Data processed by B and inserted into A\'s database. Notification send to hub.', result: response.data });
-
-
-
         } else {
             console.error('Error from A backend:', response.status, response.data);
             res.status(response.status).json({ message: 'Failed to insert data into A\'s database', error: response.data });
@@ -158,6 +169,17 @@ app.post('/api/data-b-frontend', async (req, res) => {
         }
     }
 });
+
+
+
+
+
+
+
+
+
+
+
 
 // Start the server
 server.listen(B_PORT, () => {

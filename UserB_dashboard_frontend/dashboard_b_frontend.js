@@ -50,6 +50,25 @@ window.addEventListener('message', function(event) {
         sendDataToBackend(data);
     }
 
+
+
+    if (event.data && event.data.type === 'USER_B_MESSAGE') {
+
+        const message = event.data.message;
+        const time = event.data.time;
+
+        const receviedData = event.data;
+        console.log("dashboard_b_frontend.js: received message " + message + " at time " + time);
+
+        const data = {
+            data: receviedData,
+            target: 'USER_B_MESSAGE'
+        }
+
+        console.log('dashboard_b_frontend.js: sending user B response to backend:', data);
+        sendDataToBackend(data);
+    }
+
 });
 
 console.log('Dashboard script (dashboard_b_frontend) loaded and listening for messages.');
