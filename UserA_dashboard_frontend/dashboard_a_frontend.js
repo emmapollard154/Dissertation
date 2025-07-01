@@ -26,7 +26,6 @@ async function sendDataToBackend(data) {
     }
 }
 
-
 window.addEventListener('message', function(event) {
 
     if (event.origin !== 'http://localhost:5173') {
@@ -57,6 +56,20 @@ window.addEventListener('message', function(event) {
             target: 'USER_A_CHOICE'
         }
 
+        sendDataToBackend(data);
+    }
+
+    if (event.data && event.data.type === 'USER_A_MESSAGE') {
+
+        const msgContent = event.data.payload;
+
+        console.log('Dashboard A: Received message data from user A:', msgContent);
+
+        const data = {
+            data: msgContent,
+            target: 'USER_A_MESSAGE'
+        }
+        
         sendDataToBackend(data);
     }
 

@@ -51,9 +51,9 @@ function setNums(newPending, newUpdate) {
     });
 }
 
-function updateAlert() {
+// function updateAlert() {
 
-}
+// }
 
 async function updateNumPending(newPending) {
 
@@ -81,7 +81,6 @@ async function updateNumPending(newPending) {
     } catch (error) {
         console.error('Error extracting values for pending/updates:', error);
     }
-    // location.reload();
 }
 
 document.getElementById('dashBtn').addEventListener('click', async function() {

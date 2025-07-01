@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { act } from 'react';
 import './App.css'
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:8080');
 
 // Main App component for dashboard
 function App() {
-  const [browsingData, setBrowsingData] = useState([]);   // State to store fetched browsing history data
-  const [actionData, setActionData] = useState([]);   // State to store fetched action data
+  const [browsingData, setBrowsingData] = useState([]);
+  const [actionData, setActionData] = useState([]);
   const [unresolvedData, setUnresolvedData] = useState([]); 
-  const [loading, setLoading] = useState(true);         // State for loading indicator
-  const [error, setError] = useState(null);             // State for error messages
+  const [messageData, setMessageData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   let UNRESOLVED = [];
   const noUnresolved = "No unresolved actions";
@@ -62,6 +66,24 @@ function App() {
   };
 
 
+
+  const fetchMessageData = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/dashboard-data/message');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      setMessageData(result.data);
+    } catch (e) {
+      console.error("Error fetching message history:", e);
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   // Function to allow user B to accept/reject a request
   function responseBtn(btn, actionID) {
 
@@ -75,6 +97,7 @@ function App() {
         id: actionID.item,
         outcome: "Y"
       }, 'http://localhost:6173');
+
     } else if (btn.id === 'btn_no') {
       console.log("No button clicked: ", actionID.item);
       window.postMessage({
@@ -82,18 +105,85 @@ function App() {
         id: actionID.item,
         outcome: "N"
       }, 'http://localhost:6173');
+
     } else {
       console.warn("Error: invalid button id found");
     }
     yesBtn.disabled = true;
     noBtn.disabled = true;
-    // location.reload();
   }
+
+  // send message to backend using socket.io
+  function sendMessage() {
+    const messageInput = document.getElementById('messageInput')
+    const message = messageInput.value;
+    if (message) {
+
+        // socket.emit('clientMessage', message);
+      const time = new Date().toISOString();
+
+      window.postMessage({
+        type: 'USER_B_MESSAGE',
+        payload: { message, time },
+      }, 'http://localhost:6173');
+
+        console.log("sendMessage: sent ", message);
+        messageInput.value = '';
+    }
+  };
 
   // hook to fetch data when the component mounts
   useEffect(() => {
     fetchBrowserData();
     fetchActionData();
+    fetchMessageData();
+
+    socket.on('connect', () => {
+        console.log('Connected to Socket.IO server on port 8080!');
+    });
+
+    socket.on('connect_error', (error) => {
+      console.error('Socket.IO connection error:', error);
+      // setMessages(prevMessages => [...prevMessages, `Error: ${error.message}`]);
+    });
+
+    // listen for welcome message from server
+    socket.on('welcome', (msg) => {
+        console.log('Frontend: received welcome message from server:', msg);
+    });
+
+    // listen for messages from server
+    socket.on('message', (msg) => {
+        console.log('Frontend: received message from server:', msg);
+    });
+
+    socket.on('a_message', (data) => {
+        console.log('App (B): User A has sent a message:', data);
+        fetchMessageData();
+    });
+
+    socket.on('a_browser', (data) => {
+        console.log('App (B): User A has updated browsing history:', data);
+        fetchBrowserData();
+    });
+
+    socket.on('a_choice', () => {
+        console.log('App (B): User A has made a choice:');
+        fetchActionData();
+    });
+
+    socket.on('b_response', (data) => {
+        console.log('App (B): User B has sent a response:', data);
+        fetchActionData();
+    });
+
+    // Clean up the socket connection when the component unmounts
+    return () => {
+      socket.off('message');
+      socket.off('a_message');
+      socket.off('connect');
+      socket.off('connect_error');
+    };
   }, []);
 
   // Render loading state
@@ -164,7 +254,31 @@ function App() {
         <div className='top_right_container'>
           <div className='top_container'>
             <h2 className="subtitle">Messages</h2>
-                  {/* TO DO: MESSAGES */}
+
+
+              <input type="text" id="messageInput" placeholder="Type a message..."/>
+              <button onClick={sendMessage}>Send</button>
+
+              <table className="table_format">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="column_title">User</th>
+                    <th scope="col" className="column_title">Message</th>
+                    <th scope="col" className="column_title">Time</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {messageData.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
+                      <td className="entry_format">{item.userID}</td>
+                      <td className="entry_format">{item.message}</td>
+                      <td className="entry_format">{item.time}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+
           </div>
         </div>
       </div>

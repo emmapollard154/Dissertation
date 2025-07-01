@@ -3,14 +3,93 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const axios = require('axios');
+const http = require('http');
+const socketIO = require('socket.io');
+const clientIO = require('socket.io-client');
+
+const B_PORT = 8080;
+const A_FRONT = 5173;
+const B_FRONT = 6173;
+const HUB_PORT = 9000;
 
 const app = express();
-const port = 8080;
+const server = http.createServer(app);
+const hubSocket = clientIO(`http://localhost:${HUB_PORT}`);
+const io = socketIO(server, {
+    cors: {
+        origin: `http://localhost:${B_FRONT}`,
+        methods: ['GET', 'POST'],
+        credentials: true
+    }
+});
 
-app.use(cors());
+app.use(cors({
+    origin: [`http://localhost:${A_FRONT}`, `http://localhost:${B_FRONT}`],
+    methods: ['GET', 'POST'],
+    credentials: true
+}));
 app.use(express.json());
 
-// const db = new sqlite3.Database('../UserA_dashboard_backend/dashboard.db', (err) => {
+hubSocket.on('connect', () => {
+    console.log('Backend B: Connected to Central Hub.');
+    hubSocket.emit('registerBackend', 'BackendB'); // Identify self to hub
+});
+
+hubSocket.on('backendMessage', (message) => {
+    if (message.from !== 'BackendB') { // Avoid processing messages sent by self
+        console.log('Backend B: Received message from other backend via Hub:', message);
+
+        if (message.event === 'USER_A_MESSAGE') {
+
+            const msg = message.data;
+            console.log("Server B: User A has sent a message: ", msg);
+
+            // send message to frontend in real time
+            io.emit('a_message', msg);
+            console.log("server.js (B): sent update message to frontend B");
+        }
+
+        if (message.event === 'BROWSING_DATA') {
+
+            console.log("Server B: User A has updated browsing history");
+
+            // send message to frontend in real time
+            io.emit('a_browser', );
+            console.log("server.js (B): sent browsing history update message to frontend B");
+        }
+
+        if (message.event === 'USER_A_CHOICE') {
+
+            console.log("Server B: User A has made a choice");
+
+            // send message to frontend in real time
+            io.emit('a_choice', );
+            console.log("server.js (B): sent choice update message to frontend B");
+        }
+    }
+});
+
+hubSocket.on('disconnect', () => {
+    console.log('Backend B: Disconnected from Central Hub.');
+});
+
+hubSocket.on('connect_error', (error) => {
+    console.error('Backend B: Hub connection error:', error.message);
+});
+
+// Listen for messages from the client
+io.on('connect', (socket) => {
+
+    socket.emit('welcome', 'server.js (B): backend connected');
+    console.log('server.js (B): backend sent welcome message');
+
+    socket.on('clientMessage', (data) => {
+        console.log('server.js (B) received message:', data);
+        socket.emit('message', `Server B recevied: ${data}`); // respond to frontend
+    });
+});
+
+
 const db = new sqlite3.Database('../dashboard.db', (err) => {
     if (err) {
         console.error('Error connecting to database:', err.message);
@@ -21,13 +100,13 @@ const db = new sqlite3.Database('../dashboard.db', (err) => {
 
 
 app.post('/api/data-b-frontend', async (req, res) => {
-    const dataToInsert = req.body; // Data received from Dashboard B's frontend
+    const data = req.body; // Data received from Dashboard B's frontend
 
-    console.log('Received data on B backend from B frontend:', dataToInsert);
+    console.log('Received data on B backend from B frontend:', data);
 
     try {
         // Make an HTTP POST request to Dashboard A's backend
-        const response = await axios.post('http://localhost:5000/api/data-from-b', dataToInsert, {
+        const response = await axios.post('http://localhost:5000/api/data-from-b', data, {
             headers: {
                 'Content-Type': 'application/json',
                 // 'X-API-Key': API_KEY_FOR_A // Include the API key for authentication
@@ -37,7 +116,19 @@ app.post('/api/data-b-frontend', async (req, res) => {
         // Check the response from A's backend
         if (response.status === 201) {
             console.log('Successfully forwarded data to A backend:', response.data);
-            res.status(200).json({ message: 'Data processed by B and inserted into A\'s database', result: response.data });
+
+            if (data.data.type === 'USER_B_RESPONSE') {
+                console.log(`Backend B: Sending response notification to hub`);
+                hubSocket.emit('backendMessage', { event: 'USER_B_RESPONSE' });
+                io.emit('b_response', '');
+            }
+            if (data.data.type === 'USER_B_MESSAGE') {
+                console.log(`Backend B: Sending message to hub`);
+                hubSocket.emit('backendMessage', { event: 'USER_B_MESSAGE' });
+                
+            }
+            res.status(200).json({ message: 'Data sent to hub.' });
+            console.log({ message: 'Data processed by B and inserted into A\'s database. Notification send to hub.', result: response.data });
         } else {
             console.error('Error from A backend:', response.status, response.data);
             res.status(response.status).json({ message: 'Failed to insert data into A\'s database', error: response.data });
@@ -67,11 +158,20 @@ app.post('/api/data-b-frontend', async (req, res) => {
 });
 
 
-// Start the server
-app.listen(port, () => {
-    console.log(`Backend server running on http://localhost:${port}`);
-});
 
+
+
+
+
+
+
+
+
+
+// Start the server
+server.listen(B_PORT, () => {
+    console.log(`Backend server (B) running on http://localhost:${B_PORT}`);
+});
 
 // Gracefully close the database connection when the app exits
 process.on('SIGINT', () => {
