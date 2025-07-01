@@ -8,8 +8,9 @@ const clientIO = require('socket.io-client'); // A backend <-> hub <-> B backend
 
 const app = express();
 const PORT = 5000;
+const HUB_PORT = 9000;
 const server = http.createServer(app);
-const hubSocket = clientIO('http://localhost:6000');
+const hubSocket = clientIO(`http://localhost:${HUB_PORT}`);
 
 app.use(cors({
     origin: ['http://localhost:5173', 'http://localhost:6173'], // frontends A and B
@@ -29,29 +30,29 @@ const io = socketIO(server, {
 
 
 
-// hubSocket.on('connect', () => {
-//     console.log('Backend A: Connected to Central Hub.');
-//     hubSocket.emit('registerBackend', 'BackendA'); // Identify self to hub
-// });
+hubSocket.on('connect', () => {
+    console.log('Backend A: Connected to Central Hub.');
+    hubSocket.emit('registerBackend', 'BackendA'); // Identify self to hub
+});
 
-// hubSocket.on('backendMessage', (message) => {
-//     if (message.from !== 'BackendA') { // Avoid processing messages sent by self
-//         console.log('Backend A: Received message from other backend via Hub:', message);
-//         // Process message, e.g., update user status
-//         if (message.event === 'USER_STATUS_UPDATE') {
-//             console.log(`Backend A: User ${message.data.userId} now ${message.data.status}`);
-//             // ... update database or local state
-//         }
-//     }
-// });
+hubSocket.on('backendMessage', (message) => {
+    if (message.from !== 'BackendA') { // Avoid processing messages sent by self
+        console.log('Backend A: Received message from other backend via Hub:', message);
+        // Process message, e.g., update user status
+        if (message.event === 'USER_STATUS_UPDATE') {
+            console.log(`Backend A: User ${message.data.userId} now ${message.data.status}`);
+            // ... update database or local state
+        }
+    }
+});
 
-// hubSocket.on('disconnect', () => {
-//     console.log('Backend A: Disconnected from Central Hub.');
-// });
+hubSocket.on('disconnect', () => {
+    console.log('Backend A: Disconnected from Central Hub.');
+});
 
-// hubSocket.on('connect_error', (error) => {
-//     console.error('Backend A: Hub connection error:', error.message);
-// });
+hubSocket.on('connect_error', (error) => {
+    console.error('Backend A: Hub connection error:', error.message);
+});
 
 // // Example API endpoint on Backend A that sends messages via the Hub
 // app.post('/api/backendA-event', (req, res) => {

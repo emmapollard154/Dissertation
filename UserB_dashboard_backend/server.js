@@ -5,10 +5,13 @@ const cors = require('cors');
 const axios = require('axios');
 const http = require('http');
 const socketIO = require('socket.io');
+const clientIO = require('socket.io-client');
 
 const app = express();
-const PORT = 8080;
 const server = http.createServer(app);
+
+const B_PORT = 8080;
+const HUB_PORT = 9000;
 
 app.use(cors({
     origin: ['http://localhost:5173', 'http://localhost:6173'], // frontends A and B
@@ -24,6 +27,60 @@ const io = socketIO(server, {
         credentials: true
     }
 });
+
+
+
+
+const hubSocket = clientIO(`http://localhost:${HUB_PORT}`);
+
+hubSocket.on('connect', () => {
+    console.log('Backend B: Connected to Central Hub.');
+    hubSocket.emit('registerBackend', 'BackendB'); // Identify self to hub
+});
+
+hubSocket.on('backendMessage', (message) => {
+    if (message.from !== 'BackendB') { // Avoid processing messages sent by self
+        console.log('Backend B: Received message from other backend via Hub:', message);
+        // Process message, e.g., update inventory
+        if (message.event === 'ORDER_PLACED') {
+            console.log(`Backend B: Reducing inventory for order ${message.data.orderId}`);
+            // ... update inventory database
+        }
+    }
+});
+
+hubSocket.on('disconnect', () => {
+    console.log('Backend B: Disconnected from Central Hub.');
+});
+
+hubSocket.on('connect_error', (error) => {
+    console.error('Backend B: Hub connection error:', error.message);
+});
+
+// // Example API endpoint on Backend B that sends messages via the Hub
+// app.post('/api/backendB-notification', (req, res) => {
+//     const { type, details } = req.body;
+//     console.log(`Backend B: Sending notification "${type}" with details:`, details);
+
+//     hubSocket.emit('backendMessage', { event: 'NOTIFICATION', payload: { type, details } });
+
+//     res.status(200).json({ message: 'Notification sent to hub.' });
+// });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Listen for messages from the client
 io.on('connect', (socket) => {
@@ -100,8 +157,8 @@ app.post('/api/data-b-frontend', async (req, res) => {
 // });
 
 // Start the server
-server.listen(PORT, () => {
-    console.log(`Backend server (B) running on http://localhost:${PORT}`);
+server.listen(B_PORT, () => {
+    console.log(`Backend server (B) running on http://localhost:${B_PORT}`);
 });
 
 // Gracefully close the database connection when the app exits

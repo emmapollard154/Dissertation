@@ -5,13 +5,19 @@ const express = require('express'); // Often used for basic / health check route
 const app = express();
 const server = http.createServer(app);
 
+const HUB_PORT = 9000;
+const A_PORT = 5000;
+const B_PORT = 8080;
+
 const io = socketIO(server, {
     cors: {
-        origin: ['http://localhost:5000', 'http://localhost:8080'], // A and B backends
+        origin: [`http://localhost:${A_PORT}`, `http://localhost:${B_PORT}`], // A and B backends
         methods: ['GET', 'POST'],
         credentials: true
     }
 });
+
+const connectedBackends = new Map();
 
 io.on('connection', (socket) => {
     console.log(`Hub: New backend connected: ${socket.id}`);
@@ -44,7 +50,6 @@ io.on('connection', (socket) => {
     });
 });
 
-const HUB_PORT = 9000;
 server.listen(HUB_PORT, () => {
     console.log(`Central WebSocket Hub running on http://localhost:${HUB_PORT}`);
 });
