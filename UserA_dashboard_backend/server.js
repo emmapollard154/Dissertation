@@ -6,29 +6,29 @@ const http = require('http');
 const socketIO = require('socket.io'); // A frontend <-> backend
 const clientIO = require('socket.io-client'); // A backend <-> hub <-> B backend
 
-const app = express();
-const PORT = 5000;
+const A_PORT = 5000;
+const A_FRONT = 5173;
+const B_FRONT = 6173;
 const HUB_PORT = 9000;
+
+const app = express();
 const server = http.createServer(app);
 const hubSocket = clientIO(`http://localhost:${HUB_PORT}`);
-
-app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:6173'], // frontends A and B
-    methods: ['GET', 'POST'],
-    credentials: true
-}));
-app.use(express.json());
-app.use(express.static('../UserA_dashboard_frontend'));
-
 const io = socketIO(server, {
     cors: {
-        origin: 'http://localhost:5173',
+        origin: `http://localhost:${A_FRONT}`,
         methods: ['GET', 'POST'],
         credentials: true
     }
 });
 
-
+app.use(cors({
+    origin: [`http://localhost:${A_FRONT}`, `http://localhost:${B_FRONT}`],
+    methods: ['GET', 'POST'],
+    credentials: true
+}));
+app.use(express.json());
+app.use(express.static('../UserA_dashboard_frontend'));
 
 hubSocket.on('connect', () => {
     console.log('Backend A: Connected to Central Hub.');
@@ -39,9 +39,9 @@ hubSocket.on('backendMessage', (message) => {
     if (message.from !== 'BackendA') { // Avoid processing messages sent by self
         console.log('Backend A: Received message from other backend via Hub:', message);
         // Process message, e.g., update user status
-        if (message.event === 'USER_STATUS_UPDATE') {
-            console.log(`Backend A: User ${message.data.userId} now ${message.data.status}`);
-            // ... update database or local state
+        if (message.event === 'USER_B_RESPONSE') {
+            console.log(`Backend A: USER B HAS RESPONSED`);
+            console.log(`TO DO: TRIGGER NOTIFICATION`);
         }
     }
 });
@@ -54,16 +54,16 @@ hubSocket.on('connect_error', (error) => {
     console.error('Backend A: Hub connection error:', error.message);
 });
 
-// // Example API endpoint on Backend A that sends messages via the Hub
-// app.post('/api/backendA-event', (req, res) => {
-//     const { event, payload } = req.body;
-//     console.log(`Backend A: Triggering event "${event}" with payload:`, payload);
+// Example API endpoint on Backend A that sends messages via the Hub
+app.post('/api/backendA-event', (req, res) => {
+    const { event, payload } = req.body;
+    console.log(`Backend A: Triggering event "${event}" with payload:`, payload);
 
-//     // Send the event to other backends via the hub
-//     hubSocket.emit('backendMessage', { event, payload });
+    // Send the event to other backends via the hub
+    hubSocket.emit('backendMessage', { event, payload });
 
-//     res.status(200).json({ message: 'Event processed and sent to hub.' });
-// });
+    res.status(200).json({ message: 'Event processed and sent to hub.' });
+});
 
 
 
@@ -248,8 +248,8 @@ app.post('/api/data-from-b', (req, res) => {
 
 
 // Start the server
-server.listen(PORT, () => {
-    console.log(`Backend server (A) running on http://localhost:${PORT}`);
+server.listen(A_PORT, () => {
+    console.log(`Backend server (A) running on http://localhost:${A_PORT}`);
 });
 
 process.on('SIGINT', () => {

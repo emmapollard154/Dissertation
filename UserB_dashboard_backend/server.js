@@ -7,31 +7,28 @@ const http = require('http');
 const socketIO = require('socket.io');
 const clientIO = require('socket.io-client');
 
-const app = express();
-const server = http.createServer(app);
-
 const B_PORT = 8080;
+const A_FRONT = 5173;
+const B_FRONT = 6173;
 const HUB_PORT = 9000;
 
-app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:6173'], // frontends A and B
-    methods: ['GET', 'POST'],
-    credentials: true
-}));
-app.use(express.json());
-
+const app = express();
+const server = http.createServer(app);
+const hubSocket = clientIO(`http://localhost:${HUB_PORT}`);
 const io = socketIO(server, {
     cors: {
-        origin: 'http://localhost:6173',
+        origin: `http://localhost:${B_FRONT}`,
         methods: ['GET', 'POST'],
         credentials: true
     }
 });
 
-
-
-
-const hubSocket = clientIO(`http://localhost:${HUB_PORT}`);
+app.use(cors({
+    origin: [`http://localhost:${A_FRONT}`, `http://localhost:${B_FRONT}`],
+    methods: ['GET', 'POST'],
+    credentials: true
+}));
+app.use(express.json());
 
 hubSocket.on('connect', () => {
     console.log('Backend B: Connected to Central Hub.');
@@ -121,7 +118,19 @@ app.post('/api/data-b-frontend', async (req, res) => {
         // Check the response from A's backend
         if (response.status === 201) {
             console.log('Successfully forwarded data to A backend:', response.data);
-            res.status(200).json({ message: 'Data processed by B and inserted into A\'s database', result: response.data });
+            // res.status(200).json({ message: 'Data processed by B and inserted into A\'s database', result: response.data });
+
+
+            console.log(`Backend B: Sending notification to hub`);
+
+            hubSocket.emit('backendMessage', { event: 'USER_B_RESPONSE' });
+
+            res.status(200).json({ message: 'Notification sent to hub.' });
+
+            console.log({ message: 'Data processed by B and inserted into A\'s database. Notification send to hub.', result: response.data });
+
+
+
         } else {
             console.error('Error from A backend:', response.status, response.data);
             res.status(response.status).json({ message: 'Failed to insert data into A\'s database', error: response.data });
@@ -149,12 +158,6 @@ app.post('/api/data-b-frontend', async (req, res) => {
         }
     }
 });
-
-
-// // Start the server
-// app.listen(port, () => {
-//     console.log(`Backend server running on http://localhost:${port}`);
-// });
 
 // Start the server
 server.listen(B_PORT, () => {

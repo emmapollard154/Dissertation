@@ -1,14 +1,14 @@
 const http = require('http');
 const socketIO = require('socket.io');
-const express = require('express'); // Often used for basic / health check routes
-
-const app = express();
-const server = http.createServer(app);
+const express = require('express');
 
 const HUB_PORT = 9000;
 const A_PORT = 5000;
 const B_PORT = 8080;
 
+const app = express();
+const server = http.createServer(app);
+const connectedBackends = new Map();
 const io = socketIO(server, {
     cors: {
         origin: [`http://localhost:${A_PORT}`, `http://localhost:${B_PORT}`], // A and B backends
@@ -17,13 +17,10 @@ const io = socketIO(server, {
     }
 });
 
-const connectedBackends = new Map();
 
 io.on('connection', (socket) => {
     console.log(`Hub: New backend connected: ${socket.id}`);
-
-    // Backends can identify themselves upon connection
-    socket.on('registerBackend', (backendType) => {
+    socket.on('registerBackend', (backendType) => { // identify backend
         connectedBackends.set(socket.id, backendType);
         console.log(`Hub: Backend ${socket.id} registered as: ${backendType}`);
     });
@@ -33,8 +30,6 @@ io.on('connection', (socket) => {
         const senderType = connectedBackends.get(socket.id) || 'unknown';
         console.log(`Hub: Received message from ${senderType} (${socket.id}):`, data);
 
-        // Example: Re-emit to all other connected backends (broadcast)
-        // You can add more sophisticated routing logic here
         socket.broadcast.emit('backendMessage', {
             from: senderType,
             data: data.payload,
