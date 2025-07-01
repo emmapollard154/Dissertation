@@ -3,11 +3,13 @@ const express = require('express');
 const sqlite3 = require('./node_modules/sqlite3').verbose();
 const cors = require('cors');
 const http = require('http');
-const socketIO = require('socket.io');
+const socketIO = require('socket.io'); // A frontend <-> backend
+const clientIO = require('socket.io-client'); // A backend <-> hub <-> B backend
 
 const app = express();
 const PORT = 5000;
 const server = http.createServer(app);
+const hubSocket = clientIO('http://localhost:6000');
 
 app.use(cors({
     origin: ['http://localhost:5173', 'http://localhost:6173'], // frontends A and B
@@ -25,6 +27,50 @@ const io = socketIO(server, {
     }
 });
 
+
+
+// hubSocket.on('connect', () => {
+//     console.log('Backend A: Connected to Central Hub.');
+//     hubSocket.emit('registerBackend', 'BackendA'); // Identify self to hub
+// });
+
+// hubSocket.on('backendMessage', (message) => {
+//     if (message.from !== 'BackendA') { // Avoid processing messages sent by self
+//         console.log('Backend A: Received message from other backend via Hub:', message);
+//         // Process message, e.g., update user status
+//         if (message.event === 'USER_STATUS_UPDATE') {
+//             console.log(`Backend A: User ${message.data.userId} now ${message.data.status}`);
+//             // ... update database or local state
+//         }
+//     }
+// });
+
+// hubSocket.on('disconnect', () => {
+//     console.log('Backend A: Disconnected from Central Hub.');
+// });
+
+// hubSocket.on('connect_error', (error) => {
+//     console.error('Backend A: Hub connection error:', error.message);
+// });
+
+// // Example API endpoint on Backend A that sends messages via the Hub
+// app.post('/api/backendA-event', (req, res) => {
+//     const { event, payload } = req.body;
+//     console.log(`Backend A: Triggering event "${event}" with payload:`, payload);
+
+//     // Send the event to other backends via the hub
+//     hubSocket.emit('backendMessage', { event, payload });
+
+//     res.status(200).json({ message: 'Event processed and sent to hub.' });
+// });
+
+
+
+
+
+
+
+
 // Listen for messages from the client
 io.on('connect', (socket) => {
 
@@ -36,6 +82,7 @@ io.on('connect', (socket) => {
         socket.emit('message', `Server A recevied: ${data}`); // respond to frontend
     });
 });
+
 
 // Initialize database
 const db = new sqlite3.Database('../dashboard.db', (err) => {
