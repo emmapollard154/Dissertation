@@ -38,7 +38,6 @@ hubSocket.on('connect', () => {
 hubSocket.on('backendMessage', (message) => {
     if (message.from !== 'BackendA') { // Avoid processing messages sent by self
         console.log('Backend A: Received message from other backend via Hub:', message);
-        // Process message, e.g., update user status
         if (message.event === 'USER_B_RESPONSE') {
             console.log(`Backend A: USER B HAS RESPONSED`);
             console.log(`TO DO: TRIGGER NOTIFICATION`);
@@ -54,18 +53,18 @@ hubSocket.on('connect_error', (error) => {
     console.error('Backend A: Hub connection error:', error.message);
 });
 
-// send message from A -> hub -> B
-app.post('/api/message-history', (req, res) => {
-    const event = req.body.target;
-    const data = req.body.data;
-    console.log(`Backend A: "${event}" - `, data);
+// // send message from A -> hub -> B
+// app.post('/api/message-history', (req, res) => {
+//     const event = req.body.target;
+//     const data = req.body.data;
+//     console.log(`Backend A: "${event}" - `, data);
 
-    if (event === 'USER_A_MESSAGE') {
-        console.log("Server (A): User A posted a message");
-        hubSocket.emit('backendMessage', { event, data });
-    }
-    res.status(200).json({ message: 'Backend A: Event processed and sent to hub.' });
-});
+//     if (event === 'USER_A_MESSAGE') {
+//         console.log("Server (A): User A posted a message");
+//         hubSocket.emit('backendMessage', { event, data });
+//     }
+//     res.status(200).json({ message: 'Backend A: Event processed and sent to hub.' });
+// });
 
 
 // Listen for messages from the client
@@ -248,6 +247,10 @@ app.post('/api/dashboard-data', (req, res) => {
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
         res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
+
+        console.log("Server (A): User A posted a message");
+        hubSocket.emit('backendMessage', { target, message });
+        // res.status(200).json({ message: 'Backend A: Event processed and sent to hub.' });
     }
 
 });

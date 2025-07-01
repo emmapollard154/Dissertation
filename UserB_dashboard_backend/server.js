@@ -31,18 +31,18 @@ app.use(cors({
 app.use(express.json());
 
 
-// send message from A -> hub -> B
-app.post('/api/message-history', (req, res) => {
-    const event = req.body.target;
-    const data = req.body.data;
-    console.log(`Backend A: "${event}" - `, data);
+// // send message from A -> hub -> B
+// app.post('/api/message-history', (req, res) => {
+//     const event = req.body.target;
+//     const data = req.body.data;
+//     console.log(`Backend A: "${event}" - `, data);
 
-    if (event === 'USER_B_MESSAGE') {
-        console.log("Server (B): User B posted a message");
-        hubSocket.emit('backendMessage', { event, data });
-    }
-    res.status(200).json({ message: 'Backend B: Event processed and sent to hub.' });
-});
+//     if (event === 'USER_B_MESSAGE') {
+//         console.log("Server (B): User B posted a message");
+//         hubSocket.emit('backendMessage', { event, data });
+//     }
+//     res.status(200).json({ message: 'Backend B: Event processed and sent to hub.' });
+// });
 
 
 hubSocket.on('connect', () => {
@@ -77,20 +77,20 @@ hubSocket.on('connect_error', (error) => {
     console.error('Backend B: Hub connection error:', error.message);
 });
 
-app.get('/api/dashboard-data/message-history', (req, res) => {
-    console.log("Server B: GET /api/dashboard-data/message-history request received.");
-    db.all('SELECT * FROM message', [], (err, rows) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
-        }
-        console.log("Successfully retrieved dashboard-data/action");
-        res.json({
-            message: 'Success',
-            data: rows
-        });
-    });
-});
+// app.get('/api/dashboard-data/message-history', (req, res) => {
+//     console.log("Server B: GET /api/dashboard-data/message-history request received.");
+//     db.all('SELECT * FROM message', [], (err, rows) => {
+//         if (err) {
+//             res.status(500).json({ error: err.message });
+//             return;
+//         }
+//         console.log("Successfully retrieved dashboard-data/action");
+//         res.json({
+//             message: 'Success',
+//             data: rows
+//         });
+//     });
+// });
 
 // Listen for messages from the client
 io.on('connect', (socket) => {
@@ -115,13 +115,13 @@ const db = new sqlite3.Database('../dashboard.db', (err) => {
 
 
 app.post('/api/data-b-frontend', async (req, res) => {
-    const dataToInsert = req.body; // Data received from Dashboard B's frontend
+    const data = req.body; // Data received from Dashboard B's frontend
 
-    console.log('Received data on B backend from B frontend:', dataToInsert);
+    console.log('Received data on B backend from B frontend:', data);
 
     try {
         // Make an HTTP POST request to Dashboard A's backend
-        const response = await axios.post('http://localhost:5000/api/data-from-b', dataToInsert, {
+        const response = await axios.post('http://localhost:5000/api/data-from-b', data, {
             headers: {
                 'Content-Type': 'application/json',
                 // 'X-API-Key': API_KEY_FOR_A // Include the API key for authentication

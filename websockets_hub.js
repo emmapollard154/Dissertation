@@ -32,8 +32,8 @@ io.on('connection', (socket) => {
 
         socket.broadcast.emit('backendMessage', {
             from: senderType,
-            data: data.data,
-            event: data.event // Include original event type
+            data: data.message,
+            event: data.target // Include original event type
         });
         console.log(`Hub: Broadcasted message "${data.event}" from ${senderType} to other backends.`);
     });
