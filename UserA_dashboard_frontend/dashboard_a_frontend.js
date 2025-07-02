@@ -59,7 +59,7 @@ window.addEventListener('message', function(event) {
 
     if (event.data && event.data.type === 'USER_A_MESSAGE') {
         const msgContent = event.data.payload;
-        console.log('dashboard_a_frontend.js: received message data from User A: ', receivedData.data);
+        console.log('dashboard_a_frontend.js: received message data from User A: ', msgContent);
 
         const data = {
             data: msgContent,

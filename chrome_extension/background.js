@@ -2,7 +2,7 @@
 
 console.log('Starting service worker');
 
-const DASHBOARD_A_LOCATION = 'http://localhost:5173';
+const A_FRONTEND = 5173;
 const EMAIL_ENV = 'http://localhost:5174';
 // const BANKING_ENV = "https://www.google.com/";
 
@@ -34,7 +34,7 @@ chrome.action.onClicked.addListener((tab) => {
 		.then(() => { console.log('Side panel opened successfully for tab ID:', tab.id); })
 		.catch((error) => { console.error('Error opening side panel:', error); });
 
-	chrome.tabs.create({ url: DASHBOARD_A_LOCATION })
+	chrome.tabs.create({ url: `http://localhost:${A_FRONTEND}` })
 		.then((newTab) => { console.log('New tab opened successfully:', newTab.url); })
 		.catch((error) => { console.error('Error opening new tab:', error); });
 });
@@ -75,7 +75,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === 'openDashboard') {
-		chrome.tabs.create({ url: DASHBOARD_A_LOCATION });
+		chrome.tabs.create({ url: `http://localhost:${A_FRONTEND}` });
 		setNums(-1, 0); // leave number pending unchanged, reset number of updates
 	}
 });
@@ -83,7 +83,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 // Create listener for messages from external web pages
 chrome.runtime.onMessageExternal.addListener(
   function(request, sender, sendResponse) {
-    const allowedOrigins = ['http://localhost:5173'];
+    const allowedOrigins = [`http://localhost:${A_FRONTEND}`];
 
     if (!allowedOrigins.includes(new URL(sender.url).origin)) {
       console.warn('Blocked message from unauthorized origin:' , sender.url);

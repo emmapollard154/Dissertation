@@ -176,9 +176,9 @@ app.post('/api/dashboard-data', (req, res) => {
             console.error('server.js (A): database insertion error: ', err.message);
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
-        io.emit('a_browsing', '');
+        io.emit('a_browser', data.newUrl);
         res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
-        hubSocket.emit('backendMessage', { target }); // send message to hub
+        hubSocket.emit('backendMessage', { event: 'BROWSING_DATA', data: data.newUrl}); // message hub
     }
 
     if (target === 'USER_A_CHOICE') {
@@ -209,7 +209,7 @@ app.post('/api/dashboard-data', (req, res) => {
         }
         io.emit('a_choice', '');
         res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
-        hubSocket.emit('backendMessage', { target, choice }); // send message to hub
+        hubSocket.emit('backendMessage', { event: 'USER_A_CHOICE', data: choice }); // message hub
     }
 
     if (target === 'USER_A_MESSAGE') {
@@ -227,7 +227,8 @@ app.post('/api/dashboard-data', (req, res) => {
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
         res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
-        hubSocket.emit('backendMessage', { target, message }); // send message to hub
+        hubSocket.emit('backendMessage', { event: 'USER_A_MESSAGE', data: message }); // message hub
+        io.emit('a_message', message); // respond to frontend
     }
 });
 
@@ -255,8 +256,8 @@ app.post('/api/data-from-b', (req, res) => {
             console.error('server.js (A): database insertion error: ', err.message);
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
-        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
 
+        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
         io.emit('b_response', outcome); // send message to frontend
     }
 
@@ -275,9 +276,9 @@ app.post('/api/data-from-b', (req, res) => {
             console.error('server.js (A): database insertion error: ', err.message);
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
-        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
 
-        io.emit('b_message', message); // send message to frontend
+        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
+        io.emit('b_message', data.payload.message); // send message to frontend
     }
 });
 

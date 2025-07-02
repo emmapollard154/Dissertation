@@ -65,7 +65,7 @@ async function updateNumPending(newPending) {
 
         if (oldPending > newPending) { // a request has been resolved
             setNums(newPending, oldUpdates + 1);
-            updateAlert(); // send alert to User A
+            // updateAlert(); // send alert to User A
             try {
                 const newUpdates = await getNumUpdates();
                 document.getElementById('numUpdates').innerHTML = newUpdates + ' Updates';

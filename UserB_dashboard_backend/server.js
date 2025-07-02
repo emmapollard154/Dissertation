@@ -39,22 +39,25 @@ hubSocket.on('connect', () => {
 
 hubSocket.on('backendMessage', (message) => {
     if (message.from !== 'server_b') {
+
+        const content = message.data;
+
         if (message.event === 'USER_A_MESSAGE') {
-            const msg = message.data;
-            console.log('server.js (B): User A has sent a message: ', msg);
-            io.emit('a_message', msg); // send message to frontend
+            console.log('server.js (B): User A has sent a message: ', content);
+            io.emit('a_message', content); // send message to frontend
             console.log('server.js (B): sent update message to frontend B.');
         }
 
         if (message.event === 'BROWSING_DATA') {
             console.log('server.js (B): User A has updated browsing history.');
-            io.emit('a_browser', ); // send message to frontend
+            console.log(content)
+            io.emit('a_browser', content); // send message to frontend
             console.log('server.js (B): sent browsing history update message to frontend B.');
         }
 
         if (message.event === 'USER_A_CHOICE') {
             console.log("Server B: User A has made a choice");
-            io.emit('a_choice', ); // send message to frontend
+            io.emit('a_choice', content); // send message to frontend
             console.log('server.js (B): sent choice update message to frontend B.');
         }
     }
@@ -105,13 +108,13 @@ app.post('/api/data-b-frontend', async (req, res) => {
 
             if (data.data.type === 'USER_B_RESPONSE') {
                 console.log('server.js (B): sending response notification to hub');
-                hubSocket.emit('backendMessage', { event: 'USER_B_RESPONSE' }); // message hub
-                io.emit('b_response', ''); // respond to frontend
+                hubSocket.emit('backendMessage', { event: 'USER_B_RESPONSE', data: data.data }); // message hub
+                io.emit('b_response', data.data.outcome); // respond to frontend
             }
             if (data.data.type === 'USER_B_MESSAGE') {
                 console.log('server.js (B): sending message to hub');
-                hubSocket.emit('backendMessage', { event: 'USER_B_MESSAGE' }); // message hub
-                
+                hubSocket.emit('backendMessage', { event: 'USER_B_MESSAGE', data: data.data.payload }); // message hub
+                io.emit('b_message', data.data.payload.message); // respond to frontend
             }
             res.status(200).json({ message: 'server.js (B): data sent to hub.' });
             console.log({ message: 'server.js (B): data process and responses made.', result: response.data });

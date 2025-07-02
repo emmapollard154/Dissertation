@@ -3,7 +3,9 @@ import { act } from 'react';
 import './App.css'
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:5000');
+const A_BACKEND = 5000;
+const A_FRONTEND = 5173;
+const socket = io(`http://localhost:${A_BACKEND}`);
 
 // Main App component for dashboard
 function App() {
@@ -38,7 +40,7 @@ function App() {
 
   const fetchBrowserData = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/dashboard-data/browsingHistory');
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/browsingHistory`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -54,7 +56,7 @@ function App() {
 
   const fetchActionData = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/dashboard-data/action');
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/action`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -72,7 +74,7 @@ function App() {
 
   const fetchMessageData = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/dashboard-data/message');
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/message`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -127,7 +129,7 @@ function App() {
       window.postMessage({
         type: 'USER_A_MESSAGE',
         payload: { message, time },
-      }, 'http://localhost:5173');
+      }, `http://localhost:${A_FRONTEND}`);
 
         console.log("sendMessage: sent ", message);
         messageInput.value = '';
@@ -141,7 +143,7 @@ function App() {
     fetchMessageData();
 
     socket.on('connect', () => {
-        console.log('Connected to Socket.IO server on port 5000!');
+        console.log(`App.jsx (A): connected to websockets server on port ${A_BACKEND}`);
     });
 
     socket.on('connect_error', (error) => {
@@ -159,7 +161,7 @@ function App() {
         console.log('Frontend: received message from server:', msg);
     });
 
-    socket.on('a_browsing', (data) => {
+    socket.on('a_browser', (data) => {
         console.log('App (A): User A has added to browsing history:', data);
         fetchBrowserData();
     });
@@ -169,19 +171,27 @@ function App() {
         fetchActionData();
     });
 
+    socket.on('a_message', (data) => {
+        console.log('App (A): User A sent a message:', data);
+        fetchMessageData();
+    });
+
     socket.on('b_response', (data) => {
         console.log('App (A): User B has responded:', data);
         fetchActionData();
     });
 
     socket.on('b_message', (data) => {
-        console.log('App (A): User B has sent a message:', data);
+        console.log('App (A): User B has sent a message: ', data);
         fetchMessageData();
     });
 
     // Clean up the socket connection when the component unmounts
     return () => {
       socket.off('message');
+      socket.off('a_browser');
+      socket.off('a_choice');
+      socket.off('a_message');
       socket.off('b_message');
       socket.off('b_response');
       socket.off('connect');

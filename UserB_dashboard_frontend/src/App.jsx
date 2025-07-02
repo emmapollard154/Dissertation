@@ -3,7 +3,10 @@ import { act } from 'react';
 import './App.css'
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:8080');
+const A_BACKEND = 5000;
+const B_BACKEND = 8080;
+const B_FRONTEND = 6173;
+const socket = io(`http://localhost:${B_BACKEND}`);
 
 // Main App component for dashboard
 function App() {
@@ -34,7 +37,7 @@ function App() {
 
   const fetchBrowserData = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/dashboard-data/browsingHistory');
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/browsingHistory`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -50,7 +53,7 @@ function App() {
 
   const fetchActionData = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/dashboard-data/action');
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/action`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -69,7 +72,7 @@ function App() {
 
   const fetchMessageData = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/dashboard-data/message');
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/message`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -96,7 +99,7 @@ function App() {
         type: 'USER_B_RESPONSE',
         id: actionID.item,
         outcome: "Y"
-      }, 'http://localhost:6173');
+      }, `http://localhost:${B_FRONTEND}`);
 
     } else if (btn.id === 'btn_no') {
       console.log("No button clicked: ", actionID.item);
@@ -104,7 +107,7 @@ function App() {
         type: 'USER_B_RESPONSE',
         id: actionID.item,
         outcome: "N"
-      }, 'http://localhost:6173');
+      }, `http://localhost:${B_FRONTEND}`);
 
     } else {
       console.warn("Error: invalid button id found");
@@ -125,7 +128,7 @@ function App() {
       window.postMessage({
         type: 'USER_B_MESSAGE',
         payload: { message, time },
-      }, 'http://localhost:6173');
+      }, `http://localhost:${B_FRONTEND}`);
 
         console.log("sendMessage: sent ", message);
         messageInput.value = '';
@@ -139,7 +142,7 @@ function App() {
     fetchMessageData();
 
     socket.on('connect', () => {
-        console.log('Connected to Socket.IO server on port 8080!');
+        console.log(`App.jsx (B): connected to websockets server on port ${B_BACKEND}.`);
     });
 
     socket.on('connect_error', (error) => {
@@ -177,10 +180,19 @@ function App() {
         fetchActionData();
     });
 
+    socket.on('b_message', (data) => {
+        console.log('App (B): User B sent a message:', data);
+        fetchMessageData();
+    });
+
     // Clean up the socket connection when the component unmounts
     return () => {
       socket.off('message');
+      socket.off('a_browser');
+      socket.off('a_choice');
       socket.off('a_message');
+      socket.off('b_response');
+      socket.off('b_message');
       socket.off('connect');
       socket.off('connect_error');
     };

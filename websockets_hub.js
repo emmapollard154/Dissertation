@@ -34,10 +34,10 @@ io.on('connection', (socket) => {
 
         socket.broadcast.emit('backendMessage', {
             from: senderType,
-            data: data.message,
-            event: data.target // original event type
+            data: data.data,
+            event: data.event // original event type
         });
-        console.log(`websockets_hub.js broadcasted message "${data.event}" from ${senderType}.`);
+        console.log(`websockets_hub.js broadcasted message "${data.data}" (type ${data.event}) from ${senderType}.`);
     });
 
     socket.on('disconnect', () => {

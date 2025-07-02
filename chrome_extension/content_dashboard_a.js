@@ -1,5 +1,7 @@
 // content_dashboard_a.js: content script for dashboard A from chrome extension
 
+const A_FRONTEND = 5173;
+
 // Create event listener
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     console.log('content_dashboard_a.js: received message from ', sender.id, 'with data: ', request);
@@ -11,7 +13,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         window.postMessage({
             type: 'BROWSING_DATA',
             payload: receivedData
-        }, 'http://localhost:5173'); // dashboard origin
+        }, `http://localhost:${A_FRONTEND}`); // dashboard origin
 
         sendResponse({ status: 'content_processed', dataProcessed: receivedData });
     }
@@ -32,7 +34,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         window.postMessage({
             type: 'USER_A_CHOICE',
             payload: payload
-        }, 'http://localhost:5173');
+        }, `http://localhost:${A_FRONTEND}`);
 
         sendResponse({ status: 'content_processed', dataProcessed: choice });
     }
