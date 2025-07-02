@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { act } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css'
 import io from 'socket.io-client';
 
@@ -18,33 +17,37 @@ function App() {
   const [error, setError] = useState(null);
 
   let UNRESOLVED = [];
-  const noUnresolved = "No unresolved actions";
 
   const processActionID = (data) => {
     const action_ids = data.map(row => [row.actionID, row.resolved]);
-    for (let i=0; i < action_ids.length; i++) {
-      if (action_ids[i][1] === "N" && !UNRESOLVED.includes(action_ids[i][0])) {
+
+    for (let i=0; i < action_ids.length; i++) { // parse through all actions
+      if (action_ids[i][1] === 'N' && !UNRESOLVED.includes(action_ids[i][0])) {
         UNRESOLVED.push(action_ids[i][0]);
       } // collect unresolved actions
+      if (action_ids[i][1] === 'Y' && UNRESOLVED.includes(action_ids[i][0])) {
+        UNRESOLVED = UNRESOLVED.filter(item => item !== action_ids[i][0]);
+      } // remove resolved actions
     }
-    setUnresolvedData(UNRESOLVED);
+
     if (UNRESOLVED.length > 0) {
-      document.getElementById('unresolved_number_statement').innerHTML = UNRESOLVED.length + " unresolved action(s)";
+      document.getElementById('unresolved_number_statement').innerHTML = UNRESOLVED.length + ' unresolved action(s)';
     } else {
-      document.getElementById('unresolved_number_statement').innerHTML = noUnresolved;
+      document.getElementById('unresolved_number_statement').innerHTML = 'No unresolved actions';
     }
+    return UNRESOLVED;
   }
 
   const fetchBrowserData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/browsingHistory`);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`App.jsx (B): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
       setBrowsingData(result.data); // update the state with the fetched data
     } catch (e) {
-      console.error("Error fetching dashboard data:", e);
+      console.error('App.jsx (B): error fetching dashboard data (browsing history): ', e);
       setError(e.message);
     } finally {
       setLoading(false);
@@ -55,133 +58,121 @@ function App() {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/action`);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`App.jsx (B): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
       setActionData(result.data); // update the state with the fetched data
-      processActionID(result.data);
+      const newUnresolved = processActionID(result.data);
+      setUnresolvedData(newUnresolved);
     } catch (e) {
-      console.error("Error fetching dashboard data:", e);
-      setError(e.message); // Set error state
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-
-  const fetchMessageData = async () => {
-    try {
-      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/message`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const result = await response.json();
-      setMessageData(result.data);
-    } catch (e) {
-      console.error("Error fetching message history:", e);
+      console.error('App.jsx (B): error fetching dashboard data (action): ', e);
       setError(e.message);
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchMessageData = async () => {
+    try {
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/message`);
+      if (!response.ok) {
+        throw new Error(`App.jsx (B): HTTP error. status: ${response.status}`);
+      }
+      const result = await response.json();
+      setMessageData(result.data);
+    } catch (e) {
+      console.error('App.jsx (B): error fetching dashboard data (message): ', e);
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Function to allow user B to accept/reject a request
   function responseBtn(btn, actionID) {
 
-    const yesBtn = document.getElementById('btn_yes');
-    const noBtn = document.getElementById('btn_no');
-
     if (btn.id === 'btn_yes') {
-      console.log("Yes button clicked: ", actionID.item);
+      console.log('App.jsx (B): "Yes" button clicked: ', actionID.item);
       window.postMessage({
         type: 'USER_B_RESPONSE',
         id: actionID.item,
-        outcome: "Y"
+        outcome: 'Y'
       }, `http://localhost:${B_FRONTEND}`);
 
     } else if (btn.id === 'btn_no') {
-      console.log("No button clicked: ", actionID.item);
+      console.log('App.jsx (B): "No" button clicked: ', actionID.item);
       window.postMessage({
         type: 'USER_B_RESPONSE',
         id: actionID.item,
-        outcome: "N"
+        outcome: 'N'
       }, `http://localhost:${B_FRONTEND}`);
 
     } else {
-      console.warn("Error: invalid button id found");
+      console.warn('App.jsx (B): invalid button found: ', btn.id);
     }
-    yesBtn.disabled = true;
-    noBtn.disabled = true;
   }
 
-  // send message to backend using socket.io
+  // send message to backend B
   function sendMessage() {
+
     const messageInput = document.getElementById('messageInput')
     const message = messageInput.value;
+
     if (message) {
-
-        // socket.emit('clientMessage', message);
       const time = new Date().toISOString();
-
       window.postMessage({
         type: 'USER_B_MESSAGE',
         payload: { message, time },
       }, `http://localhost:${B_FRONTEND}`);
-
-        console.log("sendMessage: sent ", message);
         messageInput.value = '';
     }
   };
 
-  // hook to fetch data when the component mounts
+  // Hook to fetch data when the component mounts
   useEffect(() => {
     fetchBrowserData();
     fetchActionData();
     fetchMessageData();
 
+    // Listen for events and messages
     socket.on('connect', () => {
         console.log(`App.jsx (B): connected to websockets server on port ${B_BACKEND}.`);
     });
 
     socket.on('connect_error', (error) => {
-      console.error('Socket.IO connection error:', error);
-      // setMessages(prevMessages => [...prevMessages, `Error: ${error.message}`]);
+      console.error('App.jsx (B): error connecting to websockets server: ', error);
     });
 
-    // listen for welcome message from server
     socket.on('welcome', (msg) => {
-        console.log('Frontend: received welcome message from server:', msg);
+        console.log('App.jsx (B) received welcome message from server: ', msg);
     });
 
-    // listen for messages from server
     socket.on('message', (msg) => {
-        console.log('Frontend: received message from server:', msg);
+        console.log('App.jsx (B) received message from server: ', msg);
     });
 
     socket.on('a_message', (data) => {
-        console.log('App (B): User A has sent a message:', data);
+        console.log('App.jsx (B): User A sent message: ', data);
         fetchMessageData();
     });
 
     socket.on('a_browser', (data) => {
-        console.log('App (B): User A has updated browsing history:', data);
+        console.log('App.jsx (B): User A updated browsing history: ', data);
         fetchBrowserData();
     });
 
     socket.on('a_choice', () => {
-        console.log('App (B): User A has made a choice:');
+        console.log('App.jsx (B): User A made choice: ');
         fetchActionData();
     });
 
     socket.on('b_response', (data) => {
-        console.log('App (B): User B has sent a response:', data);
+        console.log('App.jsx (B): User B sent a response: ', data);
         fetchActionData();
     });
 
     socket.on('b_message', (data) => {
-        console.log('App (B): User B sent a message:', data);
+        console.log('App.jsx (B): User B sent a message: ', data);
         fetchMessageData();
     });
 
@@ -379,7 +370,7 @@ function App() {
       </div>
 
           <footer className="footer">
-            <p>&copy; {new Date().getFullYear()} Emma Pollard. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Emma Pollard. University of Bath. 2025.</p>
           </footer>
     </div>
   );

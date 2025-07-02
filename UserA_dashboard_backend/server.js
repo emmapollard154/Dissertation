@@ -59,7 +59,7 @@ io.on('connect', (socket) => {
 
     socket.on('clientMessage', (data) => { // message from frontend
         console.log('server.js (A) received message: ', data);
-        socket.emit('message', `server.js (A) recevied: ${data}`); // respond to frontend
+        socket.emit('message', `server.js (A) received: ${data}`); // respond to frontend
     });
 });
 
