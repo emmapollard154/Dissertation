@@ -4,6 +4,41 @@ const A_FRONTEND = 5173;
 const EMAIL_PORT = 5174;
 const EMAIL_ANNOUNCEMENT = 'You are on the email webpage';
 
+
+// Function to set 'update' in button
+function setUpdate(btn) {
+    const button = document.getElementById(btn);
+    if (button) {
+        button.classList.add('update');
+        console.log(`side_panel.js: added update class for ${btn}.`)
+    } else {
+        console.error(`side_panel.js: ${btn} not found.`)
+    }
+}
+
+// Function to reset 'update' in button
+function removeUpdate(btn) {
+    const button = document.getElementById(btn);
+    if (button && button.classList.contains('update')) {
+        button.classList.remove('update');
+        console.log(`side_panel.js: removed update class for ${btn}.`)
+    } else if (!button.classList.contains('update')) {
+        console.log(`side_panel.js: ${btn} does not contain 'update' class.`)
+    } else {
+        console.error(`side_panel.js: ${btn} not found.`)
+    }
+}
+
+// Function to alert user of new update
+function statusAlert() {
+    setUpdate('statBtn');
+}
+
+// Function to alert user of new message
+function messageAlert() {
+    setUpdate('msgBtn');
+}
+
 // Function to get stored data (updates and pending requests)
 function getStorageData(keys) {
     return new Promise((resolve, reject) => {
@@ -65,7 +100,7 @@ async function updateNumPending(newPending) {
 
         if (oldPending > newPending) { // a request has been resolved
             setNums(newPending, oldUpdates + 1);
-            alertUser(); // send alert to User A
+            statusAlert(); // send alert to User A
             try {
                 const newUpdates = await getNumUpdates();
                 document.getElementById('numUpdates').innerHTML = newUpdates + ' Updates';
@@ -82,14 +117,6 @@ async function updateNumPending(newPending) {
     }
 }
 
-// Clear updates when dashboard accessed
-document.getElementById('dashBtn').addEventListener('click', async function() {
-    setNums(-1, 0);
-});
-document.getElementById('numUpdates').addEventListener('click', async function() {
-    setNums(-1, 0);
-});
-
 // Function to add an update
 async function addUpdate() {
     console.log('side_panel.js: adding an update.')
@@ -103,11 +130,6 @@ async function addUpdate() {
     }
 }
 
-// Function to alert user of new update
-function alertUser() {
-    console.log("placeholder alertUser")
-}
-
 // Create listener for events on side panel
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
@@ -118,7 +140,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     if (message.action === 'updateNumUpdates') {
         console.log('side_panel.js: updateNumUpdates recieved.')
         addUpdate();
-        alertUser();
+        messageAlert();
     }
 
     if (message.action === 'sendUrlToDashboard') {
@@ -185,6 +207,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             return true;
         } else {
             setNums(-1, 0); // clear updates
+            removeUpdate('statBtn');
+            removeUpdate('msgBtn');
         }
     }
 
@@ -219,4 +243,17 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         });
     }    
 });
+
+// Clear updates when dashboard accessed
+document.getElementById('dashBtn').addEventListener('click', async function() {
+    setNums(-1, 0);
+    removeUpdate('statBtn');
+    removeUpdate('msgBtn');
+});
+document.getElementById('numUpdates').addEventListener('click', async function() {
+    setNums(-1, 0);
+    removeUpdate('statBtn');
+    removeUpdate('msgBtn');
+});
+
 
