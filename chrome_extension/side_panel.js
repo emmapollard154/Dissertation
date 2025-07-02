@@ -61,11 +61,11 @@ async function updateNumPending(newPending) {
         const oldPending = await getNumPending();
         const oldUpdates = await getNumUpdates();
 
-        document.getElementById('numPending').innerHTML = newPending + ' Pending Requests';
+        document.getElementById('numPending').innerHTML = newPending + ' Pending Request(s)';
 
         if (oldPending > newPending) { // a request has been resolved
             setNums(newPending, oldUpdates + 1);
-            // updateAlert(); // send alert to User A
+            alertUser(); // send alert to User A
             try {
                 const newUpdates = await getNumUpdates();
                 document.getElementById('numUpdates').innerHTML = newUpdates + ' Updates';
@@ -90,11 +90,35 @@ document.getElementById('numUpdates').addEventListener('click', async function()
     setNums(-1, 0);
 });
 
+// Function to add an update
+async function addUpdate() {
+    console.log('side_panel.js: adding an update.')
+    try {
+        const oldUpdates = await getNumUpdates();
+        const newUpdates = oldUpdates + 1;
+        setNums(-1, newUpdates);
+        document.getElementById('numUpdates').innerHTML = newUpdates + ' Updates';
+    } catch (error) {
+        console.error('side_panel.js: error extracting values for pending/updates: ', error);
+    }
+}
+
+// Function to alert user of new update
+function alertUser() {
+    console.log("placeholder alertUser")
+}
+
 // Create listener for events on side panel
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
     if (message.action === 'updateNumPending') {
         updateNumPending(message.numPending);
+    }
+
+    if (message.action === 'updateNumUpdates') {
+        console.log('side_panel.js: updateNumUpdates recieved.')
+        addUpdate();
+        alertUser();
     }
 
     if (message.action === 'sendUrlToDashboard') {

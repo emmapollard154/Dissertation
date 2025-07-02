@@ -95,6 +95,12 @@ chrome.runtime.onMessageExternal.addListener(
 		sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });
 		return true;
 	}
+
+    if (request.type === 'USER_B_MESSAGE') {
+		chrome.runtime.sendMessage({ action: 'updateNumUpdates' });
+		sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });
+		return true;
+	}
   }
 );
 

@@ -40,7 +40,6 @@ hubSocket.on('backendMessage', (message) => { // process messages from the hub
     if (message.from !== 'server_A') {
         if (message.event === 'USER_B_RESPONSE') {
             console.log('server.js (A): User B has responded.');
-            console.log('TO DO: TRIGGER NOTIFICATION');
         }
     }
 });
@@ -207,7 +206,7 @@ app.post('/api/dashboard-data', (req, res) => {
             console.error('server.js (A): database insertion error: ', err.message);
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
-        io.emit('a_choice', '');
+        io.emit('a_choice', choice);
         res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
         hubSocket.emit('backendMessage', { event: 'USER_A_CHOICE', data: choice }); // message hub
     }

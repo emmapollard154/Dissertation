@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { act } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css'
 import io from 'socket.io-client';
 
@@ -17,7 +16,6 @@ function App() {
   const [error, setError] = useState(null);
 
   let UNRESOLVED = [];
-  const noUnresolved = "No unresolved actions";
   const EXTENSION_ID = "bcdjfglkdcfeeekbkhbambhhjgdllcom"; // TEMPORARY
 
   function processActionID(data) {
@@ -26,15 +24,21 @@ function App() {
       if (action_ids[i][1] === "N" && !UNRESOLVED.includes(action_ids[i][0])) {
         UNRESOLVED.push(action_ids[i][0]);
       } // collect unresolved actions
+      if (action_ids[i][1] === 'Y' && UNRESOLVED.includes(action_ids[i][0])) {
+        UNRESOLVED = UNRESOLVED.filter(item => item !== action_ids[i][0]);
+      } // remove resolved actions
     }
-    setUnresolvedData(UNRESOLVED);
+
     const length = UNRESOLVED.length;
+
     if (length > 0) {
       document.getElementById('unresolved_number_statement').innerHTML = length + " unresolved action(s)";
     } else {
-      document.getElementById('unresolved_number_statement').innerHTML = noUnresolved;
+      document.getElementById('unresolved_number_statement').innerHTML = 'No unresolved actions';
     }
-    sendToExt("NUM_PENDING", JSON.stringify(length));
+
+    sendToExt('NUM_PENDING', JSON.stringify(length));
+    return UNRESOLVED;
   }
 
 
@@ -42,12 +46,12 @@ function App() {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/browsingHistory`);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
       setBrowsingData(result.data); // update the state with the fetched data
     } catch (e) {
-      console.error("Error fetching dashboard data:", e);
+      console.error('App.jsx (A): error fetching dashboard data (browsing history): ', e);
       setError(e.message);
     } finally {
       setLoading(false);
@@ -58,13 +62,13 @@ function App() {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/action`);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
       setActionData(result.data); // update the state with the fetched data
       processActionID(result.data);
     } catch (e) {
-      console.error("Error fetching dashboard data:", e);
+      console.error('App.jsx (A): error fetching dashboard data (action): ', e);
       setError(e.message);
     } finally {
       setLoading(false);
@@ -76,19 +80,19 @@ function App() {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/message`);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
       setMessageData(result.data); // update the state with the fetched data
     } catch (e) {
-      console.error("Error fetching dashboard data:", e);
+      console.error('App.jsx (A): error fetching dashboard data (message): ', e);
       setError(e.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // function to send number of unresolved actions to chrome extension
+  // Function to send messages to chrome extension
   function sendToExt(msgType, msgContent) {
     if (typeof chrome !== 'undefined' && chrome.runtime) {
       try {
@@ -98,92 +102,88 @@ function App() {
             payload: msgContent },
           function(response) {
             if (chrome.runtime.lastError) {
-              console.error("Error sending message:", chrome.runtime.lastError.message);
+              console.error('App.jsx (A): error sending message: ', chrome.runtime.lastError.message);
             } else {
-              console.log("Response from extension:", response);
+              console.log('App.jsx (A): response from extension: ', response);
               if (response && response.status === "success") {
-                console.log("Message sent successfully to extension: " + response.message);
+                console.log('App.jsx (A): message sent successfully to extension: ' + response.message);
               } else {
-                console.error("Failed to send message to extension or extension reported an error.");
+                console.error('App.jsx (A): failed to send message to extension.');
               }
             }
           }
         );
       } catch (error) {
-        console.error("Could not send message to extension (likely not installed or wrong ID):", error);
+        console.error('App.jsx (A): could not send message to extension: ', error);
       }
     } else {
-      console.warn("Chrome extension API (chrome.runtime) not available.");
+      console.warn('App.jsx (A): Chrome extension API (chrome.runtime) not available.');
     }
   }
 
-  // send message to backend using socket.io
+  // Function to send message to backend A
   function sendMessage() {
+
     const messageInput = document.getElementById('messageInput')
     const message = messageInput.value;
+
     if (message) {
-
-        // socket.emit('clientMessage', message);
       const time = new Date().toISOString();
-
       window.postMessage({
         type: 'USER_A_MESSAGE',
         payload: { message, time },
       }, `http://localhost:${A_FRONTEND}`);
-
-        console.log("sendMessage: sent ", message);
-        messageInput.value = '';
+      messageInput.value = '';
     }
   };
 
-  // hook to fetch data when the component mounts
+  // Hook to fetch data when the component mounts
   useEffect(() => {
     fetchBrowserData(); //  fetch data
     fetchActionData();
     fetchMessageData();
 
+    // Listen for events and messages
     socket.on('connect', () => {
         console.log(`App.jsx (A): connected to websockets server on port ${A_BACKEND}`);
     });
 
     socket.on('connect_error', (error) => {
-      console.error('Socket.IO connection error:', error);
-      // setMessages(prevMessages => [...prevMessages, `Error: ${error.message}`]);
+      console.error('App.jsx (A): error connecting to websockets server: ', error);
     });
 
-    // listen for welcome message from server
     socket.on('welcome', (msg) => {
-        console.log('Frontend: received welcome message from server:', msg);
+      console.log('App.jsx (A) received welcome message from server: ', msg);
     });
 
-    // listen for messages from server
     socket.on('message', (msg) => {
-        console.log('Frontend: received message from server:', msg);
+      console.log('App.jsx (A) received message from server: ', msg);
     });
 
     socket.on('a_browser', (data) => {
-        console.log('App (A): User A has added to browsing history:', data);
-        fetchBrowserData();
+      console.log('App.jsx (A): User A updated browsing history: ', data);
+      fetchBrowserData();
     });
 
     socket.on('a_choice', (data) => {
-        console.log('App (A): User A has made a choice:', data);
-        fetchActionData();
+      console.log('App.jsx (A): User A made choice: ', data);
+      fetchActionData();
     });
 
     socket.on('a_message', (data) => {
-        console.log('App (A): User A sent a message:', data);
-        fetchMessageData();
+      console.log('App.jsx (A): User A sent message: ', data);
+      fetchMessageData();
     });
 
     socket.on('b_response', (data) => {
-        console.log('App (A): User B has responded:', data);
-        fetchActionData();
+      console.log('App.jsx (A): User B sent a response: ', data);
+      fetchActionData();
     });
 
     socket.on('b_message', (data) => {
-        console.log('App (A): User B has sent a message: ', data);
-        fetchMessageData();
+      console.log('App.jsx (A): User B sent a message: ', data);
+      fetchMessageData();
+      sendToExt('USER_B_MESSAGE', null);
     });
 
     // Clean up the socket connection when the component unmounts
@@ -196,9 +196,9 @@ function App() {
       socket.off('b_response');
       socket.off('connect');
       socket.off('connect_error');
+      socket.off('welcome');
     };
   }, []);
-
 
   // Render loading state
   if (loading) {
@@ -254,7 +254,7 @@ function App() {
                   </tbody>
                 </table>
               ) : (
-                <p className="p-6 text-center text-gray-500">Browsing history is empty.</p>
+                <p className="p-6 text-center text-gray-500"></p>
               )}
           </div>
 
@@ -376,7 +376,7 @@ function App() {
       </div>
 
           <footer className="footer">
-            <p>&copy; {new Date().getFullYear()} Emma Pollard. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Emma Pollard. University of Bath. 2025.</p>
           </footer>
     </div>
   );

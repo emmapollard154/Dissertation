@@ -37,7 +37,7 @@ io.on('connection', (socket) => {
             data: data.data,
             event: data.event // original event type
         });
-        console.log(`websockets_hub.js broadcasted message "${data.data}" (type ${data.event}) from ${senderType}.`);
+        console.log(`websockets_hub.js broadcasted message of type ${data.event} from ${senderType}.`);
     });
 
     socket.on('disconnect', () => {

@@ -30,8 +30,10 @@ function App() {
       } // remove resolved actions
     }
 
-    if (UNRESOLVED.length > 0) {
-      document.getElementById('unresolved_number_statement').innerHTML = UNRESOLVED.length + ' unresolved action(s)';
+    const length = UNRESOLVED.length;
+
+    if (length > 0) {
+      document.getElementById('unresolved_number_statement').innerHTML = length + ' unresolved action(s)';
     } else {
       document.getElementById('unresolved_number_statement').innerHTML = 'No unresolved actions';
     }
@@ -112,7 +114,7 @@ function App() {
     }
   }
 
-  // send message to backend B
+  // Function to send message to backend B
   function sendMessage() {
 
     const messageInput = document.getElementById('messageInput')
@@ -124,7 +126,7 @@ function App() {
         type: 'USER_B_MESSAGE',
         payload: { message, time },
       }, `http://localhost:${B_FRONTEND}`);
-        messageInput.value = '';
+      messageInput.value = '';
     }
   };
 
@@ -136,7 +138,7 @@ function App() {
 
     // Listen for events and messages
     socket.on('connect', () => {
-        console.log(`App.jsx (B): connected to websockets server on port ${B_BACKEND}.`);
+      console.log(`App.jsx (B): connected to websockets server on port ${B_BACKEND}.`);
     });
 
     socket.on('connect_error', (error) => {
@@ -144,36 +146,36 @@ function App() {
     });
 
     socket.on('welcome', (msg) => {
-        console.log('App.jsx (B) received welcome message from server: ', msg);
+      console.log('App.jsx (B) received welcome message from server: ', msg);
     });
 
     socket.on('message', (msg) => {
-        console.log('App.jsx (B) received message from server: ', msg);
-    });
-
-    socket.on('a_message', (data) => {
-        console.log('App.jsx (B): User A sent message: ', data);
-        fetchMessageData();
+      console.log('App.jsx (B) received message from server: ', msg);
     });
 
     socket.on('a_browser', (data) => {
-        console.log('App.jsx (B): User A updated browsing history: ', data);
-        fetchBrowserData();
+      console.log('App.jsx (B): User A updated browsing history: ', data);
+      fetchBrowserData();
     });
 
-    socket.on('a_choice', () => {
-        console.log('App.jsx (B): User A made choice: ');
-        fetchActionData();
+    socket.on('a_choice', (data) => {
+      console.log('App.jsx (B): User A made choice: ', data);
+      fetchActionData();
+    });
+
+    socket.on('a_message', (data) => {
+      console.log('App.jsx (B): User A sent message: ', data);
+      fetchMessageData();
     });
 
     socket.on('b_response', (data) => {
-        console.log('App.jsx (B): User B sent a response: ', data);
-        fetchActionData();
+      console.log('App.jsx (B): User B sent a response: ', data);
+      fetchActionData();
     });
 
     socket.on('b_message', (data) => {
-        console.log('App.jsx (B): User B sent a message: ', data);
-        fetchMessageData();
+      console.log('App.jsx (B): User B sent a message: ', data);
+      fetchMessageData();
     });
 
     // Clean up the socket connection when the component unmounts
@@ -186,6 +188,7 @@ function App() {
       socket.off('b_message');
       socket.off('connect');
       socket.off('connect_error');
+      socket.off('welcome');
     };
   }, []);
 
@@ -245,7 +248,7 @@ function App() {
                   </tbody>
                 </table>
               ) : (
-                <p className="p-6 text-center text-gray-500">Browsing history is empty.</p>
+                <p className="p-6 text-center text-gray-500"></p>
               )}
 
 
