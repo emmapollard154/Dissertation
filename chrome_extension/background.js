@@ -1,9 +1,9 @@
 // background.js
 
-console.log("Starting service worker");
+console.log('Starting service worker');
 
-const DASHBOARD_A_LOCATION = "http://localhost:5173";
-const EMAIL_ENV = "http://localhost:5174";
+const DASHBOARD_A_LOCATION = 'http://localhost:5173';
+const EMAIL_ENV = 'http://localhost:5174';
 // const BANKING_ENV = "https://www.google.com/";
 
 // Function to initialise the number of pending requests and updates
@@ -11,73 +11,54 @@ function setNums(pending, updates) {
 
 	if (pending >= 0) { // update pending only if valid number given
 		chrome.storage.local.set({ 'NUM_PENDING': pending }, function() {
-		console.log('Initialising NUM_PENDING to ', pending);
+		console.log('background.js: initialising NUM_PENDING to ', pending);
 		});
 	}
 
     chrome.storage.local.set({ 'NUM_UPDATES': updates }, function() {
-    console.log('Initialising NUM_UPDATES to ', updates);
+    console.log('background.js: initialising NUM_UPDATES to ', updates);
     });
 }
 
-// set side panel behaviour
+// Set side panel behaviour
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false })
-  .then(() => console.log("Side panel behaviour set: do not open by default"))
-  .catch((error) => console.error("Error setting side panel behaviour:", error));
+  .then(() => console.log('background.js: side panel behaviour set: do not open by default'))
+  .catch((error) => console.error('background.js: error setting side panel behaviour:", error'));
 
-
-
-// open dashboard in a new tab when extension icon clicked
+// Open dashboard in a new tab when extension icon clicked
 chrome.action.onClicked.addListener((tab) => {
-
-	console.log(`Extension clicked. Opening dashboard in new tab.`);
-
+	console.log(`background.js: extension clicked. Opening dashboard in new tab.`);
 	setNums(0,0); // initialise variables, updated by side panel
 
-
-	// open side panel	
-	chrome.sidePanel.open({ tabId: tab.id })
-		.then(() => {
-			console.log('Side panel opened successfully for tab ID:', tab.id);
-		})
-		.catch((error) => {
-			console.error('Error opening side panel:', error);
-		});
+	chrome.sidePanel.open({ tabId: tab.id }) // open side panel	
+		.then(() => { console.log('Side panel opened successfully for tab ID:', tab.id); })
+		.catch((error) => { console.error('Error opening side panel:', error); });
 
 	chrome.tabs.create({ url: DASHBOARD_A_LOCATION })
-		.then((newTab) => {
-			console.log('New tab opened successfully:', newTab.url);
-		})
-		.catch((error) => {
-			console.error('Error opening new tab:', error);
-		});
-
-
+		.then((newTab) => { console.log('New tab opened successfully:', newTab.url); })
+		.catch((error) => { console.error('Error opening new tab:', error); });
 });
 
-// function to get current time in sqlite datetime format
+// Function to get current time in sqlite datetime format
 function timeToDatetime() {
     const now = new Date();
     const nowStr = now.toISOString();
-
     const [date, rawTime] = nowStr.split('T');
     const time = rawTime.split('.')[0];
     return `${date} ${time}`;
 }
 
-// function to get URL of active tab
+// Function to get URL of active tab
 function getActiveTabUrl() {
 	chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 		if (tabs.length > 0) {
 			var activeTab = tabs[0];
 			if (activeTab.url === undefined) {
-				console.log("Active tab URL is undefined");
-			} else if (activeTab.url === "chrome://newtab/") {
-				console.log("Active tab is new tab");
+				console.warn('Active tab URL is undefined');
+			} else if (activeTab.url === 'chrome://newtab/') {
+				// pass
 			} else {
 				var url = new URL(activeTab.url);
-				console.log("New tab: " + activeTab.url);
-				console.log("Sending URL background -> side_panel")
 				timestamp = timeToDatetime();
                 chrome.runtime.sendMessage({ action: 'sendUrlToDashboard', newUrlMessage: [url,  timestamp] });
 			}
@@ -85,41 +66,33 @@ function getActiveTabUrl() {
 	});
 }
 
-// Event listener for when a tab is updated
+// Create event listener for when a tab is updated
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-	if (changeInfo.status === "complete") {
-		console.log("Tab updated")
+	if (changeInfo.status === 'complete') {
 		getActiveTabUrl();
 	}
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request.action === "openDashboard") {
-		console.log("Opening dashboard in new tab");
+    if (request.action === 'openDashboard') {
 		chrome.tabs.create({ url: DASHBOARD_A_LOCATION });
-		setNums(-1, 0);
+		setNums(-1, 0); // leave number pending unchanged, reset number of updates
 	}
 });
 
-// Listener for messages from external web pages
+// Create listener for messages from external web pages
 chrome.runtime.onMessageExternal.addListener(
   function(request, sender, sendResponse) {
-    const allowedOrigins = [
-      "http://localhost:5173"
-    ];
+    const allowedOrigins = ['http://localhost:5173'];
 
     if (!allowedOrigins.includes(new URL(sender.url).origin)) {
-      console.warn("Blocked message from unauthorized origin:", sender.url);
+      console.warn('Blocked message from unauthorized origin:' , sender.url);
       return false;
     }
 
-    console.log("Received message from frontend:", request);
-    console.log("Sender details:", sender);
-
-    if (request.type === "NUM_PENDING") {
-		console.log("background.js: received number of pending unresolved actions");
+    if (request.type === 'NUM_PENDING') {
 		chrome.runtime.sendMessage({ action: 'updateNumPending', numPending: request.payload });
-		sendResponse({ status: "success", message: "Data received by extension!" });
+		sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });
 		return true;
 	}
   }

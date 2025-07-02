@@ -1,3 +1,5 @@
+// websockets_hub.js: central hub for A <-> B websockets communication
+
 const http = require('http');
 const socketIO = require('socket.io');
 const express = require('express');
@@ -9,6 +11,7 @@ const B_PORT = 8080;
 const app = express();
 const server = http.createServer(app);
 const connectedBackends = new Map();
+
 const io = socketIO(server, {
     cors: {
         origin: [`http://localhost:${A_PORT}`, `http://localhost:${B_PORT}`], // A and B backends
@@ -17,34 +20,34 @@ const io = socketIO(server, {
     }
 });
 
-
 io.on('connection', (socket) => {
-    console.log(`Hub: New backend connected: ${socket.id}`);
+    console.log(`websockets_hub.js: new backend connected - ${socket.id}`);
     socket.on('registerBackend', (backendType) => { // identify backend
         connectedBackends.set(socket.id, backendType);
-        console.log(`Hub: Backend ${socket.id} registered as: ${backendType}`);
+        console.log(`websockets_hub.js: ${socket.id} registered as ${backendType}`);
     });
 
-    // Handle messages received from any connected backend
+    // handle messages received from connected backends
     socket.on('backendMessage', (data) => {
         const senderType = connectedBackends.get(socket.id) || 'unknown';
-        console.log(`Hub: Received message from ${senderType} (${socket.id}):`, data);
+        console.log(`websockets_hub.js received message from ${senderType}: `, data);
 
         socket.broadcast.emit('backendMessage', {
             from: senderType,
             data: data.message,
-            event: data.target // Include original event type
+            event: data.target // original event type
         });
-        console.log(`Hub: Broadcasted message "${data.event}" from ${senderType} to other backends.`);
+        console.log(`websockets_hub.js broadcasted message "${data.event}" from ${senderType}.`);
     });
 
     socket.on('disconnect', () => {
         const disconnectedType = connectedBackends.get(socket.id);
-        console.log(`Hub: Backend disconnected: ${socket.id} (${disconnectedType || 'unknown'})`);
+        console.log(`websockets_hub.js: backend disconnected: ${disconnectedType || 'unknown'}`);
         connectedBackends.delete(socket.id);
     });
 });
 
+// Listen for connections
 server.listen(HUB_PORT, () => {
-    console.log(`Central WebSocket Hub running on http://localhost:${HUB_PORT}`);
+    console.log(`websockets_hub.js: hub running on http://localhost:${HUB_PORT}`);
 });

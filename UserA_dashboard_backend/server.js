@@ -14,6 +14,7 @@ const HUB_PORT = 9000;
 const app = express();
 const server = http.createServer(app);
 const hubSocket = clientIO(`http://localhost:${HUB_PORT}`);
+
 const io = socketIO(server, {
     cors: {
         origin: `http://localhost:${A_FRONT}`,
@@ -31,37 +32,34 @@ app.use(express.json());
 app.use(express.static('../UserA_dashboard_frontend'));
 
 hubSocket.on('connect', () => {
-    console.log('Backend A: Connected to Central Hub.');
-    hubSocket.emit('registerBackend', 'BackendA'); // Identify self to hub
+    console.log('server.js (A): connected to websockets hub.');
+    hubSocket.emit('registerBackend', 'server_A');
 });
 
-hubSocket.on('backendMessage', (message) => {
-    if (message.from !== 'BackendA') { // Avoid processing messages sent by self
-        console.log('Backend A: Received message from other backend via Hub:', message);
+hubSocket.on('backendMessage', (message) => { // process messages from the hub
+    if (message.from !== 'server_A') {
         if (message.event === 'USER_B_RESPONSE') {
-            console.log(`Backend A: USER B HAS RESPONSED`);
-            console.log(`TO DO: TRIGGER NOTIFICATION`);
+            console.log('server.js (A): User B has responded.');
+            console.log('TO DO: TRIGGER NOTIFICATION');
         }
     }
 });
 
 hubSocket.on('disconnect', () => {
-    console.log('Backend A: Disconnected from Central Hub.');
+    console.log('server.js (A): disconnected from websockets hub.');
 });
 
 hubSocket.on('connect_error', (error) => {
-    console.error('Backend A: Hub connection error:', error.message);
+    console.error('server.js (A): websockets hub connection error: ', error.message);
 });
 
-// Listen for messages from the client
+
 io.on('connect', (socket) => {
+    socket.emit('welcome', 'server.js (A): backend connected.');
 
-    socket.emit('welcome', 'server.js (A): backend connected');
-    console.log('server.js (A): backend sent welcome message');
-
-    socket.on('clientMessage', (data) => {
-        console.log('server.js (A) received message:', data);
-        socket.emit('message', `Server A recevied: ${data}`); // respond to frontend
+    socket.on('clientMessage', (data) => { // message from frontend
+        console.log('server.js (A) received message: ', data);
+        socket.emit('message', `server.js (A) recevied: ${data}`); // respond to frontend
     });
 });
 
@@ -69,9 +67,9 @@ io.on('connect', (socket) => {
 // Initialize database
 const db = new sqlite3.Database('../dashboard.db', (err) => {
     if (err) {
-        console.error('Error connecting to database:', err.message);
+        console.error('server.js (A): error connecting to database:', err.message);
     } else {
-        console.log('Connected to the SQLite database.');
+        console.log('server.js (A): connected to the database.');
 
         // create table for browsing history
         db.run(`CREATE TABLE IF NOT EXISTS browsingHistory (
@@ -79,9 +77,9 @@ const db = new sqlite3.Database('../dashboard.db', (err) => {
             time DATETIME
         )`, (createErr) => {
             if (createErr) {
-                console.error('Error creating table:', createErr.message);
+                console.error('server.js (A): error creating table:', createErr.message);
             } else {
-                console.log('browsingHistory table created.');
+                console.log('server.js (A): browsingHistory table created / already exists.');
             }
         });
 
@@ -95,9 +93,9 @@ const db = new sqlite3.Database('../dashboard.db', (err) => {
             responseOutcome CHARACTER(1)
         )`, (createErr) => {
             if (createErr) {
-                console.error('Error creating table:', createErr.message);
+                console.error('server.js (A): error creating table:', createErr.message);
             } else {
-                console.log('action table created.');
+                console.log('server.js (A): action table created / already exists.');
             }
         });
 
@@ -108,9 +106,9 @@ const db = new sqlite3.Database('../dashboard.db', (err) => {
             time DATETIME
         )`, (createErr) => {
             if (createErr) {
-                console.error('Error creating table:', createErr.message);
+                console.error('server.js (A): error creating table:', createErr.message);
             } else {
-                console.log('message table created.');
+                console.log('server.js (A): action table created / already exists.');
             }
         });
 
@@ -120,13 +118,12 @@ const db = new sqlite3.Database('../dashboard.db', (err) => {
 
 // API endpoints to get dashboard data
 app.get('/api/dashboard-data/browsingHistory', (req, res) => {
-
     db.all('SELECT * FROM browsingHistory', [], (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });
             return;
         }
-        console.log("Successfully retrieved dashboard-data/browsingHistory");
+        console.log('server.js (A): successfully retrieved dashboard-data/browsingHistory.');
         res.json({
             message: 'Success',
             data: rows
@@ -140,7 +137,7 @@ app.get('/api/dashboard-data/action', (req, res) => {
             res.status(500).json({ error: err.message });
             return;
         }
-        console.log("Successfully retrieved dashboard-data/action");
+        console.log('server.js (A): successfully retrieved dashboard-data/action.');
         res.json({
             message: 'Success',
             data: rows
@@ -149,13 +146,12 @@ app.get('/api/dashboard-data/action', (req, res) => {
 });
 
 app.get('/api/dashboard-data/message', (req, res) => {
-
     db.all('SELECT * FROM message', [], (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });
             return;
         }
-        console.log("Successfully retrieved dashboard-data/message");
+        console.log('server.js (A): successfully retrieved dashboard-data/message.');
         res.json({
             message: 'Success',
             data: rows
@@ -163,33 +159,26 @@ app.get('/api/dashboard-data/message', (req, res) => {
     });
 });
 
-// handler for frontend POST requests
+// Handler for frontend POST requests
 app.post('/api/dashboard-data', (req, res) => {
 
     const target = req.body.target;
     const data = req.body.data;
 
-    console.log("POST target (server A): ", target);
-
-    console.log('Received POST request data (server A):', req.body);
-
     if (target === 'BROWSING_DATA') {
         
         try{
-            console.log("Inserting into browsingHistory table");
+            console.log('server.js (A): inserting into browsingHistory table.');
             const stmt = db.prepare('INSERT INTO browsingHistory (url, time) VALUES (?, ?)');
             stmt.run(data.newUrl, data.newTime);
         }
         catch(err) {
-            console.error('Database insertion error:', err.message);
+            console.error('server.js (A): database insertion error: ', err.message);
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
         io.emit('a_browsing', '');
-        res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
-
-        console.log("Server (A): User A has updated browsing history");
-        hubSocket.emit('backendMessage', { target });
-
+        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
+        hubSocket.emit('backendMessage', { target }); // send message to hub
     }
 
     if (target === 'USER_A_CHOICE') {
@@ -210,47 +199,37 @@ app.post('/api/dashboard-data', (req, res) => {
         const responseOutcome = "0";
 
         try {
-            console.log("Inserting into action table");
+            console.log('server.js (A): inserting into action table.');
             const stmt = db.prepare('INSERT INTO action (actionID, context, userAChoice, time, resolved, responseOutcome) VALUES (?, ?, ?, ?, ?, ?)');
             stmt.run(id, context, choice, time, resolved, responseOutcome);
         }
         catch(err) {
-            console.error('Database insertion error:', err.message);
+            console.error('server.js (A): database insertion error: ', err.message);
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
         io.emit('a_choice', '');
-        res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
-
-        console.log("Server (A): User A has made a choice");
-        hubSocket.emit('backendMessage', { target, choice });
-
+        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
+        hubSocket.emit('backendMessage', { target, choice }); // send message to hub
     }
 
     if (target === 'USER_A_MESSAGE') {
 
         const message = data.message;
         const time = data.time;
-
-        console.log(data);
         
         try{
-            console.log("Inserting into message table");
+            console.log('server.js (A): inserting into message table.');
             const stmt = db.prepare('INSERT INTO message (message, userID, time) VALUES (?, ?, ?)');
             stmt.run(message, 'A', time);
         }
         catch(err) {
-            console.error('Database insertion error:', err.message);
+            console.error('server.js (A): database insertion error: ', err.message);
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
-        res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
-
-        console.log("Server (A): User A posted a message");
-        hubSocket.emit('backendMessage', { target, message });
+        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
+        hubSocket.emit('backendMessage', { target, message }); // send message to hub
     }
-
 });
-
-
 
 app.post('/api/data-from-b', (req, res) => {
     // Basic API Key Authentication (add more robust validation in production)
@@ -259,77 +238,61 @@ app.post('/api/data-from-b', (req, res) => {
     //     return res.status(401).json({ message: 'Unauthorized: Invalid API Key' });
     // }
 
-    console.log("request body: ", req.body);
-
     const target = req.body.target;
     const data = req.body.data;
 
     if (target === 'USER_B_RESPONSE') {
-        console.log("Attempting to insert action response");
 
         const id = data.id;
         const outcome = data.outcome;
 
         try{
-            console.log("Inserting into action table");
+            console.log('server.js (A): inserting into action table.');
             const stmt = db.prepare('UPDATE action SET resolved = ?, responseOutcome = ? WHERE actionID = ?');
             stmt.run('Y', outcome, id);
         }
         catch(err) {
-            console.error('Database insertion error:', err.message);
+            console.error('server.js (A): database insertion error: ', err.message);
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
-        res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
+        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
 
-
-        // send message to frontend in real time
-        io.emit('b_response', outcome);
-        console.log("server.js (A): sent update message to frontend A");
-
+        io.emit('b_response', outcome); // send message to frontend
     }
 
 
     if (target === 'USER_B_MESSAGE') {
-        console.log("Attempting to insert message from B");
 
         const message = data.payload.message;
         const time = data.payload.time;
 
-        console.log("User B message recevied: ", data.payload);
-
         try{
-            console.log("Inserting into message table");
+            console.log('server.js (A): inserting into message table.');
             const stmt = db.prepare('INSERT INTO message (message, userID, time) VALUES (?, ?, ?)');
             stmt.run(message, 'B', time);
         }
         catch(err) {
-            console.error('Database insertion error:', err.message);
+            console.error('server.js (A): database insertion error: ', err.message);
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
-        res.status(201).json({ message: 'Data saved successfully!', id: this.lastID });
+        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
 
-
-        // send message to frontend in real time
-        io.emit('b_message', message);
-        console.log("server.js (A): sent update message to frontend A");
-
+        io.emit('b_message', message); // send message to frontend
     }
-
-
 });
-
 
 // Start the server
 server.listen(A_PORT, () => {
     console.log(`Backend server (A) running on http://localhost:${A_PORT}`);
 });
 
+// Close gracefully
 process.on('SIGINT', () => {
     db.close((err) => {
         if (err) {
-            console.error('Error closing database:', err.message);
+            console.error('server.js (A): error closing database: ', err.message);
         }
-        console.log('Database connection closed.');
+        console.log('server.js (A): database connection closed.');
         process.exit(0);
     });
 });

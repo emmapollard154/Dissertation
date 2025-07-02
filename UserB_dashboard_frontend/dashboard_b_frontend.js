@@ -1,23 +1,24 @@
-// script running on dashboard page (e.g., http://localhost:6173)
+// dashboard_b_frontend.js: script running on dashboard page (port 8080)
 
-// function to send data from frontend to backend
+const B_FRONTEND = 8080;
+
+// Function to send data from frontend to backend
 async function sendDataToBackend(data) {
     try {
-        const response = await fetch('http://localhost:8080/api/data-b-frontend', {
+        const response = await fetch(`http://localhost:${B_FRONTEND}/api/dashboard-data`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(data) // Convert the JavaScript object to a JSON string
+            body: JSON.stringify(data)
         });
 
         if (!response.ok) {
-            const errorData = await response.json(); // Try to parse error message from backend
-            throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
+            const errorData = await response.json();
+            throw new Error(`dashboard_b_frontend.js ERROR. Status: ${response.status}, Message: ${errorData.message || 'Unknown error'}`);
         }
 
-        const result = await response.json(); // Parse the JSON response from the backend
-        console.log('Data sent successfully:', result);
+        const result = await response.json(); // parse the JSON response from the backend
         return result;
 
     } catch (error) {
@@ -25,50 +26,37 @@ async function sendDataToBackend(data) {
     }
 }
 
-
+// Create event listeners
 window.addEventListener('message', function(event) {
 
-    if (event.origin !== 'http://localhost:6173') {
-        console.warn('Dashboard: Message received from untrusted origin:', event.origin);
+    if (event.origin !== `http://localhost:${B_FRONTEND}`) {
+        console.warn('dashboard_b_frontend.js: message received from untrusted origin: ', event.origin);
         return;
     }
 
     if (event.data && event.data.type === 'USER_B_RESPONSE') {
-
         const actionID = event.data.id;
         const outcome = event.data.outcome;
-
-        const receviedData = event.data;
         console.log("dashboard_b_frontend.js: received outcome " + outcome + " for event " + actionID);
 
         const data = {
             data: event.data,
             target: 'USER_B_RESPONSE'
         }
-
-        console.log('dashboard_b_frontend.js: sending user B response to backend:', data);
         sendDataToBackend(data);
     }
 
-
-
     if (event.data && event.data.type === 'USER_B_MESSAGE') {
-
         const message = event.data.message;
         const time = event.data.time;
-
-        const receviedData = event.data;
         console.log("dashboard_b_frontend.js: received message " + message + " at time " + time);
 
         const data = {
-            data: receviedData,
+            data: event.data,
             target: 'USER_B_MESSAGE'
         }
-
-        console.log('dashboard_b_frontend.js: sending user B response to backend:', data);
         sendDataToBackend(data);
     }
-
 });
 
-console.log('Dashboard script (dashboard_b_frontend) loaded and listening for messages.');
+console.log('dashboard_b_frontend.js loaded and listening for messages.');
