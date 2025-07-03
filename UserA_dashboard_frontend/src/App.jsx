@@ -272,6 +272,37 @@ function App() {
                     <div className='send_container'><button className='msg_send' onClick={sendMessage}>Send Message</button></div>
               </div>
 
+
+                      {messageData.map((item) => (
+                        // <tr key={item.id} className='hover:bg-gray-50 transition-colors duration-200'>
+                        //   <td className='entry_format'>{item.userID}</td>
+                        //   <td className='entry_format'>{item.message}</td>
+                        //   <td className='entry_format'>{item.time}</td>
+                        // </tr>
+
+                        <div className='msg_content_container'>
+                          <div className='msg_icon_container'>{item.userID}</div>
+                          <div className='msg_data_container'>
+                              <div className='msg_meta_container'>{item.userID}&emsp;{item.time}</div>
+                              <div className='msg_text_container'>{item.message}</div>
+                          </div>
+                        </div>
+
+
+
+                      ))}
+
+
+
+
+              <div className='msg_content_container'>
+                <div className='msg_icon_container'></div>
+                <div className='msg_data_container'>
+                    <div className='msg_meta_container'></div>
+                    <div className='msg_text_container'></div>
+                </div>
+              </div>
+
                   <table className='table_format'>
                     <thead className='bg-gray-50'>
                       <tr>
