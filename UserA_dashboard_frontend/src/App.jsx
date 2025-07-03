@@ -49,7 +49,7 @@ function App() {
         throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setBrowsingData(result.data); // update the state with the fetched data
+      setBrowsingData(result.data.reverse()); // update the state with the fetched data, most recent at top
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (browsing history): ', e);
       setError(e.message);
@@ -65,8 +65,8 @@ function App() {
         throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setActionData(result.data); // update the state with the fetched data
-      processActionID(result.data);
+      setActionData(result.data.reverse()); // update the state with the fetched data, most recent at the top
+      processActionID(result.data.reverse());
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (action): ', e);
       setError(e.message);
@@ -83,7 +83,7 @@ function App() {
         throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setMessageData(result.data); // update the state with the fetched data
+      setMessageData(result.data.reverse()); // update the state with the fetched data, most recent at the top
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (message): ', e);
       setError(e.message);
@@ -322,7 +322,7 @@ function App() {
                 </div>
               </div>
 
-                  <table className='table_format'>
+                  {/* <table className='table_format'>
                     <thead className='bg-gray-50'>
                       <tr>
                         <th scope='col' className='column_title'>User</th>
@@ -339,7 +339,7 @@ function App() {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
+                  </table> */}
 
             </div>
           </div>
@@ -384,13 +384,31 @@ function App() {
           </div>
         </div>
 
-        <div className='bottom_middle_container'>
+        <div className='bottom_right_container'>
           <div className='bottom_container'>
             <div class='bottom_scrollbar'>
-              <h2 className='subtitle'>Account Settings</h2>
-              <p>View browsing history</p>
+              <h2 className='subtitle'>Account</h2>
 
-              {browsingData.length > 0 ? (
+              <div className='account_panel'>
+
+                <div className='account_container'>
+                  <div className='account_left'>Info container</div>
+                  <div className='account_right'><button>Info</button></div>
+                </div>
+
+                <div className='account_container'>
+                  <div className='account_left'>History container</div>
+                  <div className='account_right'><button>History</button></div>
+                </div>
+
+                <div className='account_container'>
+                  <div className='account_left'>Settings container</div>
+                  <div className='account_right'><button>Settings</button></div>
+                </div>
+
+              </div>
+
+              {/* {browsingData.length > 0 ? (
                 <table className='table_format'>
                   <thead className='bg-gray-50'>
                     <tr>
@@ -409,19 +427,20 @@ function App() {
                 </table>
               ) : (
                 <p className='p-6 text-center text-gray-500'>Browsing history is empty.</p>
-              )}
+              )} */}
 
             </div>
           </div>
         </div>
 
-        <div className='bottom_right_container'>
+        {/* <div className='bottom_right_container'>
           <div className='bottom_container'>
             <div class='bottom_scrollbar'>
               <h2 className='subtitle'>Educational Resources</h2>
+            </div>
           </div>
-        </div>
-      </div>
+        </div> */}
+
     </div>
 
     </div>
