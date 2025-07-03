@@ -121,6 +121,31 @@ function App() {
     }
   }
 
+  // Function to convert ISO time to simplified format
+  function simplifyTime(time) {
+
+    const date = new Date(time);
+    if (isNaN(date.getTime())) {
+      console.error('App.jsx (A): attempting to convert invalid date.');
+    }
+
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let day = date.getDate();
+    let month = date.getMonth() + 1;
+    let year = date.getFullYear() % 100;
+
+    const pad = (num) => String(num).padStart(2, '0');
+
+    const simpleHours = pad(hours);
+    const simpleMinutes = pad(minutes);
+    const simpleDay = pad(day);
+    const simpleMonth = pad(month);
+    const simpleYear = pad(year);
+
+    return `${simpleHours}:${simpleMinutes} ${simpleDay}/${simpleMonth}/${simpleYear}`;
+  } 
+
   // Function to send message to backend A
   function sendMessage() {
 
@@ -128,7 +153,8 @@ function App() {
     const message = messageInput.value;
 
     if (message) {
-      const time = new Date().toISOString();
+      const timeISO = new Date().toISOString();
+      const time = simplifyTime(timeISO);
       window.postMessage({
         type: 'USER_A_MESSAGE',
         payload: { message, time },
@@ -232,7 +258,7 @@ function App() {
 
       <div className='top_panel'>
 
-        <div className='top_top_container'>
+        <div className='top_left_container'>
           <div className='top_container'>
             <div class='top_scrollbar'>
               <h2 className='subtitle'>Status</h2>
@@ -262,7 +288,7 @@ function App() {
           </div>
         </div>
 
-        <div className='top_bottom_container'>
+        <div className='top_right_container'>
           <div className='top_container'>
             <div className='top_scrollbar'>
 
@@ -273,24 +299,17 @@ function App() {
               </div>
 
 
-                      {messageData.map((item) => (
-                        // <tr key={item.id} className='hover:bg-gray-50 transition-colors duration-200'>
-                        //   <td className='entry_format'>{item.userID}</td>
-                        //   <td className='entry_format'>{item.message}</td>
-                        //   <td className='entry_format'>{item.time}</td>
-                        // </tr>
-
-                        <div className='msg_content_container'>
-                          <div className='msg_icon_container'>{item.userID}</div>
-                          <div className='msg_data_container'>
-                              <div className='msg_meta_container'>{item.userID}&emsp;{item.time}</div>
-                              <div className='msg_text_container'>{item.message}</div>
-                          </div>
-                        </div>
-
-
-
-                      ))}
+              {messageData.map((item) => (
+                <div className='msg_content_container'>
+                  <div className='msg_icon_container'>
+                    <img src='../icons/icon_A_solid.png' class='icon_image'></img>
+                  </div>
+                  <div className='msg_data_container'>
+                      <div className='msg_meta_container'>User {item.userID}&emsp;{item.time}</div>
+                      <div className='msg_text_container'>{item.message}</div>
+                  </div>
+                </div>
+              ))}
 
 
 
