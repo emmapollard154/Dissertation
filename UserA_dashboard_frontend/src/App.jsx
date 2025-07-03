@@ -230,64 +230,65 @@ function App() {
 
       <div className='top_panel'>
 
-        <div className='top_left_container'>
-
+        <div className='top_top_container'>
           <div className='top_container'>
-            <h2 className="subtitle">Status</h2>
-              <p id="unresolved_number_statement"></p>
+            <div class="top_scrollbar">
+              <h2 className="subtitle">Status</h2>
+                <p id="unresolved_number_statement"></p>
 
-              {unresolvedData.length > 0 ? (
-                <table className="table_format">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th scope="col" className="column_title">Action</th>
-                      <th scope="col" className="column_title">Response</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {unresolvedData.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                        <td className="entry_format">{item}</td>
-                        <td className="entry_format">Pending</td>
+                {unresolvedData.length > 0 ? (
+                  <table className="table_format">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th scope="col" className="column_title">Action</th>
+                        <th scope="col" className="column_title">Response</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="p-6 text-center text-gray-500"></p>
-              )}
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {unresolvedData.map((item) => (
+                        <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
+                          <td className="entry_format">{item}</td>
+                          <td className="entry_format">Pending</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p className="p-6 text-center text-gray-500"></p>
+                )}
+            </div>
           </div>
-
         </div>
 
-        <div className='top_right_container'>
+        <div className='top_bottom_container'>
           <div className='top_container'>
-            <h2 className="subtitle">Messages</h2>
+            <div class="top_scrollbar">
+              <h2 className="subtitle">Messages</h2>
 
-              <input type="text" id="messageInput" placeholder="Type a message..."/>
-              <button onClick={sendMessage}>Send</button>
+                <input type="text" id="messageInput" placeholder="Type a message..."/>
+                <button onClick={sendMessage}>Send</button>
 
 
-                <table className="table_format">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th scope="col" className="column_title">User</th>
-                      <th scope="col" className="column_title">Message</th>
-                      <th scope="col" className="column_title">Time</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {messageData.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                        <td className="entry_format">{item.userID}</td>
-                        <td className="entry_format">{item.message}</td>
-                        <td className="entry_format">{item.time}</td>
+                  <table className="table_format">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th scope="col" className="column_title">User</th>
+                        <th scope="col" className="column_title">Message</th>
+                        <th scope="col" className="column_title">Time</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {messageData.map((item) => (
+                        <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
+                          <td className="entry_format">{item.userID}</td>
+                          <td className="entry_format">{item.message}</td>
+                          <td className="entry_format">{item.time}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
 
-
+            </div>
           </div>
         </div>
       </div>

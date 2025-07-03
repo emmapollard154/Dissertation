@@ -33,10 +33,12 @@
 
 .subtitle {
   font-size: 20px;
-  line-height: 36px;
+  line-height: 20px;
   font-weight: 600;
   color: gray-800;
-  text-align: center;
+  text-align: left;
+  outline: 2px solid black;
+  box-sizing: border-box;
 }
 
 .table_format {
@@ -69,17 +71,55 @@
   border: 1px solid black;
 }
 
-.top_panel {
-    width: 100%;
-    height: 40vh;
-    background-color: rgb(235, 235, 235);
-    display: flex;
-    flex-direction: row;
+.top_scrollbar {
+  display: block;
+  overflow: auto;
+  width: 96%;
+  height: 80%;
+  padding: 0px;
+  margin: 8px auto;
+  outline: 2px dashed cornflowerblue;
 }
 
-.top_left_container, .top_right_container {
-    box-sizing: border-box;
-    width: 100%;
+.top_scrollbar::-webkit-scrollbar {
+  width: 30px;
+  background-color: tranparent;
+}
+
+.top_scrollbar::-webkit-scrollbar-button {
+  background-color:rgb(196, 192, 192);
+  height: 40%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 90%;
+}
+
+.top_scrollbar::-webkit-scrollbar-button:hover {
+  background-color:rgb(131, 129, 129);
+}
+
+.top_scrollbar::-webkit-scrollbar-button:vertical:start {
+  background-image: url('./scrollbar_up.png');
+}
+
+.top_scrollbar::-webkit-scrollbar-button:vertical:end {
+  background-image: url('./scrollbar_down.png');
+}
+
+.top_panel {
+  width: 100%;
+  height: 20vh;
+  background-color: rgb(235, 235, 235);
+  display: flex;
+  flex-direction: column;
+  outline: 2px dashed #000000;
+}
+
+.top_top_container, .top_bottom_container {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  outline: 2px solid rgb(228, 23, 174);
 }
 
 .top_container {
@@ -88,28 +128,32 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   border: 1px solid #e5e7eb;
-  width: 90%;
-  height: 85%;
+  width: 92%;
+  height: 90%;
   position: relative;
-  left: 5%;
-  top: 10%;
-  overflow-x: auto;
-  overflow-y: auto;
-  scroll-behavior: smooth;
+  left: 3%;
+  top: 5%;
+  text-align: left;
 }
 
 .bottom_panel {
-    width: 100%;
-    height: 40vh;
-    background-color:rgb(235, 235, 235);
-    display: flex;
-    flex-direction: row;
+  width: 100%;
+  height: 40vh;
+  background-color:rgb(235, 235, 235);
+  display: flex;
+  flex-direction: row;
+  outline: 2px dashed rgb(111, 16, 16);
 }
 
 .bottom_left_container, .bottom_middle_container, .bottom_right_container {
-    box-sizing: border-box;
-    overflow-y: auto;
-    width: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+  width: 100%;
+  position: relative;
+  top: 70%;
+  text-align: left;
+  padding-left: 20px;
+  outline: 2px dashed rgb(32, 170, 224);
 }
 
 .bottom_container {
@@ -118,19 +162,22 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   border: 1px solid #e5e7eb;
-  width: 90%;
+  width: 86%;
   height: 85%;
   position: relative;
-  left: 5%;
-  top: 10%;
+  left: 3%;
+  top: 0%;
   overflow-x: auto;
   overflow-y: auto;
   scroll-behavior: smooth;
+  outline: 2px dashed rgb(209, 224, 37);
 }
 
 .footer {
-  position: relative;
-  bottom: 5px;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0px;
   margin-top: 30px;
   text-align: center;
   color: #4b5563;
