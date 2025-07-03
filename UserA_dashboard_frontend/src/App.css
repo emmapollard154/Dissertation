@@ -1,10 +1,14 @@
+:root {
+  back_col: rgb(245, 245, 245);
+}
+
 .dashboard_background {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100vh;
-  background:rgb(235, 235, 235);
+  background: var(--back_col);
 }
 
 .title_banner {
@@ -12,12 +16,12 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 50px;
-  background: rgb(235, 235, 235);
+  height: 36px;
+  background: var(--back_col);
 }
 
 .dashboard_title {
-  min-height: 100vh;
+  min-height: 10%;
   background-color: gray-100;
   padding: 4;
   font-family: sans-serif;
@@ -25,7 +29,7 @@
 
 .dashboard_title h1 {
   font-size: 30px;
-  line-height: 36px;
+  line-height: 30px;
   font-weight: 600;
   color: gray-800;
   text-align: center;
@@ -37,8 +41,9 @@
   font-weight: 600;
   color: gray-800;
   text-align: left;
-  outline: 2px solid black;
   box-sizing: border-box;
+  width: 100%;
+  /* border: 2px solid black; */
 }
 
 .table_format {
@@ -71,6 +76,15 @@
   border: 1px solid black;
 }
 
+.general_container {
+  position: relative;
+  width: 96%;
+  left: 2%;
+  height: 85%;
+  display: flex;
+  flex-direction: column;
+}
+
 .top_scrollbar {
   display: block;
   overflow: auto;
@@ -78,7 +92,7 @@
   height: 80%;
   padding: 0px;
   margin: 8px auto;
-  outline: 2px dashed cornflowerblue;
+  /* outline: 2px dashed cornflowerblue; */
 }
 
 .top_scrollbar::-webkit-scrollbar {
@@ -107,19 +121,21 @@
 }
 
 .top_panel {
+  position: relative;
+  top: 0;
   width: 100%;
-  height: 20vh;
-  background-color: rgb(235, 235, 235);
+  height: 50%;
+  background-color: var(--back_col);
   display: flex;
   flex-direction: column;
-  outline: 2px dashed #000000;
+  /* border: 2px dashed #000000; */
 }
 
 .top_top_container, .top_bottom_container {
   box-sizing: border-box;
   width: 100%;
-  height: 100%;
-  outline: 2px solid rgb(228, 23, 174);
+  height: 50%;
+  /* outline: 2px solid rgb(228, 23, 174); */
 }
 
 .top_container {
@@ -128,21 +144,120 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   border: 1px solid #e5e7eb;
-  width: 92%;
+  width: 100%;
   height: 90%;
   position: relative;
-  left: 3%;
   top: 5%;
   text-align: left;
 }
 
-.bottom_panel {
+.msg_panel {
+  position: relative;
   width: 100%;
-  height: 40vh;
-  background-color:rgb(235, 235, 235);
+  height: 40%;
+  /* background-color:rgb(157, 35, 35); */
   display: flex;
   flex-direction: row;
-  outline: 2px dashed rgb(111, 16, 16);
+  /* border: 2px dashed #000000; */
+}
+
+.input_container {
+  width: 150%;
+  box-sizing: border-box;
+}
+
+.send_container {
+  width: 50%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: flex-end;
+}
+
+
+.msg_subtitle {
+  font-size: 20px;
+  line-height: 20px;
+  font-weight: 600;
+  color: gray-800;
+  text-align: left;
+  box-sizing: border-box;
+  width: 100%;
+  /* border: 2px solid rgb(18, 176, 239); */
+}
+
+.msg_input {
+  position: relative;
+  background-color: #ffffff;
+  height: 100%;
+  width: 100%;
+  line-height: 20px;
+  box-sizing: border-box;
+  border: 2px solid #000000;
+}
+
+.msg_input::placeholder {
+  color: gray-800;
+  opacity: 1;
+  padding-left: 8px;
+  font-size: 12px;
+}
+
+.msg_send {
+  position: relative;
+  left: 0;
+  background:rgb(46, 206, 221);
+  height: 100%;
+  width: 80%;
+  line-height: 20px;
+  padding: 0px;
+  text-align: center;
+  box-sizing: border-box;
+  font-size: 12px;
+  color: gray-800;
+}
+
+.bottom_scrollbar {
+  display: block;
+  overflow: auto;
+  width: 96%;
+  height: 80%;
+  padding: 0px;
+  margin: 8px auto;
+  /* outline: 2px dashed cornflowerblue; */
+}
+
+.bottom_scrollbar::-webkit-scrollbar {
+  width: 30px;
+  background-color: tranparent;
+}
+
+.bottom_scrollbar::-webkit-scrollbar-button {
+  background-color:rgb(196, 192, 192);
+  height: 40%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 90%;
+}
+
+.bottom_scrollbar::-webkit-scrollbar-button:hover {
+  background-color:rgb(131, 129, 129);
+}
+
+.bottom_scrollbar::-webkit-scrollbar-button:vertical:start {
+  background-image: url('./scrollbar_up.png');
+}
+
+.bottom_scrollbar::-webkit-scrollbar-button:vertical:end {
+  background-image: url('./scrollbar_down.png');
+}
+
+.bottom_panel {
+  width: 100%;
+  height: 50%;
+  background-color: var(--back_col);
+  display: flex;
+  flex-direction: row;
+  /* outline: 2px dashed rgb(111, 16, 16); */
 }
 
 .bottom_left_container, .bottom_middle_container, .bottom_right_container {
@@ -150,10 +265,23 @@
   overflow-y: auto;
   width: 100%;
   position: relative;
-  top: 70%;
   text-align: left;
-  padding-left: 20px;
-  outline: 2px dashed rgb(32, 170, 224);
+  /* outline: 2px dashed rgb(32, 170, 224); */
+}
+
+.bottom_left_container {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.bottom_middle_container {
+  display: flex;
+  justify-content: center;
+}
+
+.bottom_right_container {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .bottom_container {
@@ -162,15 +290,13 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   border: 1px solid #e5e7eb;
-  width: 86%;
-  height: 85%;
+  width: 95%;
+  height: 90%;
+  top: 5%;
   position: relative;
-  left: 3%;
-  top: 0%;
-  overflow-x: auto;
-  overflow-y: auto;
-  scroll-behavior: smooth;
-  outline: 2px dashed rgb(209, 224, 37);
+  box-sizing: border-box;
+  text-align: left;
+  /* outline: 2px dashed rgb(209, 224, 37); */
 }
 
 .footer {

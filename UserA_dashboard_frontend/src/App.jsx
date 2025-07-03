@@ -16,12 +16,12 @@ function App() {
   const [error, setError] = useState(null);
 
   let UNRESOLVED = [];
-  const EXTENSION_ID = "bcdjfglkdcfeeekbkhbambhhjgdllcom"; // TEMPORARY
+  const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom'; // TEMPORARY
 
   function processActionID(data) {
     const action_ids = data.map(row => [row.actionID, row.resolved]);
     for (let i=0; i < action_ids.length; i++) {
-      if (action_ids[i][1] === "N" && !UNRESOLVED.includes(action_ids[i][0])) {
+      if (action_ids[i][1] === 'N' && !UNRESOLVED.includes(action_ids[i][0])) {
         UNRESOLVED.push(action_ids[i][0]);
       } // collect unresolved actions
       if (action_ids[i][1] === 'Y' && UNRESOLVED.includes(action_ids[i][0])) {
@@ -32,7 +32,7 @@ function App() {
     const length = UNRESOLVED.length;
 
     if (length > 0) {
-      document.getElementById('unresolved_number_statement').innerHTML = length + " unresolved action(s)";
+      document.getElementById('unresolved_number_statement').innerHTML = length + ' unresolved action(s)';
     } else {
       document.getElementById('unresolved_number_statement').innerHTML = 'No unresolved actions';
     }
@@ -105,7 +105,7 @@ function App() {
               console.error('App.jsx (A): error sending message: ', chrome.runtime.lastError.message);
             } else {
               console.log('App.jsx (A): response from extension: ', response);
-              if (response && response.status === "success") {
+              if (response && response.status === 'success') {
                 console.log('App.jsx (A): message sent successfully to extension: ' + response.message);
               } else {
                 console.error('App.jsx (A): failed to send message to extension.');
@@ -203,8 +203,8 @@ function App() {
   // Render loading state
   if (loading) {
     return (
-      <div className="loading_class">
-        <p className="loading_message">Loading dashboard data...</p>
+      <div className='loading_class'>
+        <p className='loading_message'>Loading dashboard data...</p>
       </div>
     );
   }
@@ -212,8 +212,8 @@ function App() {
   // Render error state
   if (error) {
     return (
-      <div className="error_class">
-        <p className="error_message">Error: {error}. Please ensure the Node.js backend is running.</p>
+      <div className='error_class'>
+        <p className='error_message'>Error: {error}. Please ensure the Node.js backend is running.</p>
       </div>
     );
   }
@@ -223,38 +223,40 @@ function App() {
     <div className='dashboard_background'>
 
       <div className='title_banner'>
-        <header className="dashboard_title">
+        <header className='dashboard_title'>
           <h1>User A Dashboard</h1>
         </header>
       </div>
+
+      <div className='general_container'>
 
       <div className='top_panel'>
 
         <div className='top_top_container'>
           <div className='top_container'>
-            <div class="top_scrollbar">
-              <h2 className="subtitle">Status</h2>
-                <p id="unresolved_number_statement"></p>
+            <div class='top_scrollbar'>
+              <h2 className='subtitle'>Status</h2>
+                <p id='unresolved_number_statement'></p>
 
                 {unresolvedData.length > 0 ? (
-                  <table className="table_format">
-                    <thead className="bg-gray-50">
+                  <table className='table_format'>
+                    <thead className='bg-gray-50'>
                       <tr>
-                        <th scope="col" className="column_title">Action</th>
-                        <th scope="col" className="column_title">Response</th>
+                        <th scope='col' className='column_title'>Action</th>
+                        <th scope='col' className='column_title'>Response</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className='bg-white divide-y divide-gray-200'>
                       {unresolvedData.map((item) => (
-                        <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                          <td className="entry_format">{item}</td>
-                          <td className="entry_format">Pending</td>
+                        <tr key={item.id} className='hover:bg-gray-50 transition-colors duration-200'>
+                          <td className='entry_format'>{item}</td>
+                          <td className='entry_format'>Pending</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 ) : (
-                  <p className="p-6 text-center text-gray-500"></p>
+                  <p className='p-6 text-center text-gray-500'></p>
                 )}
             </div>
           </div>
@@ -262,27 +264,28 @@ function App() {
 
         <div className='top_bottom_container'>
           <div className='top_container'>
-            <div class="top_scrollbar">
-              <h2 className="subtitle">Messages</h2>
+            <div className='top_scrollbar'>
 
-                <input type="text" id="messageInput" placeholder="Type a message..."/>
-                <button onClick={sendMessage}>Send</button>
+              <div className='msg_panel'>
+                <div className='msg_subtitle'>Messages</div>
+                    <div className='input_container'><input className='msg_input' type='text' id='messageInput' placeholder='Type a message...'/></div>
+                    <div className='send_container'><button className='msg_send' onClick={sendMessage}>Send Message</button></div>
+              </div>
 
-
-                  <table className="table_format">
-                    <thead className="bg-gray-50">
+                  <table className='table_format'>
+                    <thead className='bg-gray-50'>
                       <tr>
-                        <th scope="col" className="column_title">User</th>
-                        <th scope="col" className="column_title">Message</th>
-                        <th scope="col" className="column_title">Time</th>
+                        <th scope='col' className='column_title'>User</th>
+                        <th scope='col' className='column_title'>Message</th>
+                        <th scope='col' className='column_title'>Time</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className='bg-white divide-y divide-gray-200'>
                       {messageData.map((item) => (
-                        <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                          <td className="entry_format">{item.userID}</td>
-                          <td className="entry_format">{item.message}</td>
-                          <td className="entry_format">{item.time}</td>
+                        <tr key={item.id} className='hover:bg-gray-50 transition-colors duration-200'>
+                          <td className='entry_format'>{item.userID}</td>
+                          <td className='entry_format'>{item.message}</td>
+                          <td className='entry_format'>{item.time}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -294,89 +297,86 @@ function App() {
       </div>
 
       <div className='bottom_panel'>
-
         <div className='bottom_left_container'>
-
           <div className='bottom_container'>
-            <h2 className="subtitle">History</h2>
+            <div class='bottom_scrollbar'>
+              <h2 className='subtitle'>History</h2>
 
-              {actionData.length > 0 ? (
-                <table className="table_format">
-                  <thead className="bg-gray-50">
+                {actionData.length > 0 ? (
+                  <table className='table_format'>
+                    <thead className='bg-gray-50'>
+                      <tr>
+                        <th scope='col' className='column_title'>Action ID</th>
+                        <th scope='col' className='column_title'>Context</th>
+                        <th scope='col' className='column_title'>User A Choice</th>
+                        <th scope='col' className='column_title'>Time</th>
+                        <th scope='col' className='column_title'>Resolved</th>
+                        <th scope='col' className='column_title'>Response Outcome</th>
+                      </tr>
+                    </thead>
+                    <tbody className='bg-white divide-y divide-gray-200'>
+                      {actionData.map((item) => (
+                        <tr key={item.id} className='hover:bg-gray-50 transition-colors duration-200'>
+                          <td className='entry_format'>{item.actionID}</td>
+                          <td className='entry_format'>{item.context}</td>
+                          <td className='entry_format'>{item.userAChoice}</td>
+                          <td className='entry_format'>{item.time}</td>
+                          <td className='entry_format'>{item.resolved}</td>
+                          <td className='entry_format'>{item.responseOutcome}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p className='p-6 text-center text-gray-500'>Action history is empty.</p>
+                )}
+            </div>
+          </div>
+        </div>
+
+        <div className='bottom_middle_container'>
+          <div className='bottom_container'>
+            <div class='bottom_scrollbar'>
+              <h2 className='subtitle'>Account Settings</h2>
+              <p>View browsing history</p>
+
+              {browsingData.length > 0 ? (
+                <table className='table_format'>
+                  <thead className='bg-gray-50'>
                     <tr>
-                      <th scope="col" className="column_title">Action ID</th>
-                      <th scope="col" className="column_title">Context</th>
-                      <th scope="col" className="column_title">User A Choice</th>
-                      <th scope="col" className="column_title">Time</th>
-                      <th scope="col" className="column_title">Resolved</th>
-                      <th scope="col" className="column_title">Response Outcome</th>
+                      <th scope='col' className='column_title'>URL</th>
+                      <th scope='col' className='column_title'>Time</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {actionData.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                        <td className="entry_format">{item.actionID}</td>
-                        <td className="entry_format">{item.context}</td>
-                        <td className="entry_format">{item.userAChoice}</td>
-                        <td className="entry_format">{item.time}</td>
-                        <td className="entry_format">{item.resolved}</td>
-                        <td className="entry_format">{item.responseOutcome}</td>
+                  <tbody className='bg-white divide-y divide-gray-200'>
+                    {browsingData.map((item) => (
+                      <tr key={item.id} className='hover:bg-gray-50 transition-colors duration-200'>
+                        <td className='entry_format'><a href={item.url} target='_blank' rel='noopener noreferrer' className='hover:underline'>{item.url}</a></td>
+                        <td className='entry_format'>{item.time}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               ) : (
-                <p className="p-6 text-center text-gray-500">Action history is empty.</p>
+                <p className='p-6 text-center text-gray-500'>Browsing history is empty.</p>
               )}
 
-
+            </div>
           </div>
-
-        </div>
-
-        <div className='bottom_middle_container'>
-
-          <div className='bottom_container'>
-            <h2 className="subtitle">Account Settings</h2>
-            <p>View browsing history</p>
-
-            {browsingData.length > 0 ? (
-              <table className="table_format">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="column_title">URL</th>
-                    <th scope="col" className="column_title">Time</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {browsingData.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                      <td className="entry_format"><a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">{item.url}</a></td>
-                      <td className="entry_format">{item.time}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p className="p-6 text-center text-gray-500">Browsing history is empty.</p>
-            )}
-
-
-          </div>
-
         </div>
 
         <div className='bottom_right_container'>
-
           <div className='bottom_container'>
-            <h2 className="subtitle">Educational Resources</h2>
+            <div class='bottom_scrollbar'>
+              <h2 className='subtitle'>Educational Resources</h2>
           </div>
-
         </div>
-
       </div>
+    </div>
 
-          <footer className="footer">
+    </div>
+
+          <footer className='footer'>
             <p>&copy; {new Date().getFullYear()} Emma Pollard. University of Bath. 2025.</p>
           </footer>
     </div>
