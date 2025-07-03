@@ -114,6 +114,31 @@ function App() {
     }
   }
 
+  // Function to convert ISO time to simplified format
+  function simplifyTime(time) {
+
+    const date = new Date(time);
+    if (isNaN(date.getTime())) {
+      console.error('App.jsx (B): attempting to convert invalid date.');
+    }
+
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let day = date.getDate();
+    let month = date.getMonth() + 1;
+    let year = date.getFullYear() % 100;
+
+    const pad = (num) => String(num).padStart(2, '0');
+
+    const simpleHours = pad(hours);
+    const simpleMinutes = pad(minutes);
+    const simpleDay = pad(day);
+    const simpleMonth = pad(month);
+    const simpleYear = pad(year);
+
+    return `${simpleHours}:${simpleMinutes} ${simpleDay}/${simpleMonth}/${simpleYear}`;
+  } 
+
   // Function to send message to backend B
   function sendMessage() {
 
@@ -121,7 +146,8 @@ function App() {
     const message = messageInput.value;
 
     if (message) {
-      const time = new Date().toISOString();
+      const timeISO = new Date().toISOString();
+      const time = simplifyTime(timeISO);
       window.postMessage({
         type: 'USER_B_MESSAGE',
         payload: { message, time },

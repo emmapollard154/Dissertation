@@ -1,10 +1,14 @@
+:root {
+  back_col: rgb(245, 245, 245);
+}
+
 .dashboard_background {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100vh;
-  background:rgb(235, 235, 235);
+  background: var(--back_col);
 }
 
 .title_banner {
@@ -12,12 +16,12 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 50px;
-  background: rgb(235, 235, 235);
+  height: 36px;
+  background: var(--back_col);
 }
 
 .dashboard_title {
-  min-height: 100vh;
+  min-height: 10%;
   background-color: gray-100;
   padding: 4;
   font-family: sans-serif;
@@ -25,7 +29,7 @@
 
 .dashboard_title h1 {
   font-size: 30px;
-  line-height: 36px;
+  line-height: 30px;
   font-weight: 600;
   color: gray-800;
   text-align: center;
@@ -33,10 +37,13 @@
 
 .subtitle {
   font-size: 20px;
-  line-height: 36px;
+  line-height: 20px;
   font-weight: 600;
   color: gray-800;
-  text-align: center;
+  text-align: left;
+  box-sizing: border-box;
+  width: 100%;
+  /* border: 2px solid black; */
 }
 
 .table_format {
@@ -69,17 +76,77 @@
   border: 1px solid black;
 }
 
-.top_panel {
-    width: 100%;
-    height: 40vh;
-    background-color: rgb(235, 235, 235);
-    display: flex;
-    flex-direction: row;
+.general_container {
+  position: relative;
+  width: 96%;
+  left: 2%;
+  height: 85%;
+  display: flex;
+  flex-direction: column;
 }
 
-.top_left_container, .top_right_container {
-    box-sizing: border-box;
-    width: 100%;
+.top_scrollbar {
+  display: block;
+  overflow: auto;
+  width: 96%;
+  height: 80%;
+  padding: 0px;
+  margin: 8px auto;
+  /* outline: 2px dashed cornflowerblue; */
+}
+
+.top_scrollbar::-webkit-scrollbar {
+  width: 30px;
+  background-color: tranparent;
+}
+
+.top_scrollbar::-webkit-scrollbar-button {
+  background-color:rgb(196, 192, 192);
+  height: 40%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 90%;
+}
+
+.top_scrollbar::-webkit-scrollbar-button:hover {
+  background-color:rgb(131, 129, 129);
+}
+
+.top_scrollbar::-webkit-scrollbar-button:vertical:start {
+  background-image: url('./scrollbar_up.png');
+}
+
+.top_scrollbar::-webkit-scrollbar-button:vertical:end {
+  background-image: url('./scrollbar_down.png');
+}
+
+.top_panel {
+  position: relative;
+  top: 0;
+  width: 100%;
+  height: 50%;
+  background-color: var(--back_col);
+  display: flex;
+  flex-direction: row;
+  /* border: 2px dashed #000000; */
+}
+
+.top_left_container {
+  box-sizing: border-box;
+  width: 25%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-start;
+  /* outline: 2px solid rgb(228, 23, 174); */
+}
+
+.top_right_container {
+  box-sizing: border-box;
+  width: 75%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-end;
+  /* outline: 2px solid rgb(228, 23, 174); */
 }
 
 .top_container {
@@ -88,28 +155,206 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   border: 1px solid #e5e7eb;
-  width: 90%;
-  height: 85%;
+  width: 95%;
+  height: 90%;
   position: relative;
-  left: 5%;
+  top: 5%;
+  text-align: left;
+}
+
+.msg_panel {
+  position: relative;
+  width: 100%;
+  height: 20%;
+  /* background-color:rgb(157, 35, 35); */
+  display: flex;
+  flex-direction: row;
+  border: 2px dashed #000000;
+  padding-bottom: 10px;
+  box-sizing: border-box;
+}
+
+.input_container {
+  width: 150%;
+  box-sizing: border-box;
+}
+
+.send_container {
+  width: 50%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 1%;
+}
+
+.msg_subtitle {
+  font-size: 20px;
+  line-height: 20px;
+  font-weight: 600;
+  color: gray-800;
+  text-align: left;
+  box-sizing: border-box;
+  width: 100%;
+  /* border: 2px solid rgb(18, 176, 239); */
+}
+
+.msg_input {
+  position: relative;
+  background-color: #eeeeee;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  height: 100%;
+  width: 95%;
+  line-height: 20px;
+  box-sizing: border-box;
+  border: 1px solid #333333;
+}
+
+.msg_input::placeholder {
+  color: gray-800;
+  opacity: 1;
+  padding-left: 8px;
+  font-size: 12px;
+}
+
+.msg_send {
+  position: relative;
+  left: 0;
+  top: 20%;
+  background: #333333;
+  height: 100%;
+  width: 100%;
+  line-height: 20px;
+  padding: 0px;
+  text-align: center;
+  box-sizing: border-box;
+  font-size: 12px;
+  color: #ffffff;
+}
+
+.msg_send:hover{
+  background: #111111;
+}
+
+.msg_content_container {
+  position: relative;
+  box-sizing: border-box;
+  border: 2px solid black;
+  width: 100%;
+  height: 120px;
+  display: flex;
+  flex-direction: row;
+  /* background: red; */
+}
+
+.msg_icon_container {
+  box-sizing: border-box;
+  border: 2px solid black;
+  width: 15%;
+  height: 100%;
+}
+
+.icon_image {
+  position: relative;
+  left: 50%;
   top: 10%;
-  overflow-x: auto;
-  overflow-y: auto;
-  scroll-behavior: smooth;
+  transform: translateX(-50%);
+  height: 30px;
+  width: 30px;
+}
+
+.msg_data_container {
+  box-sizing: border-box;
+  border: 2px solid black;
+  width: 185%;
+  height: 100%;
+  /* background: blue; */
+  display: flex;
+  flex-direction: column;
+}
+
+.msg_meta_container {
+  box-sizing: border-box;
+  border: 2px solid black;
+  width: 100%;
+  height: 50%;
+  background: green;
+}
+
+.msg_text_container {
+  box-sizing: border-box;
+  border: 2px solid black;
+  width: 100%;
+  height: 150%;
+  background: red;
+}
+
+.bottom_scrollbar {
+  display: block;
+  overflow: auto;
+  width: 96%;
+  height: 80%;
+  padding: 0px;
+  margin: 8px auto;
+  /* outline: 2px dashed cornflowerblue; */
+}
+
+.bottom_scrollbar::-webkit-scrollbar {
+  width: 30px;
+  background-color: tranparent;
+}
+
+.bottom_scrollbar::-webkit-scrollbar-button {
+  background-color:rgb(196, 192, 192);
+  height: 40%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 90%;
+}
+
+.bottom_scrollbar::-webkit-scrollbar-button:hover {
+  background-color:rgb(131, 129, 129);
+}
+
+.bottom_scrollbar::-webkit-scrollbar-button:vertical:start {
+  background-image: url('./scrollbar_up.png');
+}
+
+.bottom_scrollbar::-webkit-scrollbar-button:vertical:end {
+  background-image: url('./scrollbar_down.png');
 }
 
 .bottom_panel {
-    width: 100%;
-    height: 40vh;
-    background-color:rgb(235, 235, 235);
-    display: flex;
-    flex-direction: row;
+  width: 100%;
+  height: 50%;
+  background-color: var(--back_col);
+  display: flex;
+  flex-direction: row;
+  /* outline: 2px dashed rgb(111, 16, 16); */
 }
 
 .bottom_left_container, .bottom_middle_container, .bottom_right_container {
-    box-sizing: border-box;
-    overflow-y: auto;
-    width: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+  width: 100%;
+  position: relative;
+  text-align: left;
+  /* outline: 2px dashed rgb(32, 170, 224); */
+}
+
+.bottom_left_container {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.bottom_middle_container {
+  display: flex;
+  justify-content: center;
+}
+
+.bottom_right_container {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .bottom_container {
@@ -118,19 +363,20 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   border: 1px solid #e5e7eb;
-  width: 90%;
-  height: 85%;
+  width: 95%;
+  height: 90%;
+  top: 5%;
   position: relative;
-  left: 5%;
-  top: 10%;
-  overflow-x: auto;
-  overflow-y: auto;
-  scroll-behavior: smooth;
+  box-sizing: border-box;
+  text-align: left;
+  /* outline: 2px dashed rgb(209, 224, 37); */
 }
 
 .footer {
-  position: relative;
-  bottom: 5px;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0px;
   margin-top: 30px;
   text-align: center;
   color: #4b5563;
