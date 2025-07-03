@@ -87,15 +87,24 @@
     font-weight: 700;
 }
 
-.button_panel button.update {
-    color:rgb(43, 13, 151); // temp
-}
-
 .button_panel button:hover .default_img {
     display: none;
 }
 
 .button_panel button:hover .hover_img {
+    display: inline;
+}
+
+.button_panel button.update {
+    color: black;
+    font-weight: 700;
+}
+
+.button_panel button.update .default_img {
+    display: none;
+}
+
+.button_panel button.update .hover_img {
     display: inline;
 }
 

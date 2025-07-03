@@ -202,10 +202,11 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                     }
                 });
             } else {
-                document.getElementById('speechContent').innerText = "";
+                document.getElementById('speechContent').innerText = '';
             }
             return true;
         } else {
+            document.getElementById('speechContent').innerText = '';
             setNums(-1, 0); // clear updates
             removeUpdate('statBtn');
             removeUpdate('msgBtn');
@@ -249,11 +250,18 @@ document.getElementById('dashBtn').addEventListener('click', async function() {
     setNums(-1, 0);
     removeUpdate('statBtn');
     removeUpdate('msgBtn');
+    chrome.runtime.sendMessage({ action: "openDashboard"});
 });
+
 document.getElementById('numUpdates').addEventListener('click', async function() {
     setNums(-1, 0);
     removeUpdate('statBtn');
     removeUpdate('msgBtn');
+    chrome.runtime.sendMessage({ action: "openDashboard"});
+});
+
+document.getElementById('msgBtn').addEventListener('click', async function() {
+    chrome.runtime.sendMessage({ action: "openDashboard"});
 });
 
 
