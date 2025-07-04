@@ -12,8 +12,11 @@ function App() {
   const [actionData, setActionData] = useState([]);
   const [unresolvedData, setUnresolvedData] = useState([]);
   const [messageData, setMessageData] = useState([]);
+  const [historyVisible, setHistoryVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // const unresolvedData = null;
 
   let UNRESOLVED = [];
   const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom'; // TEMPORARY
@@ -66,7 +69,7 @@ function App() {
       }
       const result = await response.json();
       setActionData(result.data.reverse()); // update the state with the fetched data, most recent at the top
-      processActionID(result.data.reverse());
+      processActionID(result.data);
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (action): ', e);
       setError(e.message);
@@ -146,6 +149,22 @@ function App() {
     return `${simpleHours}:${simpleMinutes} ${simpleDay}/${simpleMonth}/${simpleYear}`;
   } 
 
+  function redactURL(url) {
+
+    if (!url) {
+      return ''
+    }
+
+    try {
+      const fullURL =  new URL(url);
+      const redacted = fullURL.origin;
+      return redacted;
+    } catch (error) {
+      console.error("App.jsx (A): error redacting URL: ", url, error);
+      return '';
+    }
+  }
+
   // Function to send message to backend A
   function sendMessage() {
 
@@ -162,6 +181,33 @@ function App() {
       messageInput.value = '';
     }
   };
+
+  function switchHistoryVisibility() {
+    console.log('App.jsx (B): switching visibility of browsing history');
+    setHistoryVisible(!historyVisible);
+  };
+
+  // function openHistory() {
+  //   const browsingBackground = document.getElementById('browsingBackground');
+  //   if (!browsingBackground){
+  //     console.error('App.jsx (B): browsingBackground not found.');
+  //   } else {
+  //     console.log('App.jsx (B): attempting to open browsing popup.');
+  //     // browsingBackground.classList.add('show');
+  //     // console.log('initial: ', browsingBackground.className.style);
+  //     // browsingBackground.classList.toggle('visible');
+  //   }
+  // }
+
+  // function closeHistory() {
+  //   const browsingBackground = document.getElementById('browsingBackground');
+  //   if (!browsingBackground){
+  //     console.error('App.jsx (B): browsingBackground not found.');
+  //   } else {
+  //     console.log('App.jsx (B): attempting to close browsing popup.')
+  //     browsingBackground.classList.remove('show');
+  //   }
+  // }
 
   // Hook to fetch data when the component mounts
   useEffect(() => {
@@ -260,7 +306,7 @@ function App() {
 
         <div className='top_left_container'>
           <div className='top_container'>
-            <div class='top_scrollbar'>
+            <div className='top_scrollbar'>
               <h2 className='subtitle'>Status</h2>
                 <p id='unresolved_number_statement'></p>
 
@@ -302,7 +348,7 @@ function App() {
               {messageData.map((item) => (
                 <div className='msg_content_container'>
                   <div className='msg_icon_container'>
-                    <img src='../icons/icon_A_solid.png' class='icon_image'></img>
+                    <img src='../icons/icon_A_solid.png' className='icon_image'></img>
                   </div>
                   <div className='msg_data_container'>
                       <div className='msg_meta_container'>User {item.userID}&emsp;{item.time}</div>
@@ -322,25 +368,6 @@ function App() {
                 </div>
               </div>
 
-                  {/* <table className='table_format'>
-                    <thead className='bg-gray-50'>
-                      <tr>
-                        <th scope='col' className='column_title'>User</th>
-                        <th scope='col' className='column_title'>Message</th>
-                        <th scope='col' className='column_title'>Time</th>
-                      </tr>
-                    </thead>
-                    <tbody className='bg-white divide-y divide-gray-200'>
-                      {messageData.map((item) => (
-                        <tr key={item.id} className='hover:bg-gray-50 transition-colors duration-200'>
-                          <td className='entry_format'>{item.userID}</td>
-                          <td className='entry_format'>{item.message}</td>
-                          <td className='entry_format'>{item.time}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table> */}
-
             </div>
           </div>
         </div>
@@ -349,10 +376,25 @@ function App() {
       <div className='bottom_panel'>
         <div className='bottom_left_container'>
           <div className='bottom_container'>
-            <div class='bottom_scrollbar'>
+            <div className='bottom_scrollbar'>
               <h2 className='subtitle'>History</h2>
 
-                {actionData.length > 0 ? (
+              {actionData.map((item) => (
+                <div className='history_content_container'>
+                  <div className='history_icon_container'>
+                    {/* <img src='../icons/icon_A_solid.png' className='history_image'></img> */}
+                    {item.context}
+                  </div>
+                  <div className='history_data_container'>
+                      <div className='history_meta_container'>{simplifyTime(item.time)}</div>
+                      <div className='history_text_container'>{item.userAChoice} {item.resolved} {item.responseOutcome}</div>
+                  </div>
+                </div>
+              ))}
+
+
+
+                {/* {actionData.length > 0 ? (
                   <table className='table_format'>
                     <thead className='bg-gray-50'>
                       <tr>
@@ -379,32 +421,52 @@ function App() {
                   </table>
                 ) : (
                   <p className='p-6 text-center text-gray-500'>Action history is empty.</p>
-                )}
+                )} */}
             </div>
           </div>
         </div>
 
         <div className='bottom_right_container'>
           <div className='bottom_container'>
-            <div class='bottom_scrollbar'>
+            <div className='bottom_scrollbar'>
               <h2 className='subtitle'>Account</h2>
 
               <div className='account_panel'>
 
                 <div className='account_container'>
-                  <div className='account_left'>Info container</div>
-                  <div className='account_right'><button>Info</button></div>
+                  <div className='account_left'>Click on the button to the right to access more information about staying safe online.</div>
+                  <div className='account_right'><button>Safety Information</button></div>
                 </div>
 
                 <div className='account_container'>
-                  <div className='account_left'>History container</div>
-                  <div className='account_right'><button>History</button></div>
+                  <div className='account_left'>Click on the button to the right to view your browsing history.</div>
+                  <div className='account_right'><button id='openHistory' onClick={switchHistoryVisibility}>View Browsing History</button></div>
                 </div>
 
+                {historyVisible && (
+                <div className='browsing_history_background' id='browsingBackground'>
+                    <div className='browsing_popup' id='browsingPopup'>
+                        <div className='browsing_history_content'>
+                            <h2 className='subtitle'>Browsing History</h2>
+
+                            {browsingData.map((item) => (
+                              <div className='browsing_entry_container'>
+                                <div className='url_container'>{redactURL(item.url)}</div>
+                                <div className='url_time_container'>{simplifyTime(item.time)}</div>
+                              </div>
+                            ))}
+
+                                <button className='okay_browsing' id='okayBrowsing' onClick={switchHistoryVisibility}>Okay</button>
+                        </div>
+                    </div>
+                </div>
+                )}
+            
+
                 <div className='account_container'>
-                  <div className='account_left'>Settings container</div>
+                  <div className='account_left'>Click on the button to the right to view your account settings. You can also request to modify the settings.</div>
                   <div className='account_right'><button>Settings</button></div>
-                </div>
+                </div> 
 
               </div>
 
@@ -433,21 +495,13 @@ function App() {
           </div>
         </div>
 
-        {/* <div className='bottom_right_container'>
-          <div className='bottom_container'>
-            <div class='bottom_scrollbar'>
-              <h2 className='subtitle'>Educational Resources</h2>
-            </div>
-          </div>
-        </div> */}
-
     </div>
 
     </div>
 
-          <footer className='footer'>
+          {/* <footer className='footer'>
             <p>&copy; {new Date().getFullYear()} Emma Pollard. University of Bath. 2025.</p>
-          </footer>
+          </footer> */}
     </div>
   );
 }

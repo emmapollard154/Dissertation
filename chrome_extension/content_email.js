@@ -179,13 +179,13 @@ function attachMenuListeners(menuPopup) {
     }
 }
 
-// Function to get current time in sqlite datetime format
-function timeToDatetime() {
-    const now = new Date().toISOString();
-    const [date, rawTime] = now.split('T');
-    const time = rawTime.split('.')[0];
-    return `${date} ${time}`;
-}
+// // Function to get current time in sqlite datetime format
+// function timeToDatetime() {
+//     const now = new Date().toISOString();
+//     const [date, rawTime] = now.split('T');
+//     const time = rawTime.split('.')[0];
+//     return `${date} ${time}`;
+// }
 
 // Function to get unique ID for email actions
 function emailID() {
@@ -196,7 +196,8 @@ function emailID() {
 
 // Function to send user selected choice in menu popup to background script
 function sendChoice(choice) {
-    const time =  timeToDatetime();
+    // const time =  timeToDatetime();
+    const time = new Date().toISOString();
     const id = emailID();
     chrome.runtime.sendMessage({ action: "sendChoiceToDashboardA", id: id, choice: choice, time: time });
 }

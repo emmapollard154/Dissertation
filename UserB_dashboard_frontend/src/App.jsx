@@ -47,7 +47,7 @@ function App() {
         throw new Error(`App.jsx (B): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setBrowsingData(result.data); // update the state with the fetched data
+      setBrowsingData(result.data.reverse()); // update the state with the fetched data
     } catch (e) {
       console.error('App.jsx (B): error fetching dashboard data (browsing history): ', e);
       setError(e.message);
@@ -63,7 +63,7 @@ function App() {
         throw new Error(`App.jsx (B): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setActionData(result.data); // update the state with the fetched data
+      setActionData(result.data.reverse()); // update the state with the fetched data
       const newUnresolved = processActionID(result.data);
       setUnresolvedData(newUnresolved);
     } catch (e) {
@@ -81,7 +81,7 @@ function App() {
         throw new Error(`App.jsx (B): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setMessageData(result.data);
+      setMessageData(result.data.reverse());
     } catch (e) {
       console.error('App.jsx (B): error fetching dashboard data (message): ', e);
       setError(e.message);

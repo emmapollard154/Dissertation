@@ -40,13 +40,13 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 // Function to get current time in sqlite datetime format
-function timeToDatetime() {
-    const now = new Date();
-    const nowStr = now.toISOString();
-    const [date, rawTime] = nowStr.split('T');
-    const time = rawTime.split('.')[0];
-    return `${date} ${time}`;
-}
+// function timeToDatetime() {
+//     const now = new Date();
+//     const nowStr = now.toISOString();
+//     const [date, rawTime] = nowStr.split('T');
+//     const time = rawTime.split('.')[0];
+//     return `${date} ${time}`;
+// }
 
 // Function to get URL of active tab
 function getActiveTabUrl() {
@@ -59,7 +59,7 @@ function getActiveTabUrl() {
 				// pass
 			} else {
 				var url = new URL(activeTab.url);
-				timestamp = timeToDatetime();
+				timestamp = new Date.toISOString(); //timeToDatetime();
                 chrome.runtime.sendMessage({ action: 'sendUrlToDashboard', newUrlMessage: [url,  timestamp] });
 			}
 		}
