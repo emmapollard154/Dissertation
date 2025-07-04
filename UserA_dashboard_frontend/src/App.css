@@ -370,7 +370,7 @@
   overflow: hidden;
   border: 1px solid #e5e7eb;
   width: 98%;
-  height: 90%;
+  height: 80%;
   top: 5%;
   position: relative;
   box-sizing: border-box;
@@ -379,43 +379,57 @@
 }
 
 .account_panel {
-  height: 50%;
-  background:rgb(176, 98, 98);
+  height: 80%;
+  width: 94%;
+  /* background:rgb(176, 98, 98); */
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  margin-top: 4%;
+  margin-left: 3%;
 }
 
 .account_container {
   height: 100%;
-  background:rgb(62, 116, 161);
+  /* background:rgb(62, 116, 161); */
   display: flex;
   flex-direction: row;
   box-sizing: border-box;
-  outline: 2px dashed rgb(29, 10, 134);
+  /* margin-bottom: 2%; */
+  /* outline: 2px dashed rgb(29, 10, 134); */
 }
 
 .account_left {
-  width: 75%;
-  outline: 2px dashed rgb(16, 15, 21);
+  /* max-width: 70%; */
+  font-size: 12px;
+  padding-right: 8px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  /* outline: 2px dashed rgb(16, 15, 21); */
 }
 
 .account_right {
-  width: 25%;
-  outline: 2px dashed rgb(6, 4, 16);
+  width: 180px;
+  top: 10%;
+  display: flex;
+  justify-content: flex-end;
+  /* outline: 2px dashed rgb(6, 4, 16); */
 }
 
 .account_right button {
-  width: 80%;
-  outline: 2px dashed rgb(6, 4, 16);
+  /* width: 90%; */
+  height: 90%;
+  top: 5%;
   position: relative;
   background: #333333;
-  line-height: 20px;
-  padding: 0px;
+  line-height: 18px;
   text-align: center;
   box-sizing: border-box;
   font-size: 12px;
   color: #ffffff;
+  overflow: hide;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .browsing_history_background {
@@ -465,10 +479,7 @@
   width: 100%;
   min-height: 40px;
   display: flex;
-  /* overflow: hidden; */
   flex-direction: row;
-  /* box-shadow: 0 0 0 1px #ccc; */
-  /* margin-top: 25px; */
 }
 
 .browsing_entry_container:first-of-type {
@@ -477,18 +488,14 @@
 
 .url_container {
   box-sizing: border-box;
-  /* display: grid; */
   border-right: 2px solid black;
   width: 70%;
-  /* height: 100%; */
-  /* overflow: hidden; */
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
 
 .url_time_container {
   box-sizing: border-box;
-  /* border: 2px solid black; */
   word-wrap: break-word;
   overflow-wrap: break-word;
   width: 30%;

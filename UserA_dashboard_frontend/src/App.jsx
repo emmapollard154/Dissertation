@@ -69,7 +69,7 @@ function App() {
       }
       const result = await response.json();
       setActionData(result.data.reverse()); // update the state with the fetched data, most recent at the top
-      processActionID(result.data.reverse());
+      processActionID(result.data);
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (action): ', e);
       setError(e.message);
@@ -419,13 +419,13 @@ function App() {
               <div className='account_panel'>
 
                 <div className='account_container'>
-                  <div className='account_left'>Info container</div>
-                  <div className='account_right'><button>Info</button></div>
+                  <div className='account_left'>Click on the button to the right to access more information about staying safe online.</div>
+                  <div className='account_right'><button>Safety Information</button></div>
                 </div>
 
                 <div className='account_container'>
-                  <div className='account_left'>History container</div>
-                  <div className='account_right'><button id='openHistory' onClick={switchHistoryVisibility}>History</button></div>
+                  <div className='account_left'>Click on the button to the right to view your browsing history.</div>
+                  <div className='account_right'><button id='openHistory' onClick={switchHistoryVisibility}>View Browsing History</button></div>
                 </div>
 
                 {historyVisible && (
@@ -441,28 +441,6 @@ function App() {
                               </div>
                             ))}
 
-
-                                {/* {browsingData.length > 0 ? (
-                                  <table className='history_table'>
-                                    <thead className='bg-gray-50'>
-                                      <tr>
-                                        <th scope='col' className='column_title'>URL</th>
-                                        <th scope='col' className='column_title'>Time</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody className='bg-white divide-y divide-gray-200'>
-                                      {browsingData.map((item) => (
-                                        <tr key={item.id} className='hover:bg-gray-50 transition-colors duration-200'>
-                                          <td className='entry_format'><a href={item.url} target='_blank' rel='noopener noreferrer' className='hover:underline'>{item.url}</a></td>
-                                          <td className='entry_format'>{item.time}</td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                ) : (
-                                  <p className='p-6 text-center text-gray-500'>Browsing history is empty.</p>
-                                )} */}
-
                                 <button className='okay_browsing' id='okayBrowsing' onClick={switchHistoryVisibility}>Okay</button>
                         </div>
                     </div>
@@ -471,7 +449,7 @@ function App() {
             
 
                 <div className='account_container'>
-                  <div className='account_left'>Settings container</div>
+                  <div className='account_left'>Click on the button to the right to view your account settings. You can also request to modify the settings.</div>
                   <div className='account_right'><button>Settings</button></div>
                 </div> 
 
@@ -506,9 +484,9 @@ function App() {
 
     </div>
 
-          <footer className='footer'>
+          {/* <footer className='footer'>
             <p>&copy; {new Date().getFullYear()} Emma Pollard. University of Bath. 2025.</p>
-          </footer>
+          </footer> */}
     </div>
   );
 }
