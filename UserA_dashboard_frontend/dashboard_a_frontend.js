@@ -68,6 +68,41 @@ window.addEventListener('message', function(event) {
         sendDataToBackend(data);
     }
 
+    // if (event.data && event.data.type === 'OPEN_HISTORY_POPUP') {
+
+    //     console.log('dashboard_a_frontend.js: received request to open history popup.');
+
+    //     if (openHistory && browsingBackground) {
+    //         console.log('dashboard_a_frontend.js: browsing history html and open history button found.');
+    //          browsingBackground.classList.add('show'); // show browsing history
+    //     } else {
+    //         console.error('dashboard_a_frontend.js: browsing history html / open history button not found.');
+    //     }
+
+    // }
+
 });
+
+// document.addEventListener('DOMContentLoaded', () => {
+
+//     // TO DO: close history popup when okay button clicked
+//     const browsingBackground = document.getElementById('browsingBackground');
+//     const okayBrowsing = document.getElementById('okayBrowsing');
+
+//     // ADD SCRIPT SOURCE TO HISTORY HTML
+
+//     if (!browsingBackground) {
+//         console.error('dashboard_a_frontend.js: browsing history html not found.');
+//     }
+
+//     if (!okayBrowsing) {
+//         console.error('dashboard_a_frontend.js: open history button not found.');
+//     }
+
+//     okayBrowsing.addEventListener('click', function(event) {
+//         browsingBackground.classList.remove('show');
+//     });
+
+// });
 
 console.log('dashboard_a_frontend.js loaded and listening for messages.');
