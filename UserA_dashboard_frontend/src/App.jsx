@@ -379,7 +379,22 @@ function App() {
             <div className='bottom_scrollbar'>
               <h2 className='subtitle'>History</h2>
 
-                {actionData.length > 0 ? (
+              {actionData.map((item) => (
+                <div className='history_content_container'>
+                  <div className='history_icon_container'>
+                    {/* <img src='../icons/icon_A_solid.png' className='history_image'></img> */}
+                    {item.context}
+                  </div>
+                  <div className='history_data_container'>
+                      <div className='history_meta_container'>{simplifyTime(item.time)}</div>
+                      <div className='history_text_container'>{item.userAChoice} {item.resolved} {item.responseOutcome}</div>
+                  </div>
+                </div>
+              ))}
+
+
+
+                {/* {actionData.length > 0 ? (
                   <table className='table_format'>
                     <thead className='bg-gray-50'>
                       <tr>
@@ -406,7 +421,7 @@ function App() {
                   </table>
                 ) : (
                   <p className='p-6 text-center text-gray-500'>Action history is empty.</p>
-                )}
+                )} */}
             </div>
           </div>
         </div>
