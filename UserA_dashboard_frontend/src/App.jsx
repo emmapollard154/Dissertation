@@ -10,13 +10,10 @@ const socket = io(`http://localhost:${A_BACKEND}`);
 function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
-  // const [unresolvedData, setUnresolvedData] = useState([]);
   const [messageData, setMessageData] = useState([]);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // const unresolvedData = null;
 
   let UNRESOLVED = [];
   const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom'; // TEMPORARY
@@ -58,6 +55,8 @@ function App() {
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (browsing history): ', e);
       setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
     } finally {
       setLoading(false);
     }
@@ -75,6 +74,9 @@ function App() {
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (action): ', e);
       setError(e.message);
+      console.warn('App.jsx (A): reloading page;');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
     } finally {
       setLoading(false);
     }
@@ -92,6 +94,8 @@ function App() {
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (message): ', e);
       setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
     } finally {
       setLoading(false);
     }
@@ -275,9 +279,19 @@ function App() {
     <div className='dashboard_background'>
 
       <div className='title_banner'>
-        <header className='dashboard_title'>
-          <h1>User A Dashboard</h1>
-        </header>
+        <div className='header_left'>
+          <div className='header_icon'>
+            <img src='../icons/shield.png'></img>
+          </div>
+
+          <div className='header_title'>
+            Dashboard
+          </div>
+        </div>
+
+        <div className='header_right'>
+            User A
+        </div>
       </div>
 
       <div className='general_container'>
@@ -353,14 +367,14 @@ function App() {
             <div className='bottom_scrollbar'>
               <h2 className='subtitle'>History</h2>
 
-              {actionData.map((item) => (
+              {actionData.filter(item => item.resolved === 'Y').map((item) => (
                 <div className='history_content_container'>
                   <div className='history_icon_container'>
                     <img src='../icons/mail_action_icon.png' className='history_image'></img>
                     {/* {item.context} */}
                   </div>
                   <div className='history_data_container'>
-                      <div className='history_meta_container'>A choice: {item.userAChoice}, B response: {item.resolved}, Resolved: {item.responseOutcome}</div>
+                      <div className='history_meta_container'>A choice: {item.userAChoice}, B response: {item.resolved}</div>
                       <div className='history_text_container'>{simplifyTime(item.time)}</div>
                   </div>
                 </div>
@@ -390,6 +404,7 @@ function App() {
                 {historyVisible && (
                 <div className='browsing_history_background' id='browsingBackground'>
                     <div className='browsing_popup' id='browsingPopup'>
+                      <div className='bottom_scrollbar'>
                         <div className='browsing_history_content'>
                             <h2 className='subtitle'>Browsing History</h2>
 
@@ -402,6 +417,7 @@ function App() {
 
                                 <button className='okay_browsing' id='okayBrowsing' onClick={switchHistoryVisibility}>Okay</button>
                         </div>
+                      </div>
                     </div>
                 </div>
                 )}
@@ -423,12 +439,8 @@ function App() {
     </div>
 
           <footer className='footer'>
-            <p>&copy; {new Date().getFullYear()} Emma Pollard. University of Bath. 2025.</p>
+            <p>Emma Pollard. University of Bath. 2025.</p>
           </footer>
-
-          {/* <footer className='footer'>
-            <p>&copy; {new Date().getFullYear()} Emma Pollard. University of Bath. 2025.</p>
-          </footer> */}
     </div>
   );
 }
