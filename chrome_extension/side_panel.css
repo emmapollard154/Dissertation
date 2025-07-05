@@ -32,7 +32,7 @@
 	position: relative;
     top: 5%;
     left: 3%;
-	background: navy;
+	background: rgb(45, 45, 90);
 	border-radius: .4em;
     height: 120px;
     width: 60%;
@@ -50,7 +50,7 @@
 	width: 0;
 	height: 0;
 	border: 8px solid transparent;
-	border-top-color: navy;
+	border-top-color: rgb(45, 45, 90);
 	border-bottom: 0;
 	border-right: 0;
 	margin-left: -4px;

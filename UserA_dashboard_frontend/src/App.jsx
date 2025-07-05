@@ -10,13 +10,10 @@ const socket = io(`http://localhost:${A_BACKEND}`);
 function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
-  const [unresolvedData, setUnresolvedData] = useState([]);
   const [messageData, setMessageData] = useState([]);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // const unresolvedData = null;
 
   let UNRESOLVED = [];
   const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom'; // TEMPORARY
@@ -41,6 +38,8 @@ function App() {
     }
 
     sendToExt('NUM_PENDING', JSON.stringify(length));
+    console.log("UNRESOLVED: ", UNRESOLVED);
+    // console.log("unresolvedData: ", unresolvedData);
     return UNRESOLVED;
   }
 
@@ -56,6 +55,8 @@ function App() {
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (browsing history): ', e);
       setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
     } finally {
       setLoading(false);
     }
@@ -73,6 +74,9 @@ function App() {
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (action): ', e);
       setError(e.message);
+      console.warn('App.jsx (A): reloading page;');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
     } finally {
       setLoading(false);
     }
@@ -90,6 +94,8 @@ function App() {
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (message): ', e);
       setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
     } finally {
       setLoading(false);
     }
@@ -187,28 +193,6 @@ function App() {
     setHistoryVisible(!historyVisible);
   };
 
-  // function openHistory() {
-  //   const browsingBackground = document.getElementById('browsingBackground');
-  //   if (!browsingBackground){
-  //     console.error('App.jsx (B): browsingBackground not found.');
-  //   } else {
-  //     console.log('App.jsx (B): attempting to open browsing popup.');
-  //     // browsingBackground.classList.add('show');
-  //     // console.log('initial: ', browsingBackground.className.style);
-  //     // browsingBackground.classList.toggle('visible');
-  //   }
-  // }
-
-  // function closeHistory() {
-  //   const browsingBackground = document.getElementById('browsingBackground');
-  //   if (!browsingBackground){
-  //     console.error('App.jsx (B): browsingBackground not found.');
-  //   } else {
-  //     console.log('App.jsx (B): attempting to close browsing popup.')
-  //     browsingBackground.classList.remove('show');
-  //   }
-  // }
-
   // Hook to fetch data when the component mounts
   useEffect(() => {
     fetchBrowserData(); //  fetch data
@@ -295,9 +279,19 @@ function App() {
     <div className='dashboard_background'>
 
       <div className='title_banner'>
-        <header className='dashboard_title'>
-          <h1>User A Dashboard</h1>
-        </header>
+        <div className='header_left'>
+          <div className='header_icon'>
+            <img src='../icons/shield.png'></img>
+          </div>
+
+          <div className='header_title'>
+            Dashboard
+          </div>
+        </div>
+
+        <div className='header_right'>
+            User A
+        </div>
       </div>
 
       <div className='general_container'>
@@ -310,26 +304,20 @@ function App() {
               <h2 className='subtitle'>Status</h2>
                 <p id='unresolved_number_statement'></p>
 
-                {unresolvedData.length > 0 ? (
-                  <table className='table_format'>
-                    <thead className='bg-gray-50'>
-                      <tr>
-                        <th scope='col' className='column_title'>Action</th>
-                        <th scope='col' className='column_title'>Response</th>
-                      </tr>
-                    </thead>
-                    <tbody className='bg-white divide-y divide-gray-200'>
-                      {unresolvedData.map((item) => (
-                        <tr key={item.id} className='hover:bg-gray-50 transition-colors duration-200'>
-                          <td className='entry_format'>{item}</td>
-                          <td className='entry_format'>Pending</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className='p-6 text-center text-gray-500'></p>
-                )}
+
+                {actionData.filter(item => item.resolved === 'N').map((item) => (
+                  <div className='status_content_container'>
+                    <div className='status_icon_container'>
+                      <img src='../icons/mail_action_icon.png' className='status_image'></img>
+                      {/* {item.context} */}
+                    </div>
+                    <div className='status_data_container'>
+                        <div className='status_meta_container'>A choice: {item.userAChoice}</div>
+                        <div className='status_text_container'>{simplifyTime(item.time)}</div>
+                    </div>
+                  </div>
+                ))}
+
             </div>
           </div>
         </div>
@@ -379,49 +367,19 @@ function App() {
             <div className='bottom_scrollbar'>
               <h2 className='subtitle'>History</h2>
 
-              {actionData.map((item) => (
+              {actionData.filter(item => item.resolved === 'Y').map((item) => (
                 <div className='history_content_container'>
                   <div className='history_icon_container'>
-                    {/* <img src='../icons/icon_A_solid.png' className='history_image'></img> */}
-                    {item.context}
+                    <img src='../icons/mail_action_icon.png' className='history_image'></img>
+                    {/* {item.context} */}
                   </div>
                   <div className='history_data_container'>
-                      <div className='history_meta_container'>{simplifyTime(item.time)}</div>
-                      <div className='history_text_container'>{item.userAChoice} {item.resolved} {item.responseOutcome}</div>
+                      <div className='history_meta_container'>A choice: {item.userAChoice}, B response: {item.resolved}</div>
+                      <div className='history_text_container'>{simplifyTime(item.time)}</div>
                   </div>
                 </div>
               ))}
 
-
-
-                {/* {actionData.length > 0 ? (
-                  <table className='table_format'>
-                    <thead className='bg-gray-50'>
-                      <tr>
-                        <th scope='col' className='column_title'>Action ID</th>
-                        <th scope='col' className='column_title'>Context</th>
-                        <th scope='col' className='column_title'>User A Choice</th>
-                        <th scope='col' className='column_title'>Time</th>
-                        <th scope='col' className='column_title'>Resolved</th>
-                        <th scope='col' className='column_title'>Response Outcome</th>
-                      </tr>
-                    </thead>
-                    <tbody className='bg-white divide-y divide-gray-200'>
-                      {actionData.map((item) => (
-                        <tr key={item.id} className='hover:bg-gray-50 transition-colors duration-200'>
-                          <td className='entry_format'>{item.actionID}</td>
-                          <td className='entry_format'>{item.context}</td>
-                          <td className='entry_format'>{item.userAChoice}</td>
-                          <td className='entry_format'>{item.time}</td>
-                          <td className='entry_format'>{item.resolved}</td>
-                          <td className='entry_format'>{item.responseOutcome}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className='p-6 text-center text-gray-500'>Action history is empty.</p>
-                )} */}
             </div>
           </div>
         </div>
@@ -446,6 +404,7 @@ function App() {
                 {historyVisible && (
                 <div className='browsing_history_background' id='browsingBackground'>
                     <div className='browsing_popup' id='browsingPopup'>
+                      <div className='bottom_scrollbar'>
                         <div className='browsing_history_content'>
                             <h2 className='subtitle'>Browsing History</h2>
 
@@ -458,6 +417,7 @@ function App() {
 
                                 <button className='okay_browsing' id='okayBrowsing' onClick={switchHistoryVisibility}>Okay</button>
                         </div>
+                      </div>
                     </div>
                 </div>
                 )}
@@ -470,27 +430,6 @@ function App() {
 
               </div>
 
-              {/* {browsingData.length > 0 ? (
-                <table className='table_format'>
-                  <thead className='bg-gray-50'>
-                    <tr>
-                      <th scope='col' className='column_title'>URL</th>
-                      <th scope='col' className='column_title'>Time</th>
-                    </tr>
-                  </thead>
-                  <tbody className='bg-white divide-y divide-gray-200'>
-                    {browsingData.map((item) => (
-                      <tr key={item.id} className='hover:bg-gray-50 transition-colors duration-200'>
-                        <td className='entry_format'><a href={item.url} target='_blank' rel='noopener noreferrer' className='hover:underline'>{item.url}</a></td>
-                        <td className='entry_format'>{item.time}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className='p-6 text-center text-gray-500'>Browsing history is empty.</p>
-              )} */}
-
             </div>
           </div>
         </div>
@@ -499,9 +438,9 @@ function App() {
 
     </div>
 
-          {/* <footer className='footer'>
-            <p>&copy; {new Date().getFullYear()} Emma Pollard. University of Bath. 2025.</p>
-          </footer> */}
+          <footer className='footer'>
+            <p>Emma Pollard. University of Bath. 2025.</p>
+          </footer>
     </div>
   );
 }
