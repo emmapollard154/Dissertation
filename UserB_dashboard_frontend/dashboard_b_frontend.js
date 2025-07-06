@@ -38,7 +38,9 @@ window.addEventListener('message', function(event) {
     }
 
     if (event.data && event.data.type === 'USER_B_RESPONSE') {
-        const actionID = event.data.id;
+
+        console.log("dashboard_b_frontend.js: ", event.data);
+        const actionID = event.data.data.actionID;
         const outcome = event.data.outcome;
         console.log("dashboard_b_frontend.js: received outcome " + outcome + " for event " + actionID);
 

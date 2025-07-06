@@ -22,8 +22,8 @@ function setNums(pending, updates) {
 
 // Set side panel behaviour
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false })
-  .then(() => console.log('background.js: side panel behaviour set: do not open by default'))
-  .catch((error) => console.error('background.js: error setting side panel behaviour:", error'));
+  .then(() => console.log('background.js: side panel behaviour set.'))
+  .catch((error) => console.error('background.js: error setting side panel behaviour: ', error));
 
 // Open dashboard in a new tab when extension icon clicked
 chrome.action.onClicked.addListener((tab) => {
@@ -59,7 +59,8 @@ function getActiveTabUrl() {
 				// pass
 			} else {
 				var url = new URL(activeTab.url);
-				timestamp = new Date.toISOString(); //timeToDatetime();
+				timestamp = new Date().toISOString(); //timeToDatetime();
+				console.log('background.js: sending url to dashboard.');
                 chrome.runtime.sendMessage({ action: 'sendUrlToDashboard', newUrlMessage: [url,  timestamp] });
 			}
 		}

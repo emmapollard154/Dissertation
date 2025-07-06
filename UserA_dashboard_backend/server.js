@@ -243,13 +243,14 @@ app.post('/api/data-from-b', (req, res) => {
 
     if (target === 'USER_B_RESPONSE') {
 
-        const id = data.id;
+        const id = data.data.actionID;
         const outcome = data.outcome;
+        const time = data.data.time;
 
         try{
             console.log('server.js (A): inserting into action table.');
-            const stmt = db.prepare('UPDATE action SET resolved = ?, responseOutcome = ? WHERE actionID = ?');
-            stmt.run('Y', outcome, id);
+            const stmt = db.prepare('UPDATE action SET time = ?, resolved = ?, responseOutcome = ? WHERE actionID = ?');
+            stmt.run(time,'Y', outcome, id);
         }
         catch(err) {
             console.error('server.js (A): database insertion error: ', err.message);

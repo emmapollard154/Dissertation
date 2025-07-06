@@ -11,33 +11,17 @@ const socket = io(`http://localhost:${B_BACKEND}`);
 function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
-  const [unresolvedData, setUnresolvedData] = useState([]); 
   const [messageData, setMessageData] = useState([]);
+  const [historyVisible, setHistoryVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  let UNRESOLVED = [];
-
-  const processActionID = (data) => {
-    const action_ids = data.map(row => [row.actionID, row.resolved]);
-
-    for (let i=0; i < action_ids.length; i++) { // parse through all actions
-      if (action_ids[i][1] === 'N' && !UNRESOLVED.includes(action_ids[i][0])) {
-        UNRESOLVED.push(action_ids[i][0]);
-      } // collect unresolved actions
-      if (action_ids[i][1] === 'Y' && UNRESOLVED.includes(action_ids[i][0])) {
-        UNRESOLVED = UNRESOLVED.filter(item => item !== action_ids[i][0]);
-      } // remove resolved actions
-    }
-
-    const length = UNRESOLVED.length;
-
-    if (length > 0) {
-      document.getElementById('unresolved_number_statement').innerHTML = length + ' unresolved action(s)';
-    } else {
-      document.getElementById('unresolved_number_statement').innerHTML = 'No unresolved actions';
-    }
-    return UNRESOLVED;
+  const orderActionData = (data) => {
+    return [...data].sort((a, b) => {
+      const timeA = new Date(a.time);
+      const timeB = new Date(b.time);
+      return timeB - timeA; // ascending order
+    });
   }
 
   const fetchBrowserData = async () => {
@@ -47,10 +31,12 @@ function App() {
         throw new Error(`App.jsx (B): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setBrowsingData(result.data.reverse()); // update the state with the fetched data
+      setBrowsingData(result.data.reverse()); // update the state with the fetched data, most recent at top
     } catch (e) {
       console.error('App.jsx (B): error fetching dashboard data (browsing history): ', e);
       setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
     } finally {
       setLoading(false);
     }
@@ -63,12 +49,13 @@ function App() {
         throw new Error(`App.jsx (B): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setActionData(result.data.reverse()); // update the state with the fetched data
-      const newUnresolved = processActionID(result.data);
-      setUnresolvedData(newUnresolved);
+      const ordered = orderActionData(result.data);
+      setActionData(ordered); // update the state with the fetched data, most recent at top
     } catch (e) {
       console.error('App.jsx (B): error fetching dashboard data (action): ', e);
       setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
     } finally {
       setLoading(false);
     }
@@ -81,10 +68,12 @@ function App() {
         throw new Error(`App.jsx (B): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setMessageData(result.data.reverse());
+      setMessageData(result.data.reverse()); // update the state with the fetched data, most recent at top
     } catch (e) {
       console.error('App.jsx (B): error fetching dashboard data (message): ', e);
       setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
     } finally {
       setLoading(false);
     }
@@ -95,17 +84,27 @@ function App() {
 
     if (btn.id === 'btn_yes') {
       console.log('App.jsx (B): "Yes" button clicked: ', actionID.item);
+      
+      let now = new Date().toISOString();
+      // now = simplifyTime(now);
+      actionID.item.time = now; // update time to user b response
+
       window.postMessage({
         type: 'USER_B_RESPONSE',
-        id: actionID.item,
+        data: actionID.item,
         outcome: 'Y'
       }, `http://localhost:${B_FRONTEND}`);
 
     } else if (btn.id === 'btn_no') {
       console.log('App.jsx (B): "No" button clicked: ', actionID.item);
+
+      let now = new Date().toISOString();
+      // now = simplifyTime(now);
+      actionID.item.time = now; // update time to user b response
+
       window.postMessage({
         type: 'USER_B_RESPONSE',
-        id: actionID.item,
+        data: actionID.item,
         outcome: 'N'
       }, `http://localhost:${B_FRONTEND}`);
 
@@ -118,8 +117,10 @@ function App() {
   function simplifyTime(time) {
 
     const date = new Date(time);
+
     if (isNaN(date.getTime())) {
       console.error('App.jsx (B): attempting to convert invalid date.');
+      return '';
     }
 
     let hours = date.getHours();
@@ -139,9 +140,23 @@ function App() {
     return `${simpleHours}:${simpleMinutes} ${simpleDay}/${simpleMonth}/${simpleYear}`;
   } 
 
+  // Function to strip url of excess information
+  function redactURL(url) {
+    if (!url) {
+      return ''
+    }
+    try {
+      const fullURL =  new URL(url);
+      const redacted = fullURL.origin;
+      return redacted;
+    } catch (error) {
+      console.error("App.jsx (B): error redacting URL: ", url, error);
+      return '';
+    }
+  }
+
   // Function to send message to backend B
   function sendMessage() {
-
     const messageInput = document.getElementById('messageInput')
     const message = messageInput.value;
 
@@ -154,6 +169,11 @@ function App() {
       }, `http://localhost:${B_FRONTEND}`);
       messageInput.value = '';
     }
+  };
+
+  function switchHistoryVisibility() {
+    console.log('App.jsx (B): switching visibility of browsing history');
+    setHistoryVisible(!historyVisible);
   };
 
   // Hook to fetch data when the component mounts
@@ -241,166 +261,161 @@ function App() {
     <div className='dashboard_background'>
 
       <div className='title_banner'>
-        <header className="dashboard_title">
-          <h1>User B Dashboard</h1>
-        </header>
-      </div>
-
-      <div className='top_panel'>
-
-        <div className='top_left_container'>
-
-          <div className='top_container'>
-            <h2 className="subtitle">Status</h2>
-              <p id="unresolved_number_statement"></p>
-
-              {unresolvedData.length > 0 ? (
-                <table id="responseTable" className="table_format">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th scope="col" className="column_title">Action</th>
-                      <th scope="col" className="column_title">Response No</th>
-                      <th scope="col" className="column_title">Response Yes</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {unresolvedData.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                        <td className="entry_format">{item}</td>
-                        <td className="entry_format"><button id="btn_no" onClick={(event) => responseBtn(event.target, {item})}>REJECT</button></td>
-                        <td className="entry_format"><button id="btn_yes" onClick={(event) => responseBtn(event.target, {item})}>ACCEPT</button></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="p-6 text-center text-gray-500"></p>
-              )}
-
-
-
+        <div className='header_left'>
+          <div className='header_icon'>
+            <img src='../icons/shield.png'></img>
           </div>
 
+          <div className='header_title'>
+            Dashboard
+          </div>
         </div>
 
-        <div className='top_right_container'>
-          <div className='top_container'>
-            <h2 className="subtitle">Messages</h2>
+        <div className='header_right'>
+            User B
+        </div>
+      </div>
+
+      <div className='general_container'>
+
+        <div className='top_panel'>
+          <div className='top_left_container'>
+            <div className='top_container'>
+              <div className='top_scrollbar'>
+                <h2 className="subtitle">Actions</h2>
+                  <p id="unresolved_number_statement"></p>
 
 
-              <input type="text" id="messageInput" placeholder="Type a message..."/>
-              <button onClick={sendMessage}>Send</button>
-
-              <table className="table_format">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="column_title">User</th>
-                    <th scope="col" className="column_title">Message</th>
-                    <th scope="col" className="column_title">Time</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {messageData.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                      <td className="entry_format">{item.userID}</td>
-                      <td className="entry_format">{item.message}</td>
-                      <td className="entry_format">{item.time}</td>
-                    </tr>
+                  {actionData.filter(item => item.resolved === 'N').map((item) => (
+                  // {actionData.map((item) => (
+                    <div className='status_content_container'>
+                      <div className='status_icon_container'>
+                        <img src='../icons/mail_action_icon.png' className='status_image'></img>
+                        {/* {item.context} */}
+                      </div>
+                      <div className='status_data_container'>
+                        <div className='status_meta_container'>A choice: {item.userAChoice} {simplifyTime(item.time)} </div>
+                        <div className='status_text_container'>
+                          <button id="btn_no" onClick={(event) => responseBtn(event.target, {item})}>REJECT</button>
+                          <button id="btn_yes" onClick={(event) => responseBtn(event.target, {item})}>ACCEPT</button>
+                        </div>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                  
+              </div>
+            </div>
+          </div>
+
+          <div className='top_right_container'>
+            <div className='top_container'>
+              <div className='top_scrollbar'>
+                <div className='msg_panel'>
+                  <div className='msg_subtitle'>Messages</div>
+                    <div className='input_container'><input className='msg_input' type='text' id='messageInput' placeholder='Type a message...'/></div>
+                    <div className='send_container'><button className='msg_send' onClick={sendMessage}>Send Message</button></div>
+                </div>
+
+                {messageData.map((item) => (
+                  <div className='msg_content_container'>
+                    <div className='msg_icon_container'>
+                      <img src='../icons/icon_A_solid.png' className='icon_image'></img>
+                    </div>
+                    <div className='msg_data_container'>
+                        <div className='msg_meta_container'>User {item.userID}&emsp;{item.time}</div>
+                        <div className='msg_text_container'>{item.message}</div>
+                    </div>
+                  </div>
+                ))}
+
+                <div className='msg_content_container'>
+                  <div className='msg_icon_container'></div>
+                  <div className='msg_data_container'>
+                    <div className='msg_meta_container'></div>
+                    <div className='msg_text_container'></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
 
+        <div className='bottom_panel'>
+          <div className='bottom_left_container'>
+            <div className='bottom_container'>
+              <div className='bottom_scrollbar'>
+                <h2 className='subtitle'>History</h2>
+
+                {actionData.filter(item => item.resolved === 'Y').map((item) => (
+                  <div className='history_content_container'>
+                    <div className='history_icon_container'>
+                      <img src='../icons/mail_action_icon.png' className='history_image'></img>
+                      {/* {item.context} */}
+                    </div>
+                    <div className='history_data_container'>
+                      <div className='history_meta_container'>A choice: {item.userAChoice}, B response: {item.responseOutcome}</div>
+                      <div className='history_text_container'>{simplifyTime(item.time)}</div>
+                    </div>
+                  </div>
+                ))}
+
+              </div>
+            </div>
+          </div>
+
+          <div className='bottom_right_container'>
+            <div className='bottom_container'>
+              <div className='bottom_scrollbar'>
+                <h2 className='subtitle'>Account</h2>
+                <div className='account_panel'>
+
+                  <div className='account_container'>
+                    <div className='account_left'>Click on the button to the right to access more information about staying safe online.</div>
+                    <div className='account_right'><button>Safety Information</button></div>
+                  </div>
+
+                  <div className='account_container'>
+                    <div className='account_left'>Click on the button to the right to view your browsing history.</div>
+                    <div className='account_right'><button id='openHistory' onClick={switchHistoryVisibility}>View Browsing History</button></div>
+                  </div>
+
+                  {historyVisible && (
+                    <div className='browsing_history_background' id='browsingBackground'>
+                      <div className='browsing_popup' id='browsingPopup'>
+                        <div className='bottom_scrollbar'>
+                          <div className='browsing_history_content'>
+                              <h2 className='subtitle'>Browsing History</h2>
+
+                              {browsingData.map((item) => (
+                                <div className='browsing_entry_container'>
+                                  <div className='url_container'>{redactURL(item.url)}</div>
+                                  <div className='url_time_container'>{simplifyTime(item.time)}</div>
+                                </div>
+                              ))}
+
+                              <button className='okay_browsing' id='okayBrowsing' onClick={switchHistoryVisibility}>Okay</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+          
+                  <div className='account_container'>
+                    <div className='account_left'>Click on the button to the right to view your account settings. You can also request to modify the settings.</div>
+                    <div className='account_right'><button>Settings</button></div>
+                  </div> 
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className='bottom_panel'>
+      <footer className='footer'>
+        <p>Emma Pollard. University of Bath. 2025.</p>
+      </footer>
 
-        <div className='bottom_left_container'>
-
-          <div className='bottom_container'>
-            <h2 className="subtitle">History</h2>
-
-              {actionData.length > 0 ? (
-                <table className="table_format">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th scope="col" className="column_title">Action ID</th>
-                      <th scope="col" className="column_title">Context</th>
-                      <th scope="col" className="column_title">User A Choice</th>
-                      <th scope="col" className="column_title">Time</th>
-                      <th scope="col" className="column_title">Resolved</th>
-                      <th scope="col" className="column_title">Response Outcome</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {actionData.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                        <td className="entry_format">{item.actionID}</td>
-                        <td className="entry_format">{item.context}</td>
-                        <td className="entry_format">{item.userAChoice}</td>
-                        <td className="entry_format">{item.time}</td>
-                        <td className="entry_format">{item.resolved}</td>
-                        <td className="entry_format">{item.responseOutcome}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="p-6 text-center text-gray-500">Action history is empty.</p>
-              )}
-
-
-          </div>
-
-        </div>
-
-        <div className='bottom_middle_container'>
-
-          <div className='bottom_container'>
-            <h2 className="subtitle">Account Settings</h2>
-            <p>View browsing history</p>
-
-            {browsingData.length > 0 ? (
-              <table className="table_format">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="column_title">URL</th>
-                    <th scope="col" className="column_title">Time</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {browsingData.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                      <td className="entry_format"><a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">{item.url}</a></td>
-                      <td className="entry_format">{item.time}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p className="p-6 text-center text-gray-500">Browsing history is empty.</p>
-            )}
-
-
-          </div>
-
-        </div>
-
-        <div className='bottom_right_container'>
-
-          <div className='bottom_container'>
-            <h2 className="subtitle">Educational Resources</h2>
-          </div>
-
-        </div>
-
-      </div>
-
-          <footer className="footer">
-            <p>&copy; {new Date().getFullYear()} Emma Pollard. University of Bath. 2025.</p>
-          </footer>
     </div>
   );
 }

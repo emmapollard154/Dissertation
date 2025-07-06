@@ -153,11 +153,11 @@
 }
 
 .top_scrollbar::-webkit-scrollbar-button:vertical:start {
-  background-image: url('./scrollbar_up.png');
+  background-image: url('./icons/scrollbar_up.png');
 }
 
 .top_scrollbar::-webkit-scrollbar-button:vertical:end {
-  background-image: url('./scrollbar_down.png');
+  background-image: url('./icons/scrollbar_down.png');
 }
 
 .top_scrollbar::-webkit-scrollbar-thumb {
@@ -389,11 +389,11 @@
 }
 
 .bottom_scrollbar::-webkit-scrollbar-button:vertical:start {
-  background-image: url('./scrollbar_up.png');
+  background-image: url('./icons/scrollbar_up.png');
 }
 
 .bottom_scrollbar::-webkit-scrollbar-button:vertical:end {
-  background-image: url('./scrollbar_down.png');
+  background-image: url('./icons/scrollbar_down.png');
 }
 
 .bottom_scrollbar::-webkit-scrollbar-thumb {
