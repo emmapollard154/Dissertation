@@ -155,12 +155,11 @@ function App() {
     return `${simpleHours}:${simpleMinutes} ${simpleDay}/${simpleMonth}/${simpleYear}`;
   } 
 
+  // Function to strip url of excess information
   function redactURL(url) {
-
     if (!url) {
       return ''
     }
-
     try {
       const fullURL =  new URL(url);
       const redacted = fullURL.origin;
@@ -173,7 +172,6 @@ function App() {
 
   // Function to send message to backend A
   function sendMessage() {
-
     const messageInput = document.getElementById('messageInput')
     const message = messageInput.value;
 
@@ -189,7 +187,7 @@ function App() {
   };
 
   function switchHistoryVisibility() {
-    console.log('App.jsx (B): switching visibility of browsing history');
+    console.log('App.jsx (A): switching visibility of browsing history');
     setHistoryVisible(!historyVisible);
   };
 
@@ -296,151 +294,138 @@ function App() {
 
       <div className='general_container'>
 
-      <div className='top_panel'>
+        <div className='top_panel'>
+          <div className='top_left_container'>
+            <div className='top_container'>
+              <div className='top_scrollbar'>
+                <h2 className='subtitle'>Status</h2>
+                  <p id='unresolved_number_statement'></p>
 
-        <div className='top_left_container'>
-          <div className='top_container'>
-            <div className='top_scrollbar'>
-              <h2 className='subtitle'>Status</h2>
-                <p id='unresolved_number_statement'></p>
-
-
-                {actionData.filter(item => item.resolved === 'N').map((item) => (
-                  <div className='status_content_container'>
-                    <div className='status_icon_container'>
-                      <img src='../icons/mail_action_icon.png' className='status_image'></img>
-                      {/* {item.context} */}
-                    </div>
-                    <div className='status_data_container'>
+                  {actionData.filter(item => item.resolved === 'N').map((item) => (
+                    <div className='status_content_container'>
+                      <div className='status_icon_container'>
+                        <img src='../icons/mail_action_icon.png' className='status_image'></img>
+                        {/* {item.context} */}
+                      </div>
+                      <div className='status_data_container'>
                         <div className='status_meta_container'>A choice: {item.userAChoice}</div>
                         <div className='status_text_container'>{simplifyTime(item.time)}</div>
+                      </div>
+                    </div>
+                  ))}
+
+              </div>
+            </div>
+          </div>
+
+          <div className='top_right_container'>
+            <div className='top_container'>
+              <div className='top_scrollbar'>
+                <div className='msg_panel'>
+                  <div className='msg_subtitle'>Messages</div>
+                  <div className='input_container'><input className='msg_input' type='text' id='messageInput' placeholder='Type a message...'/></div>
+                  <div className='send_container'><button className='msg_send' onClick={sendMessage}>Send Message</button></div>
+                </div>
+
+                {messageData.map((item) => (
+                  <div className='msg_content_container'>
+                    <div className='msg_icon_container'>
+                      <img src='../icons/icon_A_solid.png' className='icon_image'></img>
+                    </div>
+                    <div className='msg_data_container'>
+                      <div className='msg_meta_container'>User {item.userID}&emsp;{item.time}</div>
+                      <div className='msg_text_container'>{item.message}</div>
                     </div>
                   </div>
                 ))}
 
+                <div className='msg_content_container'>
+                  <div className='msg_icon_container'></div>
+                  <div className='msg_data_container'>
+                    <div className='msg_meta_container'></div>
+                    <div className='msg_text_container'></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className='top_right_container'>
-          <div className='top_container'>
-            <div className='top_scrollbar'>
+        <div className='bottom_panel'>
+          <div className='bottom_left_container'>
+            <div className='bottom_container'>
+              <div className='bottom_scrollbar'>
+                <h2 className='subtitle'>History</h2>
 
-              <div className='msg_panel'>
-                <div className='msg_subtitle'>Messages</div>
-                    <div className='input_container'><input className='msg_input' type='text' id='messageInput' placeholder='Type a message...'/></div>
-                    <div className='send_container'><button className='msg_send' onClick={sendMessage}>Send Message</button></div>
-              </div>
-
-
-              {messageData.map((item) => (
-                <div className='msg_content_container'>
-                  <div className='msg_icon_container'>
-                    <img src='../icons/icon_A_solid.png' className='icon_image'></img>
+                {actionData.filter(item => item.resolved === 'Y').map((item) => (
+                  <div className='history_content_container'>
+                    <div className='history_icon_container'>
+                      <img src='../icons/mail_action_icon.png' className='history_image'></img>
+                      {/* {item.context} */}
+                    </div>
+                    <div className='history_data_container'>
+                      <div className='history_meta_container'>A choice: {item.userAChoice}, B response: {item.resolved}</div>
+                      <div className='history_text_container'>{simplifyTime(item.time)}</div>
+                    </div>
                   </div>
-                  <div className='msg_data_container'>
-                      <div className='msg_meta_container'>User {item.userID}&emsp;{item.time}</div>
-                      <div className='msg_text_container'>{item.message}</div>
+                ))}
+
+              </div>
+            </div>
+          </div>
+
+          <div className='bottom_right_container'>
+            <div className='bottom_container'>
+              <div className='bottom_scrollbar'>
+                <h2 className='subtitle'>Account</h2>
+                <div className='account_panel'>
+
+                  <div className='account_container'>
+                    <div className='account_left'>Click on the button to the right to access more information about staying safe online.</div>
+                    <div className='account_right'><button>Safety Information</button></div>
                   </div>
-                </div>
-              ))}
 
+                  <div className='account_container'>
+                    <div className='account_left'>Click on the button to the right to view your browsing history.</div>
+                    <div className='account_right'><button id='openHistory' onClick={switchHistoryVisibility}>View Browsing History</button></div>
+                  </div>
 
+                  {historyVisible && (
+                    <div className='browsing_history_background' id='browsingBackground'>
+                      <div className='browsing_popup' id='browsingPopup'>
+                        <div className='bottom_scrollbar'>
+                          <div className='browsing_history_content'>
+                              <h2 className='subtitle'>Browsing History</h2>
 
+                              {browsingData.map((item) => (
+                                <div className='browsing_entry_container'>
+                                  <div className='url_container'>{redactURL(item.url)}</div>
+                                  <div className='url_time_container'>{simplifyTime(item.time)}</div>
+                                </div>
+                              ))}
 
-              <div className='msg_content_container'>
-                <div className='msg_icon_container'></div>
-                <div className='msg_data_container'>
-                    <div className='msg_meta_container'></div>
-                    <div className='msg_text_container'></div>
+                              <button className='okay_browsing' id='okayBrowsing' onClick={switchHistoryVisibility}>Okay</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+          
+                  <div className='account_container'>
+                    <div className='account_left'>Click on the button to the right to view your account settings. You can also request to modify the settings.</div>
+                    <div className='account_right'><button>Settings</button></div>
+                  </div> 
                 </div>
               </div>
-
             </div>
           </div>
         </div>
       </div>
 
-      <div className='bottom_panel'>
-        <div className='bottom_left_container'>
-          <div className='bottom_container'>
-            <div className='bottom_scrollbar'>
-              <h2 className='subtitle'>History</h2>
+      <footer className='footer'>
+        <p>Emma Pollard. University of Bath. 2025.</p>
+      </footer>
 
-              {actionData.filter(item => item.resolved === 'Y').map((item) => (
-                <div className='history_content_container'>
-                  <div className='history_icon_container'>
-                    <img src='../icons/mail_action_icon.png' className='history_image'></img>
-                    {/* {item.context} */}
-                  </div>
-                  <div className='history_data_container'>
-                      <div className='history_meta_container'>A choice: {item.userAChoice}, B response: {item.resolved}</div>
-                      <div className='history_text_container'>{simplifyTime(item.time)}</div>
-                  </div>
-                </div>
-              ))}
-
-            </div>
-          </div>
-        </div>
-
-        <div className='bottom_right_container'>
-          <div className='bottom_container'>
-            <div className='bottom_scrollbar'>
-              <h2 className='subtitle'>Account</h2>
-
-              <div className='account_panel'>
-
-                <div className='account_container'>
-                  <div className='account_left'>Click on the button to the right to access more information about staying safe online.</div>
-                  <div className='account_right'><button>Safety Information</button></div>
-                </div>
-
-                <div className='account_container'>
-                  <div className='account_left'>Click on the button to the right to view your browsing history.</div>
-                  <div className='account_right'><button id='openHistory' onClick={switchHistoryVisibility}>View Browsing History</button></div>
-                </div>
-
-                {historyVisible && (
-                <div className='browsing_history_background' id='browsingBackground'>
-                    <div className='browsing_popup' id='browsingPopup'>
-                      <div className='bottom_scrollbar'>
-                        <div className='browsing_history_content'>
-                            <h2 className='subtitle'>Browsing History</h2>
-
-                            {browsingData.map((item) => (
-                              <div className='browsing_entry_container'>
-                                <div className='url_container'>{redactURL(item.url)}</div>
-                                <div className='url_time_container'>{simplifyTime(item.time)}</div>
-                              </div>
-                            ))}
-
-                                <button className='okay_browsing' id='okayBrowsing' onClick={switchHistoryVisibility}>Okay</button>
-                        </div>
-                      </div>
-                    </div>
-                </div>
-                )}
-            
-
-                <div className='account_container'>
-                  <div className='account_left'>Click on the button to the right to view your account settings. You can also request to modify the settings.</div>
-                  <div className='account_right'><button>Settings</button></div>
-                </div> 
-
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-    </div>
-
-    </div>
-
-          <footer className='footer'>
-            <p>Emma Pollard. University of Bath. 2025.</p>
-          </footer>
     </div>
   );
 }
