@@ -38,7 +38,7 @@ function App() {
     }
 
     sendToExt('NUM_PENDING', JSON.stringify(length));
-    console.log("UNRESOLVED: ", UNRESOLVED);
+    // console.log("UNRESOLVED: ", UNRESOLVED);
     // console.log("unresolvedData: ", unresolvedData);
     return UNRESOLVED;
   }
@@ -69,6 +69,7 @@ function App() {
         throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
+      console.log("FETCHED ACTION DATA");
       setActionData(result.data.reverse()); // update the state with the fetched data, most recent at the top
       processActionID(result.data);
     } catch (e) {
@@ -133,7 +134,12 @@ function App() {
   // Function to convert ISO time to simplified format
   function simplifyTime(time) {
 
+    console.log(time);
+
     const date = new Date(time);
+
+    console.log(date);
+
     if (isNaN(date.getTime())) {
       console.error('App.jsx (A): attempting to convert invalid date.');
     }
@@ -364,7 +370,7 @@ function App() {
                       {/* {item.context} */}
                     </div>
                     <div className='history_data_container'>
-                      <div className='history_meta_container'>A choice: {item.userAChoice}, B response: {item.resolved}</div>
+                      <div className='history_meta_container'>A choice: {item.userAChoice}, B response: {item.responseOutcome}</div>
                       <div className='history_text_container'>{simplifyTime(item.time)}</div>
                     </div>
                   </div>

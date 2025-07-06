@@ -11,7 +11,7 @@ const socket = io(`http://localhost:${B_BACKEND}`);
 function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
-  const [unresolvedData, setUnresolvedData] = useState([]); 
+  // const [unresolvedData, setUnresolvedData] = useState([]); 
   const [messageData, setMessageData] = useState([]);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -68,7 +68,7 @@ function App() {
       const result = await response.json();
       setActionData(result.data.reverse()); // update the state with the fetched data, most recent at top
       const newUnresolved = processActionID(result.data);
-      setUnresolvedData(newUnresolved);
+      // setUnresolvedData(newUnresolved);
     } catch (e) {
       console.error('App.jsx (B): error fetching dashboard data (action): ', e);
       setError(e.message);
@@ -102,17 +102,27 @@ function App() {
 
     if (btn.id === 'btn_yes') {
       console.log('App.jsx (B): "Yes" button clicked: ', actionID.item);
+      
+      let now = new Date().toISOString();
+      now = simplifyTime(now);
+      actionID.item.time = now; // update time to user b response
+
       window.postMessage({
         type: 'USER_B_RESPONSE',
-        id: actionID.item,
+        data: actionID.item,
         outcome: 'Y'
       }, `http://localhost:${B_FRONTEND}`);
 
     } else if (btn.id === 'btn_no') {
       console.log('App.jsx (B): "No" button clicked: ', actionID.item);
+
+      let now = new Date().toISOString();
+      now = simplifyTime(now);
+      actionID.item.time = now; // update time to user b response
+
       window.postMessage({
         type: 'USER_B_RESPONSE',
-        id: actionID.item,
+        data: actionID.item,
         outcome: 'N'
       }, `http://localhost:${B_FRONTEND}`);
 
@@ -125,8 +135,10 @@ function App() {
   function simplifyTime(time) {
 
     const date = new Date(time);
+
     if (isNaN(date.getTime())) {
       console.error('App.jsx (B): attempting to convert invalid date.');
+      return '';
     }
 
     let hours = date.getHours();
@@ -293,13 +305,14 @@ function App() {
 
 
                   {actionData.filter(item => item.resolved === 'N').map((item) => (
+                  // {actionData.map((item) => (
                     <div className='status_content_container'>
                       <div className='status_icon_container'>
                         <img src='../icons/mail_action_icon.png' className='status_image'></img>
                         {/* {item.context} */}
                       </div>
                       <div className='status_data_container'>
-                        <div className='status_meta_container'>A choice: {item.userAChoice}    {simplifyTime(item.time)} </div>
+                        <div className='status_meta_container'>A choice: {item.userAChoice} {simplifyTime(item.time)} </div>
                         <div className='status_text_container'>
                           <button id="btn_no" onClick={(event) => responseBtn(event.target, {item})}>REJECT</button>
                           <button id="btn_yes" onClick={(event) => responseBtn(event.target, {item})}>ACCEPT</button>
@@ -359,7 +372,7 @@ function App() {
                       {/* {item.context} */}
                     </div>
                     <div className='history_data_container'>
-                      <div className='history_meta_container'>A choice: {item.userAChoice}, B response: {item.resolved}</div>
+                      <div className='history_meta_container'>A choice: {item.userAChoice}, B response: {item.responseOutcome}</div>
                       <div className='history_text_container'>{simplifyTime(item.time)}</div>
                     </div>
                   </div>
