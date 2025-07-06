@@ -36,13 +36,17 @@ function App() {
     } else {
       document.getElementById('unresolved_number_statement').innerHTML = 'No unresolved actions';
     }
-
     sendToExt('NUM_PENDING', JSON.stringify(length));
-    // console.log("UNRESOLVED: ", UNRESOLVED);
-    // console.log("unresolvedData: ", unresolvedData);
     return UNRESOLVED;
   }
 
+  const orderActionData = (data) => {
+    return [...data].sort((a, b) => {
+      const timeA = new Date(a.time);
+      const timeB = new Date(b.time);
+      return timeB - timeA; // ascending order
+    });
+  }
 
   const fetchBrowserData = async () => {
     try {
@@ -69,9 +73,8 @@ function App() {
         throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      console.log("FETCHED ACTION DATA");
-      setActionData(result.data.reverse()); // update the state with the fetched data, most recent at the top
-      processActionID(result.data);
+      const ordered = orderActionData(result.data);
+      setActionData(ordered); // update the state with the fetched data, most recent at top
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (action): ', e);
       setError(e.message);
@@ -134,11 +137,7 @@ function App() {
   // Function to convert ISO time to simplified format
   function simplifyTime(time) {
 
-    console.log(time);
-
     const date = new Date(time);
-
-    console.log(date);
 
     if (isNaN(date.getTime())) {
       console.error('App.jsx (A): attempting to convert invalid date.');

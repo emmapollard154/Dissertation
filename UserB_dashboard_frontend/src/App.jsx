@@ -11,34 +11,17 @@ const socket = io(`http://localhost:${B_BACKEND}`);
 function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
-  // const [unresolvedData, setUnresolvedData] = useState([]); 
   const [messageData, setMessageData] = useState([]);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  let UNRESOLVED = [];
-
-  const processActionID = (data) => {
-    const action_ids = data.map(row => [row.actionID, row.resolved]);
-
-    for (let i=0; i < action_ids.length; i++) { // parse through all actions
-      if (action_ids[i][1] === 'N' && !UNRESOLVED.includes(action_ids[i][0])) {
-        UNRESOLVED.push(action_ids[i][0]);
-      } // collect unresolved actions
-      if (action_ids[i][1] === 'Y' && UNRESOLVED.includes(action_ids[i][0])) {
-        UNRESOLVED = UNRESOLVED.filter(item => item !== action_ids[i][0]);
-      } // remove resolved actions
-    }
-
-    const length = UNRESOLVED.length;
-
-    if (length > 0) {
-      document.getElementById('unresolved_number_statement').innerHTML = '';
-    } else {
-      document.getElementById('unresolved_number_statement').innerHTML = '     No unresolved actions';
-    }
-    return UNRESOLVED;
+  const orderActionData = (data) => {
+    return [...data].sort((a, b) => {
+      const timeA = new Date(a.time);
+      const timeB = new Date(b.time);
+      return timeB - timeA; // ascending order
+    });
   }
 
   const fetchBrowserData = async () => {
@@ -66,9 +49,8 @@ function App() {
         throw new Error(`App.jsx (B): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setActionData(result.data.reverse()); // update the state with the fetched data, most recent at top
-      const newUnresolved = processActionID(result.data);
-      // setUnresolvedData(newUnresolved);
+      const ordered = orderActionData(result.data);
+      setActionData(ordered); // update the state with the fetched data, most recent at top
     } catch (e) {
       console.error('App.jsx (B): error fetching dashboard data (action): ', e);
       setError(e.message);
@@ -104,7 +86,7 @@ function App() {
       console.log('App.jsx (B): "Yes" button clicked: ', actionID.item);
       
       let now = new Date().toISOString();
-      now = simplifyTime(now);
+      // now = simplifyTime(now);
       actionID.item.time = now; // update time to user b response
 
       window.postMessage({
@@ -117,7 +99,7 @@ function App() {
       console.log('App.jsx (B): "No" button clicked: ', actionID.item);
 
       let now = new Date().toISOString();
-      now = simplifyTime(now);
+      // now = simplifyTime(now);
       actionID.item.time = now; // update time to user b response
 
       window.postMessage({
