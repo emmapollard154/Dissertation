@@ -400,7 +400,14 @@ function App() {
                       <div className='browsing_popup' id='browsingPopup'>
                         <div className='bottom_scrollbar'>
                           <div className='browsing_history_content'>
-                              <h2 className='subtitle'>Browsing History</h2>
+                            <div className='browsing_header_container'>
+
+                              <div className='browsing_subtitle'>Browsing History</div>
+                              <div className='okay_browsing_top' >
+                              <button id='okayBrowsing' onClick={switchHistoryVisibility}>Okay</button>
+                              </div>
+
+                            </div>
 
                               {browsingData.map((item) => (
                                 <div className='browsing_entry_container'>
@@ -409,7 +416,7 @@ function App() {
                                 </div>
                               ))}
 
-                              <button className='okay_browsing' id='okayBrowsing' onClick={switchHistoryVisibility}>Okay</button>
+                              {/* <button className='okay_browsing' id='okayBrowsing' onClick={switchHistoryVisibility}>Okay</button> */}
                           </div>
                         </div>
                       </div>

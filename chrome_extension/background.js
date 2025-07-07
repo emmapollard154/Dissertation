@@ -31,22 +31,13 @@ chrome.action.onClicked.addListener((tab) => {
 	setNums(0,0); // initialise variables, updated by side panel
 
 	chrome.sidePanel.open({ tabId: tab.id }) // open side panel	
-		.then(() => { console.log('Side panel opened successfully for tab ID:', tab.id); })
+		.then(() => { console.log('background.js: side panel opened successfully for tab ID:', tab.id); })
 		.catch((error) => { console.error('Error opening side panel:', error); });
 
 	chrome.tabs.create({ url: `http://localhost:${A_FRONTEND}` })
-		.then((newTab) => { console.log('New tab opened successfully:', newTab.url); })
-		.catch((error) => { console.error('Error opening new tab:', error); });
+		.then((newTab) => { console.log('background.js: new tab opened successfully:', newTab.url); })
+		.catch((error) => { console.error('background.js: error opening new tab:', error); });
 });
-
-// Function to get current time in sqlite datetime format
-// function timeToDatetime() {
-//     const now = new Date();
-//     const nowStr = now.toISOString();
-//     const [date, rawTime] = nowStr.split('T');
-//     const time = rawTime.split('.')[0];
-//     return `${date} ${time}`;
-// }
 
 // Function to get URL of active tab
 function getActiveTabUrl() {
@@ -54,7 +45,7 @@ function getActiveTabUrl() {
 		if (tabs.length > 0) {
 			var activeTab = tabs[0];
 			if (activeTab.url === undefined) {
-				console.warn('Active tab URL is undefined');
+				console.warn('background.js: active tab URL is undefined');
 			} else if (activeTab.url === 'chrome://newtab/') {
 				// pass
 			} else {
@@ -87,7 +78,7 @@ chrome.runtime.onMessageExternal.addListener(
     const allowedOrigins = [`http://localhost:${A_FRONTEND}`];
 
     if (!allowedOrigins.includes(new URL(sender.url).origin)) {
-      console.warn('Blocked message from unauthorized origin:' , sender.url);
+      console.warn('background.js: blocked message from unauthorized origin:' , sender.url);
       return false;
     }
 

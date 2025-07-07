@@ -80,12 +80,12 @@ function setNums(newPending, newUpdate) {
 
     if (newPending >= 0) { // leave unchanged if negative input supplied
         chrome.storage.local.set({ 'NUM_PENDING': newPending }, function() {
-        console.log('Setting NUM_PENDING to ', newPending);
+        console.log('side_panel.js: setting NUM_PENDING to ', newPending);
         });
     }
 
     chrome.storage.local.set({ 'NUM_UPDATES': newUpdate }, function() {
-    console.log('Setting NUM_UPDATES to ', newUpdate);
+    console.log('side_panel.js: setting NUM_UPDATES to ', newUpdate);
     });
 }
 
@@ -138,7 +138,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     }
 
     if (message.action === 'updateNumUpdates') {
-        console.log('side_panel.js: updateNumUpdates recieved.')
+        console.log('side_panel.js: updateNumUpdates received.')
         addUpdate();
         messageAlert();
     }
