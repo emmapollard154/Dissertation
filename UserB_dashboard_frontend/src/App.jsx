@@ -389,7 +389,7 @@ function App() {
 
                               <div className='browsing_subtitle'>Browsing History</div>
                               <div className='okay_browsing_top' >
-                              <button id='okayBrowsing' onClick={switchHistoryVisibility}>Okay</button>
+                                <button id='okayBrowsing' onClick={switchHistoryVisibility}>Okay</button>
                               </div>
 
                             </div>
@@ -411,6 +411,7 @@ function App() {
                     <div className='account_left'>Click on the button to the right to view your account settings. You can also request to modify the settings.</div>
                     <div className='account_right'><button>Settings</button></div>
                   </div> 
+
                 </div>
               </div>
             </div>
