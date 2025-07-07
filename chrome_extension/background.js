@@ -6,20 +6,6 @@ const A_FRONTEND = 5173;
 const EMAIL_ENV = 'http://localhost:5174';
 // const BANKING_ENV = "https://www.google.com/";
 
-// Function to initialise the number of pending requests and updates
-function setNums(pending, updates) {
-
-	if (pending >= 0) { // update pending only if valid number given
-		chrome.storage.local.set({ 'NUM_PENDING': pending }, function() {
-		console.log('background.js: initialising NUM_PENDING to ', pending);
-		});
-	}
-
-    chrome.storage.local.set({ 'NUM_UPDATES': updates }, function() {
-    console.log('background.js: initialising NUM_UPDATES to ', updates);
-    });
-}
-
 // Set side panel behaviour
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false })
   .then(() => console.log('background.js: side panel behaviour set.'))
@@ -67,8 +53,13 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === 'openDashboard') {
-		chrome.tabs.create({ url: `http://localhost:${A_FRONTEND}` });
-		setNums(-1, 0); // leave number pending unchanged, reset number of updates
+		chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+			var activeTab = tabs[0];
+			if (activeTab.url !== `http://localhost:${A_FRONTEND}/`) { // open dashboard in new tab if needed
+				chrome.tabs.create({ url: `http://localhost:${A_FRONTEND}` });
+			}
+			setNums(-1, 0); // leave number pending unchanged, reset number of updates
+		});
 	}
 });
 
@@ -83,7 +74,9 @@ chrome.runtime.onMessageExternal.addListener(
     }
 
     if (request.type === 'NUM_PENDING') {
-		chrome.runtime.sendMessage({ action: 'updateNumPending', numPending: request.payload });
+		// chrome.runtime.sendMessage({ action: 'updateNumPending', numPending: request.payload });
+		console.log("NUM_PENDING received");
+		chrome.runtime.sendMessage({ action: 'updateNumPending' });
 		sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });
 		return true;
 	}
@@ -95,6 +88,20 @@ chrome.runtime.onMessageExternal.addListener(
 	}
   }
 );
+
+// Function to initialise the number of pending requests and updates
+function setNums(pending, updates) {
+
+	if (pending >= 0) { // update pending only if valid number given
+		chrome.storage.local.set({ 'NUM_PENDING': pending }, function() {
+		console.log('background.js: initialising NUM_PENDING to ', pending);
+		});
+	}
+
+    chrome.storage.local.set({ 'NUM_UPDATES': updates }, function() {
+    console.log('background.js: initialising NUM_UPDATES to ', updates);
+    });
+}
 
 
 // // TO DO  open settings page on installation

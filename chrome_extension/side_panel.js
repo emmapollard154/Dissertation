@@ -97,8 +97,10 @@ async function updateNumPending(newPending) {
         const oldUpdates = await getNumUpdates();
 
         // document.getElementById('numPending').innerHTML = newPending + ' Pending Request(s)';
+        console.log("updateNumPending");
 
         if (oldPending > newPending) { // a request has been resolved
+            console.log("ATTEMPTING TO ADD STATUS ALERT");
             setNums(newPending, oldUpdates + 1);
             statusAlert(); // send alert to User A
             // try {
@@ -132,7 +134,10 @@ async function addUpdate() {
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
     if (message.action === 'updateNumPending') {
-        updateNumPending(message.numPending);
+        // updateNumPending(message.numPending);
+        console.log('side_panel.js: updateNumPending received.')
+        addUpdate();
+        statusAlert();
     }
 
     if (message.action === 'updateNumUpdates') {
@@ -259,6 +264,9 @@ document.getElementById('statBtn').addEventListener('click', async function() {
 });
 
 document.getElementById('msgBtn').addEventListener('click', async function() {
+    setNums(-1, 0);
+    removeUpdate('statBtn');
+    removeUpdate('msgBtn');
     chrome.runtime.sendMessage({ action: "openDashboard"});
 });
 

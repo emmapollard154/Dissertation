@@ -249,6 +249,7 @@ function App() {
     socket.on('b_response', (data) => {
       console.log('App.jsx (A): User B sent a response: ', data);
       fetchActionData();
+      sendToExt('NUM_PENDING', null);
     });
 
     socket.on('b_message', (data) => {
