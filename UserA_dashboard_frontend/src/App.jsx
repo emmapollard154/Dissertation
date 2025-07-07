@@ -12,6 +12,7 @@ function App() {
   const [actionData, setActionData] = useState([]);
   const [messageData, setMessageData] = useState([]);
   const [historyVisible, setHistoryVisible] = useState(false);
+  const [settingsVisible, setSettingsVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -192,8 +193,13 @@ function App() {
   };
 
   function switchHistoryVisibility() {
-    console.log('App.jsx (A): switching visibility of browsing history');
+    console.log('App.jsx (A): switching visibility of browsing history.');
     setHistoryVisible(!historyVisible);
+  };
+
+  function switchSettingsVisibility() {
+    console.log('App.jsx (A): switching visibility of settings');
+    setSettingsVisible(!settingsVisible);
   };
 
   // Hook to fetch data when the component mounts
@@ -424,7 +430,30 @@ function App() {
           
                   <div className='account_container'>
                     <div className='account_left'>Click on the button to the right to view your account settings. You can also request to modify the settings.</div>
-                    <div className='account_right'><button>Settings</button></div>
+                    <div className='account_right'><button id='openSettings' onClick={switchSettingsVisibility}>Settings</button></div>
+
+                    {settingsVisible && (
+                      <div className='settings_background' id='settingsBackground'>
+                        <div className='settings_popup' id='settingsPopup'>
+                          <div className='settings_scrollbar'>
+                            <div className='settings_content'>
+                              <div className='settings_header_container'>
+
+                                <div className='settings_subtitle'>Settings</div>
+                                <div className='okay_settings_top' >
+                                <button id='okaySettings' onClick={switchSettingsVisibility}>Okay</button>
+                                </div>
+
+                              </div>
+
+                                <p>Settings Data</p>
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                   </div> 
                 </div>
               </div>
