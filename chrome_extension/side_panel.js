@@ -80,12 +80,12 @@ function setNums(newPending, newUpdate) {
 
     if (newPending >= 0) { // leave unchanged if negative input supplied
         chrome.storage.local.set({ 'NUM_PENDING': newPending }, function() {
-        console.log('Setting NUM_PENDING to ', newPending);
+        console.log('side_panel.js: setting NUM_PENDING to ', newPending);
         });
     }
 
     chrome.storage.local.set({ 'NUM_UPDATES': newUpdate }, function() {
-    console.log('Setting NUM_UPDATES to ', newUpdate);
+    console.log('side_panel.js: setting NUM_UPDATES to ', newUpdate);
     });
 }
 
@@ -96,19 +96,11 @@ async function updateNumPending(newPending) {
         const oldPending = await getNumPending();
         const oldUpdates = await getNumUpdates();
 
-        document.getElementById('numPending').innerHTML = newPending + ' Pending Request(s)';
-
         if (oldPending > newPending) { // a request has been resolved
+            console.log("ATTEMPTING TO ADD STATUS ALERT");
             setNums(newPending, oldUpdates + 1);
             statusAlert(); // send alert to User A
-            try {
-                const newUpdates = await getNumUpdates();
-                document.getElementById('numUpdates').innerHTML = newUpdates + ' Updates';
-            } catch (error) {
-                console.error('side_panel.js: error extracting value for new updates: ', error);
-            }
         } else {
-            document.getElementById('numUpdates').innerHTML = oldUpdates + ' Updates';
             setNums(newPending, oldUpdates);
         }
 
@@ -124,7 +116,6 @@ async function addUpdate() {
         const oldUpdates = await getNumUpdates();
         const newUpdates = oldUpdates + 1;
         setNums(-1, newUpdates);
-        document.getElementById('numUpdates').innerHTML = newUpdates + ' Updates';
     } catch (error) {
         console.error('side_panel.js: error extracting values for pending/updates: ', error);
     }
@@ -134,11 +125,14 @@ async function addUpdate() {
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
     if (message.action === 'updateNumPending') {
-        updateNumPending(message.numPending);
+        // updateNumPending(message.numPending);
+        console.log('side_panel.js: updateNumPending received.')
+        addUpdate();
+        statusAlert();
     }
 
     if (message.action === 'updateNumUpdates') {
-        console.log('side_panel.js: updateNumUpdates recieved.')
+        console.log('side_panel.js: updateNumUpdates received.')
         addUpdate();
         messageAlert();
     }
@@ -253,7 +247,7 @@ document.getElementById('dashBtn').addEventListener('click', async function() {
     chrome.runtime.sendMessage({ action: "openDashboard"});
 });
 
-document.getElementById('numUpdates').addEventListener('click', async function() {
+document.getElementById('statBtn').addEventListener('click', async function() {
     setNums(-1, 0);
     removeUpdate('statBtn');
     removeUpdate('msgBtn');
@@ -261,6 +255,9 @@ document.getElementById('numUpdates').addEventListener('click', async function()
 });
 
 document.getElementById('msgBtn').addEventListener('click', async function() {
+    setNums(-1, 0);
+    removeUpdate('statBtn');
+    removeUpdate('msgBtn');
     chrome.runtime.sendMessage({ action: "openDashboard"});
 });
 

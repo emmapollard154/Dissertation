@@ -69,19 +69,6 @@ window.addEventListener('message', function(event) {
         sendDataToBackend(data);
     }
 
-    // if (event.data && event.data.type === 'OPEN_HISTORY_POPUP') {
-
-    //     console.log('dashboard_a_frontend.js: received request to open history popup.');
-
-    //     if (openHistory && browsingBackground) {
-    //         console.log('dashboard_a_frontend.js: browsing history html and open history button found.');
-    //          browsingBackground.classList.add('show'); // show browsing history
-    //     } else {
-    //         console.error('dashboard_a_frontend.js: browsing history html / open history button not found.');
-    //     }
-
-    // }
-
 });
 
 // document.addEventListener('DOMContentLoaded', () => {
