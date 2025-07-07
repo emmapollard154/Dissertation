@@ -96,20 +96,11 @@ async function updateNumPending(newPending) {
         const oldPending = await getNumPending();
         const oldUpdates = await getNumUpdates();
 
-        // document.getElementById('numPending').innerHTML = newPending + ' Pending Request(s)';
-        console.log("updateNumPending");
-
         if (oldPending > newPending) { // a request has been resolved
             console.log("ATTEMPTING TO ADD STATUS ALERT");
             setNums(newPending, oldUpdates + 1);
             statusAlert(); // send alert to User A
-            // try {
-            //     const newUpdates = await getNumUpdates();
-            // } catch (error) {
-            //     console.error('side_panel.js: error extracting value for new updates: ', error);
-            // }
         } else {
-            // document.getElementById('numUpdates').innerHTML = oldUpdates + ' Updates';
             setNums(newPending, oldUpdates);
         }
 

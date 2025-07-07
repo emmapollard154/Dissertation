@@ -51,15 +51,33 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 	}
 });
 
+async function openDashboard() {
+	const tabs = await chrome.tabs.query({ url: `http://localhost:${A_FRONTEND}/` });
+
+	if (tabs.length > 0) {
+		const dash = tabs[0];
+		await chrome.tabs.update(dash.id, { active: true, highlighted: true });
+		if (dash.windowId) { // dashboard tab already exists
+			await chrome.windows.update(dash.windowId, { focused: true });
+		}
+		console.log(`background.js: switched to existing tab: ${dash.url}.`);
+	} else { // create dashboard tab
+		const newDash = await chrome.tabs.create({ url: `http://localhost:${A_FRONTEND}/`, active: true });
+		console.log(`background.js: opened new tab: ${newDash.url}.`);
+	}
+}
+
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === 'openDashboard') {
-		chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-			var activeTab = tabs[0];
-			if (activeTab.url !== `http://localhost:${A_FRONTEND}/`) { // open dashboard in new tab if needed
-				chrome.tabs.create({ url: `http://localhost:${A_FRONTEND}` });
-			}
-			setNums(-1, 0); // leave number pending unchanged, reset number of updates
-		});
+		// chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+		// 	// var activeTab = tabs[0];
+		// 	// if (activeTab.url !== `http://localhost:${A_FRONTEND}/`) { // open dashboard in new tab if needed
+		// 	// 	chrome.tabs.create({ url: `http://localhost:${A_FRONTEND}` });
+		// 	// }
+		// 	setNums(-1, 0); // leave number pending unchanged, reset number of updates
+		// });
+
+		openDashboard();
 	}
 });
 
@@ -74,8 +92,6 @@ chrome.runtime.onMessageExternal.addListener(
     }
 
     if (request.type === 'NUM_PENDING') {
-		// chrome.runtime.sendMessage({ action: 'updateNumPending', numPending: request.payload });
-		console.log("NUM_PENDING received");
 		chrome.runtime.sendMessage({ action: 'updateNumPending' });
 		sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });
 		return true;
