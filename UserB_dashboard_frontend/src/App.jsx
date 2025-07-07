@@ -12,7 +12,9 @@ function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
   const [messageData, setMessageData] = useState([]);
+  const [educationVisible, setEducationVisible] = useState(false);
   const [historyVisible, setHistoryVisible] = useState(false);
+  const [settingsVisible, setSettingsVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -82,7 +84,7 @@ function App() {
   // Function to allow user B to accept/reject a request
   function responseBtn(btn, actionID) {
 
-    if (btn.id === 'btn_yes') {
+    if (btn.id === 'btnYes') {
       console.log('App.jsx (B): "Yes" button clicked: ', actionID.item);
       
       let now = new Date().toISOString();
@@ -95,7 +97,7 @@ function App() {
         outcome: 'Y'
       }, `http://localhost:${B_FRONTEND}`);
 
-    } else if (btn.id === 'btn_no') {
+    } else if (btn.id === 'btnNo') {
       console.log('App.jsx (B): "No" button clicked: ', actionID.item);
 
       let now = new Date().toISOString();
@@ -171,9 +173,19 @@ function App() {
     }
   };
 
+  function switchEducationVisibility() {
+    console.log('App.jsx (A): switching visibility of educational information.');
+    setEducationVisible(!educationVisible);
+  };
+
   function switchHistoryVisibility() {
-    console.log('App.jsx (B): switching visibility of browsing history');
+    console.log('App.jsx (A): switching visibility of browsing history.');
     setHistoryVisible(!historyVisible);
+  };
+
+  function switchSettingsVisibility() {
+    console.log('App.jsx (A): switching visibility of settings.');
+    setSettingsVisible(!settingsVisible);
   };
 
   // Hook to fetch data when the component mounts
@@ -296,8 +308,8 @@ function App() {
                       <div className='status_data_container'>
                         <div className='status_meta_container'>A choice: {item.userAChoice} {simplifyTime(item.time)} </div>
                         <div className='status_text_container'>
-                          <button id="btn_no" onClick={(event) => responseBtn(event.target, {item})}>REJECT</button>
-                          <button id="btn_yes" onClick={(event) => responseBtn(event.target, {item})}>ACCEPT</button>
+                          <button id="btnNo" className='btn_no' onClick={(event) => responseBtn(event.target, {item})}>REJECT</button>
+                          <button id="btnYes" className='btn_yes' onClick={(event) => responseBtn(event.target, {item})}>ACCEPT</button>
                         </div>
                       </div>
                     </div>
@@ -372,12 +384,38 @@ function App() {
 
                   <div className='account_container'>
                     <div className='account_left'>Click on the button to the right to access more information about staying safe online.</div>
-                    <div className='account_right'><button>Safety Information</button></div>
+                    <div className='account_right'><button onClick={switchEducationVisibility}>Safety Information</button></div>
                   </div>
+
+                    {educationVisible && (
+                      <div className='education_background' id='educationBackground'>
+                        <div className='education_popup' id='settingsPopup'>
+                          <div className='bottom_scrollbar'>
+                            <div className='education_content'>
+                              <div className='education_header_container'>
+
+                                <div className='education_subtitle'>Safety Information</div>
+                                <div className='okay_education_top' >
+                                <button onClick={switchEducationVisibility}>Okay</button>
+                                </div>
+
+                              </div>
+
+                                <p>Education Data</p>
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+
+
+                  
 
                   <div className='account_container'>
                     <div className='account_left'>Click on the button to the right to view your browsing history.</div>
-                    <div className='account_right'><button id='openHistory' onClick={switchHistoryVisibility}>View Browsing History</button></div>
+                    <div className='account_right'><button onClick={switchHistoryVisibility}>View Browsing History</button></div>
                   </div>
 
                   {historyVisible && (
@@ -389,7 +427,7 @@ function App() {
 
                               <div className='browsing_subtitle'>Browsing History</div>
                               <div className='okay_browsing_top' >
-                                <button id='okayBrowsing' onClick={switchHistoryVisibility}>Okay</button>
+                              <button onClick={switchHistoryVisibility}>Okay</button>
                               </div>
 
                             </div>
@@ -409,9 +447,31 @@ function App() {
           
                   <div className='account_container'>
                     <div className='account_left'>Click on the button to the right to view your account settings. You can also request to modify the settings.</div>
-                    <div className='account_right'><button>Settings</button></div>
-                  </div> 
+                    <div className='account_right'><button onClick={switchSettingsVisibility}>Settings</button></div>
 
+                    {settingsVisible && (
+                      <div className='settings_background' id='settingsBackground'>
+                        <div className='settings_popup' id='settingsPopup'>
+                          <div className='bottom_scrollbar'>
+                            <div className='settings_content'>
+                              <div className='settings_header_container'>
+
+                                <div className='settings_subtitle'>Settings</div>
+                                <div className='okay_settings_top' >
+                                <button onClick={switchSettingsVisibility}>Okay</button>
+                                </div>
+
+                              </div>
+
+                                <p>Settings Data</p>
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                  </div> 
                 </div>
               </div>
             </div>
