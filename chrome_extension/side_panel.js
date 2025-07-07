@@ -96,19 +96,18 @@ async function updateNumPending(newPending) {
         const oldPending = await getNumPending();
         const oldUpdates = await getNumUpdates();
 
-        document.getElementById('numPending').innerHTML = newPending + ' Pending Request(s)';
+        // document.getElementById('numPending').innerHTML = newPending + ' Pending Request(s)';
 
         if (oldPending > newPending) { // a request has been resolved
             setNums(newPending, oldUpdates + 1);
             statusAlert(); // send alert to User A
-            try {
-                const newUpdates = await getNumUpdates();
-                document.getElementById('numUpdates').innerHTML = newUpdates + ' Updates';
-            } catch (error) {
-                console.error('side_panel.js: error extracting value for new updates: ', error);
-            }
+            // try {
+            //     const newUpdates = await getNumUpdates();
+            // } catch (error) {
+            //     console.error('side_panel.js: error extracting value for new updates: ', error);
+            // }
         } else {
-            document.getElementById('numUpdates').innerHTML = oldUpdates + ' Updates';
+            // document.getElementById('numUpdates').innerHTML = oldUpdates + ' Updates';
             setNums(newPending, oldUpdates);
         }
 
@@ -124,7 +123,6 @@ async function addUpdate() {
         const oldUpdates = await getNumUpdates();
         const newUpdates = oldUpdates + 1;
         setNums(-1, newUpdates);
-        document.getElementById('numUpdates').innerHTML = newUpdates + ' Updates';
     } catch (error) {
         console.error('side_panel.js: error extracting values for pending/updates: ', error);
     }
@@ -253,7 +251,7 @@ document.getElementById('dashBtn').addEventListener('click', async function() {
     chrome.runtime.sendMessage({ action: "openDashboard"});
 });
 
-document.getElementById('numUpdates').addEventListener('click', async function() {
+document.getElementById('statBtn').addEventListener('click', async function() {
     setNums(-1, 0);
     removeUpdate('statBtn');
     removeUpdate('msgBtn');
