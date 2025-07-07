@@ -416,7 +416,6 @@ function App() {
                                 </div>
                               ))}
 
-                              {/* <button className='okay_browsing' id='okayBrowsing' onClick={switchHistoryVisibility}>Okay</button> */}
                           </div>
                         </div>
                       </div>
