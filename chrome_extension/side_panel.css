@@ -19,6 +19,8 @@
 .top_container {
     background: #ffffff;
     height: 70%;
+    display: flex;
+    flex-direction: row;
 }
 
 .bottom_container {
@@ -26,25 +28,35 @@
     height: 30%;
 }
 
-.bot_icon img {
+.bot_icon {
+    width: 20%;
+}
+
+.bot_icon img{
     position: absolute;
-    bottom: 35%;
+    top: 45%;
     right: 5%;
-    width: 100px;
+    height: 20%;
+}
+
+.speech_container {
+    width: 80%;
 }
 
 .speech_bubble {
 	position: relative;
+    width: 90%;
     top: 5%;
-    left: 3%;
+    left: 5%;
     background: var(--gray_blue);
 	border-radius: .4em;
-    height: 120px;
-    width: 60%;
+    height: 45%;
     font-family: Arial;
-    color: #ffffff;
     text-align: center;
     padding: 20px;
+    margin-bottom: 25%;
+    font-size: 2vh;
+    color: #ffffff;
 }
 
 .speech_bubble:after {
@@ -71,16 +83,15 @@
 .button_panel button {
     background-color: #ffffff;
     font-family: Arial;
-    font-size: 25px;
+    font-size: 30px;
     color: grey;
     text-align: left;
     height: 33%;
     border-color: transparent;
-    margin-left: 15px;
 }
 
 .button_panel button img {
-    height: 35px;
+    height: 5vh;
 }
 
 .hover_img {

@@ -410,9 +410,9 @@ function App() {
                             <div className='education_content'>
                               <div className='education_header_container'>
 
-                                <div className='education_subtitle'>Settings</div>
+                                <div className='popup_subtitle'>More information</div>
                                 <div className='okay_education_top' >
-                                <button onClick={switchEducationVisibility}>Okay</button>
+                                <button className='popup_button' onClick={switchEducationVisibility}>Okay</button>
                                 </div>
 
                               </div>
@@ -441,9 +441,9 @@ function App() {
                           <div className='browsing_history_content'>
                             <div className='browsing_header_container'>
 
-                              <div className='browsing_subtitle'>Browsing History</div>
+                              <div className='popup_subtitle'>Browsing History</div>
                               <div className='okay_browsing_top' >
-                              <button onClick={switchHistoryVisibility}>Okay</button>
+                              <button className='popup_button' onClick={switchHistoryVisibility}>Okay</button>
                               </div>
 
                             </div>
@@ -472,9 +472,9 @@ function App() {
                             <div className='settings_content'>
                               <div className='settings_header_container'>
 
-                                <div className='settings_subtitle'>Settings</div>
+                                <div className='popup_subtitle'>Settings</div>
                                 <div className='okay_settings_top' >
-                                <button onClick={switchSettingsVisibility}>Okay</button>
+                                <button className='popup_button' onClick={switchSettingsVisibility}>Okay</button>
                                 </div>
 
                               </div>
