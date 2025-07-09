@@ -173,6 +173,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
             if (urlReceived === `http://localhost:${EMAIL_PORT}/`) { // on email webpage
 
+                console.log("ON EMAIL PAGE")
+
                 document.getElementById('speechContent').innerText = EMAIL_ANNOUNCEMENT;
 
                 chrome.tabs.query({ url: `http://localhost:${EMAIL_PORT}/*` }, (tabs) => {
