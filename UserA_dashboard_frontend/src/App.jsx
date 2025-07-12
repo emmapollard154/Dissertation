@@ -11,6 +11,7 @@ function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
   const [messageData, setMessageData] = useState([]);
+  const [helpVisible, setHelpVisible] = useState(false);
   const [educationVisible, setEducationVisible] = useState(false);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -193,6 +194,11 @@ function App() {
     }
   };
 
+  function switchHelpVisibility() {
+    console.log('App.jsx (A): switching visibility of help information.');
+    setHelpVisible(!helpVisible);
+  };
+
   function switchEducationVisibility() {
     console.log('App.jsx (A): switching visibility of educational information.');
     setEducationVisible(!educationVisible);
@@ -305,9 +311,36 @@ function App() {
           </div>
         </div>
 
-        <div className='header_right'>
-            User A
+        <div className='header_middle'>
+          User A
         </div>
+
+        <div className='header_right'>
+          <button className='help_button' onClick={switchHelpVisibility}>?</button>
+        </div>
+
+        {helpVisible && (
+          <div className='help_background' id='helpBackground'>
+            <div className='help_popup' id='helpPopup'>
+              <div className='bottom_scrollbar'>
+                <div className='help_content'>
+                  <div className='help_header_container'>
+
+                    <div className='popup_subtitle'>Help Centre</div>
+                    <div className='okay_help_top' >
+                      <button className='popup_button' onClick={switchHelpVisibility}>Okay</button>
+                    </div>
+
+                  </div>
+
+                    <p>Help Information</p>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
 
       <div className='general_container'>
