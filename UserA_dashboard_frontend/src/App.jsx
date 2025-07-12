@@ -11,6 +11,8 @@ function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
   const [messageData, setMessageData] = useState([]);
+  const [settingsData, setSettingsData] = useState([]);
+  const [welcomeVisible, setWelcomeVisible] = useState(false);
   const [helpVisible, setHelpVisible] = useState(false);
   const [educationVisible, setEducationVisible] = useState(false);
   const [historyVisible, setHistoryVisible] = useState(false);
@@ -41,6 +43,22 @@ function App() {
     }
     sendToExt('NUM_PENDING', JSON.stringify(length));
     return UNRESOLVED;
+  }
+
+  function checkSettings(data) {
+    if (!data) {
+      console.error('App.jsx (A): error fetching settings data');
+    }
+    else {
+      if (data.length === 0) { // no settings configured
+        console.log('App.jsx (A): no setting configurations exist.');
+        enableWelcomeVisibility();
+      }
+      else {
+        console.log('App.jsx (A): setting configurations already exist.');
+        // TO DO: check settings configuration, process settings
+      }
+    }
   }
 
   const orderActionData = (data) => {
@@ -89,7 +107,6 @@ function App() {
     }
   };
 
-
   const fetchMessageData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/message`);
@@ -107,6 +124,65 @@ function App() {
       setLoading(false);
     }
   };
+
+  const fetchSettingsData = async () => {
+    try {
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/settings`);
+      if (!response.ok) {
+        throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
+      }
+      const result = await response.json();
+      setSettingsData(result.data); // update the state with the fetched data, most recent at the top
+      checkSettings(settingsData);
+      console.log(settingsData);
+    } catch (e) {
+      console.error('App.jsx (A): error fetching dashboard data (message): ', e);
+      setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  function updateSettingsData() {
+
+    const settingChoices = document.getElementById('emailChoice');
+    const updateSettings = document.getElementById('updateSettings');
+
+    if (!settingChoices) {
+        console.warn('App.jsx (A): cannot find form in welcome popup.');
+    }
+
+    if (updateSettings) {
+
+      const choices = settingChoices.elements['email_choices'];
+      const chosen = Array(choices.length);
+
+      if (choices) {
+        for (let i=0; i < choices.length; i++) {
+          if (choices[i].checked) {
+            console.log('Option ' + (i+1) + ' selected.');
+            chosen[i] = 'Y';
+          }
+          else {
+            console.log('Option ' + (i+1) + ' not selected.');
+            chosen[i] = 'N';
+          }
+        }
+        window.postMessage({
+          type: 'SET_EMAIL_SETTINGS',
+          payload: { chosen },
+        }, `http://localhost:${A_FRONTEND}`);
+      } else {
+        console.warn('App.jsx (A): no choices found.');
+      }
+
+    } else {
+      console.warn('App.jsx (A): "Save" button not found in welcome popup.');
+    }
+
+  }
 
   // Function to send messages to chrome extension
   function sendToExt(msgType, msgContent) {
@@ -194,6 +270,11 @@ function App() {
     }
   };
 
+  function switchSettingsVisibility() {
+    console.log('App.jsx (A): switching visibility of welcome information.');
+    setWelcomeVisible(!welcomeVisible);
+  };
+
   function switchHelpVisibility() {
     console.log('App.jsx (A): switching visibility of help information.');
     setHelpVisible(!helpVisible);
@@ -209,14 +290,22 @@ function App() {
     setHistoryVisible(!historyVisible);
   };
 
-  function switchSettingsVisibility() {
+  function enableWelcomeVisibility() {
     console.log('App.jsx (A): switching visibility of settings.');
-    setSettingsVisible(!settingsVisible);
+    setWelcomeVisible(true);
+  };
+
+  function disableWelcomeVisibility() {
+    console.log('App.jsx (A): switching visibility of settings.');
+    setWelcomeVisible(false);
   };
 
   // Hook to fetch data when the component mounts
   useEffect(() => {
-    fetchBrowserData(); //  fetch data
+
+    // Fetch database data
+    fetchSettingsData();
+    fetchBrowserData();
     fetchActionData();
     fetchMessageData();
 
@@ -252,6 +341,11 @@ function App() {
       fetchMessageData();
     });
 
+    socket.on('email_settings', (data) => {
+      console.log('App.jsx (A): email settings updated: ', data);
+      fetchSettingsData();
+    });
+
     socket.on('b_response', (data) => {
       console.log('App.jsx (A): User B sent a response: ', data);
       fetchActionData();
@@ -270,6 +364,7 @@ function App() {
       socket.off('a_browser');
       socket.off('a_choice');
       socket.off('a_message');
+      socket.off('email_settings');
       socket.off('b_message');
       socket.off('b_response');
       socket.off('connect');
@@ -344,6 +439,57 @@ function App() {
       </div>
 
       <div className='general_container'>
+
+
+        {welcomeVisible && (
+          <div className='welcome_background' id='welcomeBackground'>
+            <div className='welcome_popup' id='welcomePopup'>
+              <div className='bottom_scrollbar'>
+                <div className='welcome_content'>
+                  <div className='welcome_header_container'>
+
+                    <div className='popup_subtitle'>Welcome</div>
+                    <div className='okay_welcome_top' >
+                    <button className='popup_button' onClick={disableWelcomeVisibility}>Okay</button>
+                    </div>
+
+                  </div>
+
+                  <div className='settings_options_container'>
+
+                    <form id="emailChoice">
+                        <label className="options_container">Option 1
+                        <input type="checkbox" name="email_choices" value="1" />
+                        <span className="checkmark"></span>
+                        </label>
+                        <label className="options_container">Option 2
+                        <input type="checkbox" name="email_choices" value="2" />
+                        <span className="checkmark"></span>
+                        </label>
+                        <label className="options_container">Option 3
+                        <input type="checkbox" name="email_choices" value="3" />
+                        <span className="checkmark"></span>
+                        </label>
+                        <label className="options_container">Option 4
+                        <input type="checkbox" name="email_choices" value="4" />
+                        <span className="checkmark"></span>
+                        </label>
+                    </form>
+
+                  </div>
+
+                  <div className='settings_save_container'>
+                    <button className="update_settings" id="updateSettings" onClick={updateSettingsData}>Save</button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+
+
 
         <div className='top_panel'>
           <div className='top_left_container'>

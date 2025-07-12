@@ -39,6 +39,18 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         sendResponse({ status: 'content_processed', dataProcessed: choice });
     }
 
+    if (request.action === 'welcomeToDashboard') { 
+
+        console.log('content_dashboard_a.js: processing data from side_panel: welcomeToDashboard');
+
+        window.postMessage({
+            type: 'WELCOME',
+            payload: null
+        }, `http://localhost:${A_FRONTEND}`); // dashboard origin
+
+        sendResponse({ status: 'content_processed' });
+    }
+
 });
 
 console.log('content_dashboard_a.js: loaded and listening for messages.');

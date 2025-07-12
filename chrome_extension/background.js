@@ -12,7 +12,8 @@ chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false })
   .catch((error) => console.error('background.js: error setting side panel behaviour: ', error));
 
 // Open dashboard in a new tab when extension icon clicked
-chrome.action.onClicked.addListener((tab) => {
+chrome.action.onClicked.addListener( async (tab) => {
+
 	console.log(`background.js: extension clicked. Opening dashboard in new tab.`);
 	setNums(0,0); // initialise variables, updated by side panel
 
@@ -23,6 +24,7 @@ chrome.action.onClicked.addListener((tab) => {
 	chrome.tabs.create({ url: `http://localhost:${A_FRONTEND}` })
 		.then((newTab) => { console.log('background.js: new tab opened successfully:', newTab.url); })
 		.catch((error) => { console.error('background.js: error opening new tab:', error); });
+
 });
 
 // Function to get URL of active tab
@@ -110,13 +112,3 @@ function setNums(pending, updates) {
     console.log('background.js: initialising NUM_UPDATES to ', updates);
     });
 }
-
-
-// // TO DO  open settings page on installation
-// chrome.runtime.onInstalled.addListener(({reason}) => {
-//   if (reason === 'install') {
-//     chrome.tabs.create({
-//       url: "onboarding.html"
-//     });
-//   }
-// });

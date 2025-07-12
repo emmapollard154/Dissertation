@@ -111,6 +111,21 @@ const db = new sqlite3.Database('../dashboard.db', (err) => {
             }
         });
 
+        // create table for browsing history
+        db.run(`CREATE TABLE IF NOT EXISTS settings (
+            context CHAR(1),
+            opt1 CHAR(1),
+            opt2 CHAR(1),
+            opt3 CHAR(1),
+            opt4 CHAR(1)
+        )`, (createErr) => {
+            if (createErr) {
+                console.error('server.js (A): error creating table:', createErr.message);
+            } else {
+                console.log('server.js (A): settings table created / already exists.');
+            }
+        });
+
     }
 });
 
@@ -151,6 +166,20 @@ app.get('/api/dashboard-data/message', (req, res) => {
             return;
         }
         console.log('server.js (A): successfully retrieved dashboard-data/message.');
+        res.json({
+            message: 'Success',
+            data: rows
+        });
+    });
+});
+
+app.get('/api/dashboard-data/settings', (req, res) => {
+    db.all('SELECT * FROM settings', [], (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        console.log('server.js (A): successfully retrieved dashboard-data/settings.');
         res.json({
             message: 'Success',
             data: rows
@@ -229,6 +258,29 @@ app.post('/api/dashboard-data', (req, res) => {
         hubSocket.emit('backendMessage', { event: 'USER_A_MESSAGE', data: message }); // message hub
         io.emit('a_message', message); // respond to frontend
     }
+
+    if (target === 'SET_EMAIL_SETTINGS') {
+
+        const opt1 = data.chosen[0];
+        const opt2 = data.chosen[1];
+        const opt3 = data.chosen[2];
+        const opt4 = data.chosen[3];
+        
+        try{
+            console.log('server.js (A): inserting into settings table.');
+            const stmt = db.prepare('INSERT INTO settings (context, opt1, opt2, opt3, opt4) VALUES (?, ?, ?, ?, ?)');
+            stmt.run('E', opt1, opt2, opt3, opt4);
+        }
+        catch(err) {
+            console.error('server.js (A): database insertion error: ', err.message);
+            return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
+        }
+        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
+
+        hubSocket.emit('backendMessage', { event: 'SET_EMAIL_SETTINGS', data: null }); // message hub
+        io.emit('email_settings', null); // respond to frontend
+    }
+
 });
 
 app.post('/api/data-from-b', (req, res) => {
