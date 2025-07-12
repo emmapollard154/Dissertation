@@ -1,12 +1,12 @@
 // email_webpage.jsx
-import React, { useState } from 'react';
+
+import { useState } from 'react';
 import './email_webpage.css'
 
-// strip tags to display email preview as one line in list
-// adapted from: https://stackoverflow.com/questions/74669280/removing-html-tags-from-string-in-react
+// Strip tags for email preview
 function stripTags(email) {
-const tags = /(<([^>]+)>)/gi;
-return email.replace(tags, "");
+  const tags = /(<([^>]+)>)/gi;
+  return email.replace(tags, "");
 }
 
 // Dummy data for emails
@@ -21,7 +21,6 @@ const emails = [
       <p><a href="https://example.com/agenda" target="_blank" class="text-blue-500 hover:underline">CLICK HERE!</a></p>
     `,
     date: '29/07/2025',
-    read: false,
     category: 'inbox',
   },
   {
@@ -35,7 +34,6 @@ const emails = [
       <p>Amazon Accounts Team</p>
     `,
     date: '28/07/2025',
-    read: false,
     category: 'inbox',
   },
   {
@@ -47,7 +45,6 @@ const emails = [
       <p>You have one week.</p>
     `,
     date: '28/07/2025',
-    read: false,
     category: 'inbox',
   },
   {
@@ -60,7 +57,6 @@ const emails = [
       <p>Act fast! This offer expires soon.</p>
     `,
     date: '27/07/2025',
-    read: false,
     category: 'spam',
   },
   {
@@ -70,13 +66,12 @@ const emails = [
     body: `
       <p>Dear valued customer,</p>
       <p>Improve your device performance by cleaning up junk files today. Download this free piece of software and click 'Run' and you're all set!</p>
-      <p><a href="https://example.com/" target="_blank" class="text-red-500 hover:underline">Download</a></p>
+      <p><a href="../malware.pdf" target="_blank" class="text-red-500 hover:underline" download>Download</a></p>
       <p>All the best,</p>
       <p>Raymond</p>
       <p>Better Software Support Team</p>
     `,
     date: '26/07/2025',
-    read: false,
     category: 'inbox',
   },
   {
@@ -89,9 +84,31 @@ const emails = [
       <p><a href="https://example.com/" target="_blank" class="text-red-500 hover:underline">Bath Campsite</a></p>
     `,
     date: '24/07/2025',
-    read: false,
     category: 'drafts',
   },
+  {
+    id: '7',
+    from: 'me <usera@mail.com>',
+    subject: 'Product Return',
+    body: `
+      <p>Good morning,</p>
+      <p>I would like to return a faulty product. Please can you give instructions on how to do this.</p>
+    `,
+    date: '24/07/2025',
+    category: 'sent',
+  },
+  {
+    id: '8',
+    from: 'autoreply <donotreply@shop.com>',
+    subject: 'Order Confirmed',
+    body: `
+      <p>Thank you for your order (order ID: 123456789).</p>
+      <p>Your product will be posted shortly.</p>
+      <p>Please do not reply to this email.</p>
+    `,
+    date: '24/07/2025',
+    category: 'trash',
+  }
 ];
 
 // Sidebar component for navigation
@@ -129,7 +146,7 @@ const Sidebar = ({ onSelectCategory, activeCategory }) => {
   );
 };
 
-// component to display a list of emails
+// Component to display a list of emails
 const EmailList = ({ emails, onSelectEmail, selectedEmailId }) => {
   return (
     <div className="flex-1 overflow-y-auto bg-white border-r border-gray-200 shadow-lg">
@@ -150,7 +167,6 @@ const EmailList = ({ emails, onSelectEmail, selectedEmailId }) => {
               onClick={() => onSelectEmail(email)}
               className={`p-4 cursor-pointer transition-all duration-200 ease-in-out rounded-lg m-2
                 ${selectedEmailId === email.id ? 'bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400' : 'hover:bg-gray-50'}
-                ${email.read ? 'text-gray-600' : 'font-bold text-gray-800'}
               `}
             >
               <div className="flex justify-between items-center mb-1">
@@ -167,7 +183,7 @@ const EmailList = ({ emails, onSelectEmail, selectedEmailId }) => {
   );
 };
 
-// component to show the full email content
+// Component to show the full email content
 const EmailDetail = ({ email }) => {
   if (!email) {
     return (
@@ -200,7 +216,7 @@ const EmailDetail = ({ email }) => {
   );
 };
 
-// icons
+// Icons
 const Mails = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
@@ -275,7 +291,6 @@ export default function EmailWebPage() {
             <span className="text-lg">User A</span>
             <img
               src="https://placehold.co/40x40/ADD8E6/000000?text=A"
-              alt="User Avatar"
               className="rounded-full border-2 border-white"
               onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/40x40/ADD8E6/000000?text=A"; }}
             />

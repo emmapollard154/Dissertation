@@ -69,14 +69,6 @@ async function openDashboard() {
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === 'openDashboard') {
-		// chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-		// 	// var activeTab = tabs[0];
-		// 	// if (activeTab.url !== `http://localhost:${A_FRONTEND}/`) { // open dashboard in new tab if needed
-		// 	// 	chrome.tabs.create({ url: `http://localhost:${A_FRONTEND}` });
-		// 	// }
-		// 	setNums(-1, 0); // leave number pending unchanged, reset number of updates
-		// });
-
 		openDashboard();
 	}
 });

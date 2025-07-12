@@ -42,3 +42,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 });
 
 console.log('content_dashboard_a.js: loaded and listening for messages.');
+
+// Display default alert when tab closed (chrome security inhibits custom message)
+window.addEventListener('beforeunload', function(e) {
+    e.preventDefault();
+    return;
+});
