@@ -28,7 +28,14 @@ function App() {
   }
 
   function updateRequest(context) {
-    console.log(context);
+    const user = 'B';
+    const status = 'Y';
+    if (context) {
+      window.postMessage({
+        type: 'UPDATE_REQUEST',
+        payload: { context , user , status},
+      }, `http://localhost:${B_FRONTEND}`);
+    }
   }
 
   const fetchSettingsData = async () => {
@@ -271,6 +278,11 @@ function App() {
       fetchMessageData();
     });
 
+    socket.on('update_request', (data) => {
+      console.log('App.jsx (B): settings update request received: ', data);
+      // HANDLE REQUEST, DISPLAY IN STATUS
+    });
+
     // Clean up the socket connection when the component unmounts
     return () => {
       socket.off('message');
@@ -279,6 +291,7 @@ function App() {
       socket.off('a_message');
       socket.off('b_response');
       socket.off('b_message');
+      socket.off('update_request');
       socket.off('connect');
       socket.off('connect_error');
       socket.off('welcome');

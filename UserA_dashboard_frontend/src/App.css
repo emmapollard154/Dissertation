@@ -340,7 +340,7 @@
 
 .top_left_container {
   box-sizing: border-box;
-  width: 25%;
+  width: 35%;
   height: 100%;
   display: flex;
   justify-content: flex-start;
@@ -348,7 +348,7 @@
 
 .top_right_container {
   box-sizing: border-box;
-  width: 75%;
+  width: 65%;
   height: 100%;
   display: flex;
   justify-content: flex-end;
@@ -365,6 +365,67 @@
   position: relative;
   top: 5%;
   text-align: left;
+}
+
+.request_content_container {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  margin-top: 25px;
+}
+
+.request_icon_container {
+  box-sizing: border-box;
+  width: 60%;
+}
+
+.request_image {
+  position: relative;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+}
+
+.request_data_container {
+  box-sizing: border-box;
+  width: 140%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  overflow: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.request_info_container {
+  box-sizing: border-box;
+  width: 150%;
+  height: 100%;
+  font-size: 2vh;
+  padding-right: 5%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.request_resolve_container {
+  box-sizing: border-box;
+  width: 50%;
+  height: 100%;
+}
+
+.request_resolve_container button {
+  height: 90%;
+  top: 5%;
+  max-width: 100%;
+  position: relative;
+  background: var(--gray_blue);
+  text-align: center;
+  box-sizing: border-box;
+  font-size: 2vh;
+  color: #ffffff;
 }
 
 .status_content_container {
@@ -924,6 +985,21 @@
   overflow-wrap: break-word;
   width: 20%;
   height: 100%;
+}
+
+.request_update_container button {
+  height: 90%;
+  top: 5%;
+  max-width: 100%;
+  position: relative;
+  background: var(--gray_blue);
+  text-align: center;
+  box-sizing: border-box;
+  font-size: 2vh;
+  color: #ffffff;
+  overflow: hide;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .update_settings_button {

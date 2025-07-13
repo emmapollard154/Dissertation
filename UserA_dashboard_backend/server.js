@@ -126,6 +126,17 @@ const db = new sqlite3.Database('../dashboard.db', (err) => {
             }
         });
 
+        db.run(`CREATE TABLE IF NOT EXISTS requests (
+            context CHAR(2) UNIQUE,
+            status CHAR(1)
+        )`, (createErr) => {
+            if (createErr) {
+                console.error('server.js (A): error creating table:', createErr.message);
+            } else {
+                console.log('server.js (A): requests table created / already exists.');
+            }
+        });
+
     }
 });
 
@@ -180,6 +191,20 @@ app.get('/api/dashboard-data/settings', (req, res) => {
             return;
         }
         console.log('server.js (A): successfully retrieved dashboard-data/settings.');
+        res.json({
+            message: 'Success',
+            data: rows
+        });
+    });
+});
+
+app.get('/api/dashboard-data/requests', (req, res) => {
+    db.all('SELECT * FROM requests', [], (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        console.log('server.js (A): successfully retrieved dashboard-data/requests.');
         res.json({
             message: 'Success',
             data: rows
@@ -319,7 +344,7 @@ app.post('/api/data-from-b', (req, res) => {
         const message = data.payload.message;
         const time = data.payload.time;
 
-        try{
+        try {
             console.log('server.js (A): inserting into message table.');
             const stmt = db.prepare('INSERT INTO message (message, userID, time) VALUES (?, ?, ?)');
             stmt.run(message, 'B', time);
@@ -332,6 +357,29 @@ app.post('/api/data-from-b', (req, res) => {
         res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
         io.emit('b_message', data.payload.message); // send message to frontend
     }
+
+    if (target === 'UPDATE_REQUEST') {
+
+        console.log("UPDATE_REQUEST recevied ", data.payload)
+
+        const env = data.payload.context;
+        const user = data.payload.user;
+        const status = data.payload.status;
+        const context = env + user;
+
+        try {
+            console.log('server.js (A): updating requests table.');
+            const stmt = db.prepare('INSERT OR REPLACE INTO requests (context, status) VALUES (?, ?)'); // update requests
+            stmt.run(context, status);
+        }
+        catch(err) {
+            console.error('server.js (A): database insertion error: ', err.message);
+            return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
+        }
+        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
+        io.emit('update_request', data.payload); // send message to frontend
+    }
+
 });
 
 // Start the server

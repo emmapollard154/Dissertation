@@ -10,6 +10,7 @@ const socket = io(`http://localhost:${A_BACKEND}`);
 function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
+  const [requestData, setRequestData] = useState([]);
   const [messageData, setMessageData] = useState([]);
   const [settingsData, setSettingsData] = useState([]);
   const [welcomeVisible, setWelcomeVisible] = useState(false);
@@ -66,6 +67,29 @@ function App() {
     }
   }
 
+  function formatRequest(request) {
+
+    let text = '';
+    const context = request.context;
+
+    if (context) {
+      const env = context[0];
+      const user = context[1];
+      if (user === 'A') {
+        text = 'You requested to update email settings';
+      }
+      if (user === 'B') {
+        text = 'User B requested to update email settings';
+      }
+      return text;
+    }
+    else {
+      console.error('App.jsx (A): no context found in request.')
+    }
+    
+
+  }
+
   const orderActionData = (data) => {
     return [...data].sort((a, b) => {
       const timeA = new Date(a.time);
@@ -107,6 +131,24 @@ function App() {
       console.warn('App.jsx (A): reloading page;');
       await new Promise(resolve => setTimeout(resolve, 100));
       location.reload();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchRequestData = async () => {
+    try {
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/requests`);
+      if (!response.ok) {
+        throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
+      }
+      const result = await response.json();
+      setRequestData(result.data.reverse()); // update the state with the fetched data, most recent at the top
+    } catch (e) {
+      console.error('App.jsx (A): error fetching dashboard data (requests): ', e);
+      setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      // location.reload();
     } finally {
       setLoading(false);
     }
@@ -309,6 +351,7 @@ function App() {
 
     // Fetch database data
     fetchSettingsData();
+    fetchRequestData();
     fetchBrowserData();
     fetchActionData();
     fetchMessageData();
@@ -362,6 +405,11 @@ function App() {
       sendToExt('USER_B_MESSAGE', null);
     });
 
+    socket.on('update_request', (data) => {
+      console.log('App.jsx (A): settings update request received: ', data);
+      fetchRequestData();
+    });
+
     // Clean up the socket connection when the component unmounts
     return () => {
       socket.off('message');
@@ -369,6 +417,7 @@ function App() {
       socket.off('a_choice');
       socket.off('a_message');
       socket.off('email_settings');
+      socket.off('update_request');
       socket.off('b_message');
       socket.off('b_response');
       socket.off('connect');
@@ -501,6 +550,25 @@ function App() {
               <div className='top_scrollbar'>
                 <h2 className='subtitle'>Status</h2>
                   {/* <p id='unresolved_number_statement'></p> */}
+
+                  {requestData.filter(item => item.status === 'Y').map((item) => (
+                    <div className='request_content_container'>
+                      <div className='request_icon_container'>
+                        <img src='../icons/request_icon.png' className='request_image'></img>
+                        {/* {item.context} */}
+                      </div>
+                      <div className='request_data_container'>
+                        <div className='request_info_container'>
+                          {/* Context: {item.context}
+                          Status: {item.status} */}
+                          {formatRequest(item)}
+                        </div>
+                        <div className='request_resolve_container'>
+                          <button onClick={enableWelcomeVisibility}>Update Settings</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
 
                   {actionData.filter(item => item.resolved === 'N').map((item) => (
                     <div className='status_content_container'>

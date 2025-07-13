@@ -64,6 +64,22 @@ window.addEventListener('message', function(event) {
         console.log('dashboard_b_frontned.js: attempting to send data to backend.');
         sendDataToBackend(data);
     }
+
+    if (event.data && event.data.type === 'UPDATE_REQUEST') {
+
+        const user = event.data.payload.user;
+        const context = event.data.payload.context;
+
+        console.log('dashboard_b_frontend.js: User ' + user + ' requested to update settings (' + context + ').');
+
+        const data = {
+            data: event.data,
+            target: 'UPDATE_REQUEST'
+        }
+        console.log('dashboard_b_frontned.js: attempting to send data to backend.');
+        sendDataToBackend(data);
+    }
+
 });
 
 console.log('dashboard_b_frontend.js loaded and listening for messages.');
