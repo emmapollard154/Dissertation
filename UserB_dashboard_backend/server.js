@@ -66,6 +66,12 @@ hubSocket.on('backendMessage', (message) => {
             io.emit('email_settings', content); // send message to frontend
             console.log('server.js (B): sent email settings update message to frontend B.');
         }
+
+        if (message.event === 'UPDATE_REQUEST') {
+            console.log('Server B: User A requested to update settings.');
+            io.emit('update_request', content); // send message to frontend
+            console.log('server.js (B): sent update request message to frontend B.');
+        }
     }
 });
 

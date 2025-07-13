@@ -12,6 +12,7 @@ function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
   const [messageData, setMessageData] = useState([]);
+  const [requestData, setRequestData] = useState([]);
   const [settingsData, setSettingsData] = useState([]);
   const [educationVisible, setEducationVisible] = useState(false);
   const [historyVisible, setHistoryVisible] = useState(false);
@@ -25,6 +26,27 @@ function App() {
       const timeB = new Date(b.time);
       return timeB - timeA; // ascending order
     });
+  }
+
+  function formatRequest(request) {
+
+    let text = '';
+    const context = request.context;
+
+    if (context) {
+      const env = context[0];
+      const user = context[1];
+      if (user === 'B' && env === 'E') {
+        text = 'You requested to update email settings';
+      }
+      if (user === 'A' && env === 'E') {
+        text = 'User A requested to update email settings';
+      }
+      return text;
+    }
+    else {
+      console.error('App.jsx (A): no context found in request.')
+    }
   }
 
   function updateRequest(context) {
@@ -86,6 +108,24 @@ function App() {
       setActionData(ordered); // update the state with the fetched data, most recent at top
     } catch (e) {
       console.error('App.jsx (B): error fetching dashboard data (action): ', e);
+      setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchRequestData = async () => {
+    try {
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/requests`);
+      if (!response.ok) {
+        throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
+      }
+      const result = await response.json();
+      setRequestData(result.data.reverse()); // update the state with the fetched data, most recent at the top
+    } catch (e) {
+      console.error('App.jsx (A): error fetching dashboard data (requests): ', e);
       setError(e.message);
       await new Promise(resolve => setTimeout(resolve, 100));
       location.reload();
@@ -227,6 +267,7 @@ function App() {
   // Hook to fetch data when the component mounts
   useEffect(() => {
     fetchSettingsData();
+    fetchRequestData();
     fetchBrowserData();
     fetchActionData();
     fetchMessageData();
@@ -280,7 +321,7 @@ function App() {
 
     socket.on('update_request', (data) => {
       console.log('App.jsx (B): settings update request received: ', data);
-      // HANDLE REQUEST, DISPLAY IN STATUS
+      fetchRequestData();
     });
 
     // Clean up the socket connection when the component unmounts
@@ -345,6 +386,25 @@ function App() {
                 <h2 className="subtitle">Actions</h2>
                   <p id="unresolved_number_statement"></p>
 
+                  {requestData.filter(item => item.status === 'Y').map((item) => (
+                    <div className='request_content_container'>
+                      <div className='request_icon_container'>
+                        <img src='../icons/request_icon.png' className='request_image'></img>
+                        {/* {item.context} */}
+                      </div>
+                      <div className='request_data_container'>
+                        <div className='request_info_container'>
+                          {/* Context: {item.context}
+                          Status: {item.status} */}
+                          {formatRequest(item)}
+                        </div>
+                        <div className='request_resolve_container'>
+                          {/* <button onClick={enableWelcomeVisibility}>Update Settings</button> */}
+                          DO SOMETHING
+                        </div>
+                      </div>
+                    </div>
+                  ))}
 
                   {actionData.filter(item => item.resolved === 'N').map((item) => (
                   // {actionData.map((item) => (

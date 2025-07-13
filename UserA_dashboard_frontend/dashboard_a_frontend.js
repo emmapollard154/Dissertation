@@ -80,6 +80,19 @@ window.addEventListener('message', function(event) {
         sendDataToBackend(data);
     }
 
+    if (event.data && event.data.type === 'UPDATE_REQUEST') {
+        const user = event.data.payload.user;
+        const context = event.data.payload.context;
+
+        console.log('dashboard_a_frontend.js: User ' + user + ' requested to update settings (' + context + ').');
+
+        const data = {
+            data: event.data,
+            target: 'UPDATE_REQUEST'
+        }
+        sendDataToBackend(data);
+    }
+
 });
 
 console.log('dashboard_a_frontend.js loaded and listening for messages.');

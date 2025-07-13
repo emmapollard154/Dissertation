@@ -46,10 +46,6 @@ function App() {
     return UNRESOLVED;
   }
 
-  function updateRequest(context) {
-    console.log(context);
-  }
-
   function checkSettings(data) {
     if (!data) {
       console.error('App.jsx (A): error fetching settings data');
@@ -75,10 +71,10 @@ function App() {
     if (context) {
       const env = context[0];
       const user = context[1];
-      if (user === 'A') {
+      if (user === 'A' && env === 'E') {
         text = 'You requested to update email settings';
       }
-      if (user === 'B') {
+      if (user === 'B' && env === 'E') {
         text = 'User B requested to update email settings';
       }
       return text;
@@ -86,8 +82,6 @@ function App() {
     else {
       console.error('App.jsx (A): no context found in request.')
     }
-    
-
   }
 
   const orderActionData = (data) => {
@@ -96,6 +90,17 @@ function App() {
       const timeB = new Date(b.time);
       return timeB - timeA; // ascending order
     });
+  }
+
+  function updateRequest(context) {
+    const user = 'A';
+    const status = 'Y';
+    if (context) {
+      window.postMessage({
+        type: 'UPDATE_REQUEST',
+        payload: { context , user , status},
+      }, `http://localhost:${A_FRONTEND}`);
+    }
   }
 
   const fetchBrowserData = async () => {
@@ -148,7 +153,7 @@ function App() {
       console.error('App.jsx (A): error fetching dashboard data (requests): ', e);
       setError(e.message);
       await new Promise(resolve => setTimeout(resolve, 100));
-      // location.reload();
+      location.reload();
     } finally {
       setLoading(false);
     }

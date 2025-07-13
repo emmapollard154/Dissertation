@@ -306,6 +306,30 @@ app.post('/api/dashboard-data', (req, res) => {
         io.emit('email_settings', data.chosen); // respond to frontend
     }
 
+    if (target === 'UPDATE_REQUEST') {
+
+        console.log("UPDATE_REQUEST recevied ", data.payload)
+
+        const env = data.payload.context;
+        const user = data.payload.user;
+        const status = data.payload.status;
+        const context = env + user;
+
+        try {
+            console.log('server.js (A): updating requests table.');
+            const stmt = db.prepare('INSERT OR REPLACE INTO requests (context, status) VALUES (?, ?)'); // update requests
+            stmt.run(context, status);
+        }
+        catch(err) {
+            console.error('server.js (A): database insertion error: ', err.message);
+            return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
+        }
+        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
+
+        hubSocket.emit('backendMessage', { event: 'UPDATE_REQUEST', data: data }); // message hub
+        io.emit('update_request', data.payload); // send message to frontend
+    }
+
 });
 
 app.post('/api/data-from-b', (req, res) => {
