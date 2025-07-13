@@ -113,7 +113,7 @@ const db = new sqlite3.Database('../dashboard.db', (err) => {
 
         // create table for browsing history
         db.run(`CREATE TABLE IF NOT EXISTS settings (
-            context CHAR(1),
+            context CHAR(1) UNIQUE,
             opt1 CHAR(1),
             opt2 CHAR(1),
             opt3 CHAR(1),
@@ -265,10 +265,10 @@ app.post('/api/dashboard-data', (req, res) => {
         const opt2 = data.chosen[1];
         const opt3 = data.chosen[2];
         const opt4 = data.chosen[3];
-        
-        try{
-            console.log('server.js (A): inserting into settings table.');
-            const stmt = db.prepare('INSERT INTO settings (context, opt1, opt2, opt3, opt4) VALUES (?, ?, ?, ?, ?)');
+
+        try {
+            console.log('server.js (A): updating settings table.');
+            const stmt = db.prepare('INSERT OR REPLACE INTO settings (context, opt1, opt2, opt3, opt4) VALUES (?, ?, ?, ?, ?)'); // insert email settings, or update is exists
             stmt.run('E', opt1, opt2, opt3, opt4);
         }
         catch(err) {
@@ -277,8 +277,8 @@ app.post('/api/dashboard-data', (req, res) => {
         }
         res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
 
-        hubSocket.emit('backendMessage', { event: 'SET_EMAIL_SETTINGS', data: null }); // message hub
-        io.emit('email_settings', null); // respond to frontend
+        hubSocket.emit('backendMessage', { event: 'SET_EMAIL_SETTINGS', data: data.chosen }); // message hub
+        io.emit('email_settings', data.chosen); // respond to frontend
     }
 
 });

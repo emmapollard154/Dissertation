@@ -45,6 +45,10 @@ function App() {
     return UNRESOLVED;
   }
 
+  function updateRequest(context) {
+    console.log(context);
+  }
+
   function checkSettings(data) {
     if (!data) {
       console.error('App.jsx (A): error fetching settings data');
@@ -56,6 +60,7 @@ function App() {
       }
       else {
         console.log('App.jsx (A): setting configurations already exist.');
+        disableWelcomeVisibility();
         // TO DO: check settings configuration, process settings
       }
     }
@@ -132,9 +137,8 @@ function App() {
         throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setSettingsData(result.data); // update the state with the fetched data, most recent at the top
-      checkSettings(settingsData);
-      console.log(settingsData);
+      checkSettings(result.data);
+      setSettingsData(result.data); // update the state with the fetched data
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (message): ', e);
       setError(e.message);
@@ -271,8 +275,8 @@ function App() {
   };
 
   function switchSettingsVisibility() {
-    console.log('App.jsx (A): switching visibility of welcome information.');
-    setWelcomeVisible(!welcomeVisible);
+    console.log('App.jsx (A): switching visibility of settings information.');
+    setSettingsVisible(!settingsVisible);
   };
 
   function switchHelpVisibility() {
@@ -291,12 +295,12 @@ function App() {
   };
 
   function enableWelcomeVisibility() {
-    console.log('App.jsx (A): switching visibility of settings.');
+    console.log('App.jsx (A): enabling visibility of settings configuration.');
     setWelcomeVisible(true);
   };
 
   function disableWelcomeVisibility() {
-    console.log('App.jsx (A): switching visibility of settings.');
+    console.log('App.jsx (A): disabling visibility of settings configuration.');
     setWelcomeVisible(false);
   };
 
@@ -653,12 +657,20 @@ function App() {
 
                                 <div className='popup_subtitle'>Settings</div>
                                 <div className='okay_settings_top' >
-                                <button className='popup_button' onClick={switchSettingsVisibility}>Okay</button>
+                                  <button className='popup_button' onClick={switchSettingsVisibility}>Okay</button>
                                 </div>
 
                               </div>
 
-                                <p>Settings Data</p>
+                                {settingsData.map((item) => (
+                                  <div className='settings_entry_container'>
+                                    <div className='context_container'>{item.context}</div>
+                                    <div className='chosen_options_container'>{item.opt1} {item.opt2} {item.opt3} {item.opt4}</div>
+                                    <div className='request_update_container'>
+                                      <button className='update_settings_button' onClick={() => updateRequest(item.context)}>Request Update</button>
+                                    </div>
+                                  </div>
+                                ))}
 
                             </div>
                           </div>

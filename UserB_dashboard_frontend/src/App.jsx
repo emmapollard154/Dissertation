@@ -12,6 +12,7 @@ function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
   const [messageData, setMessageData] = useState([]);
+  const [settingsData, setSettingsData] = useState([]);
   const [educationVisible, setEducationVisible] = useState(false);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -25,6 +26,29 @@ function App() {
       return timeB - timeA; // ascending order
     });
   }
+
+  function updateRequest(context) {
+    console.log(context);
+  }
+
+  const fetchSettingsData = async () => {
+    try {
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/settings`);
+      if (!response.ok) {
+        throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
+      }
+      const result = await response.json();
+      // checkSettings(result.data);
+      setSettingsData(result.data); // update the state with the fetched data
+    } catch (e) {
+      console.error('App.jsx (A): error fetching dashboard data (message): ', e);
+      setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchBrowserData = async () => {
     try {
@@ -173,6 +197,11 @@ function App() {
     }
   };
 
+  function switchSettingsVisibility() {
+    console.log('App.jsx (A): switching visibility of settings information.');
+    setSettingsVisible(!settingsVisible);
+  };
+
   function switchEducationVisibility() {
     console.log('App.jsx (A): switching visibility of educational information.');
     setEducationVisible(!educationVisible);
@@ -190,6 +219,7 @@ function App() {
 
   // Hook to fetch data when the component mounts
   useEffect(() => {
+    fetchSettingsData();
     fetchBrowserData();
     fetchActionData();
     fetchMessageData();
@@ -224,6 +254,11 @@ function App() {
     socket.on('a_message', (data) => {
       console.log('App.jsx (B): User A sent message: ', data);
       fetchMessageData();
+    });
+
+    socket.on('email_settings', (data) => {
+      console.log('App.jsx (B): email settings have been updated: ', data);
+      fetchSettingsData();
     });
 
     socket.on('b_response', (data) => {
@@ -396,7 +431,7 @@ function App() {
 
                                 <div className='education_subtitle'>Safety Information</div>
                                 <div className='okay_education_top' >
-                                <button onClick={switchEducationVisibility}>Okay</button>
+                                <button className='popup_button' onClick={switchEducationVisibility}>Okay</button>
                                 </div>
 
                               </div>
@@ -427,7 +462,7 @@ function App() {
 
                               <div className='browsing_subtitle'>Browsing History</div>
                               <div className='okay_browsing_top' >
-                              <button onClick={switchHistoryVisibility}>Okay</button>
+                                <button className='popup_button' onClick={switchHistoryVisibility}>Okay</button>
                               </div>
 
                             </div>
@@ -458,12 +493,20 @@ function App() {
 
                                 <div className='settings_subtitle'>Settings</div>
                                 <div className='okay_settings_top' >
-                                <button onClick={switchSettingsVisibility}>Okay</button>
+                                  <button className='popup_button' onClick={switchSettingsVisibility}>Okay</button>
                                 </div>
 
                               </div>
 
-                                <p>Settings Data</p>
+                                {settingsData.map((item) => (
+                                  <div className='settings_entry_container'>
+                                    <div className='context_container'>{item.context}</div>
+                                    <div className='chosen_options_container'>{item.opt1} {item.opt2} {item.opt3} {item.opt4}</div>
+                                    <div className='request_update_container'>
+                                      <button className='update_settings_button' onClick={() => updateRequest(item.context)}>Request Update</button>
+                                    </div>
+                                  </div>
+                                ))}
 
                             </div>
                           </div>
