@@ -12,6 +12,8 @@ function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
   const [messageData, setMessageData] = useState([]);
+  const [requestData, setRequestData] = useState([]);
+  const [settingsData, setSettingsData] = useState([]);
   const [educationVisible, setEducationVisible] = useState(false);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -25,6 +27,57 @@ function App() {
       return timeB - timeA; // ascending order
     });
   }
+
+  function formatRequest(request) {
+
+    let text = '';
+    const context = request.context;
+
+    if (context) {
+      const env = context[0];
+      const user = context[1];
+      if (user === 'B' && env === 'E') {
+        text = 'You requested to update email settings';
+      }
+      if (user === 'A' && env === 'E') {
+        text = 'User A requested to update email settings';
+      }
+      return text;
+    }
+    else {
+      console.error('App.jsx (A): no context found in request.')
+    }
+  }
+
+  function updateRequest(context) {
+    const user = 'B';
+    const status = 'Y';
+    if (context) {
+      window.postMessage({
+        type: 'UPDATE_REQUEST',
+        payload: { context , user , status},
+      }, `http://localhost:${B_FRONTEND}`);
+    }
+  }
+
+  const fetchSettingsData = async () => {
+    try {
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/settings`);
+      if (!response.ok) {
+        throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
+      }
+      const result = await response.json();
+      // checkSettings(result.data);
+      setSettingsData(result.data); // update the state with the fetched data
+    } catch (e) {
+      console.error('App.jsx (A): error fetching dashboard data (message): ', e);
+      setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchBrowserData = async () => {
     try {
@@ -55,6 +108,24 @@ function App() {
       setActionData(ordered); // update the state with the fetched data, most recent at top
     } catch (e) {
       console.error('App.jsx (B): error fetching dashboard data (action): ', e);
+      setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchRequestData = async () => {
+    try {
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/requests`);
+      if (!response.ok) {
+        throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
+      }
+      const result = await response.json();
+      setRequestData(result.data.reverse()); // update the state with the fetched data, most recent at the top
+    } catch (e) {
+      console.error('App.jsx (A): error fetching dashboard data (requests): ', e);
       setError(e.message);
       await new Promise(resolve => setTimeout(resolve, 100));
       location.reload();
@@ -173,6 +244,11 @@ function App() {
     }
   };
 
+  function switchSettingsVisibility() {
+    console.log('App.jsx (A): switching visibility of settings information.');
+    setSettingsVisible(!settingsVisible);
+  };
+
   function switchEducationVisibility() {
     console.log('App.jsx (A): switching visibility of educational information.');
     setEducationVisible(!educationVisible);
@@ -190,6 +266,8 @@ function App() {
 
   // Hook to fetch data when the component mounts
   useEffect(() => {
+    fetchSettingsData();
+    fetchRequestData();
     fetchBrowserData();
     fetchActionData();
     fetchMessageData();
@@ -226,6 +304,11 @@ function App() {
       fetchMessageData();
     });
 
+    socket.on('email_settings', (data) => {
+      console.log('App.jsx (B): email settings have been updated: ', data);
+      fetchSettingsData();
+    });
+
     socket.on('b_response', (data) => {
       console.log('App.jsx (B): User B sent a response: ', data);
       fetchActionData();
@@ -236,6 +319,11 @@ function App() {
       fetchMessageData();
     });
 
+    socket.on('update_request', (data) => {
+      console.log('App.jsx (B): settings update request received: ', data);
+      fetchRequestData();
+    });
+
     // Clean up the socket connection when the component unmounts
     return () => {
       socket.off('message');
@@ -244,6 +332,7 @@ function App() {
       socket.off('a_message');
       socket.off('b_response');
       socket.off('b_message');
+      socket.off('update_request');
       socket.off('connect');
       socket.off('connect_error');
       socket.off('welcome');
@@ -297,6 +386,25 @@ function App() {
                 <h2 className="subtitle">Actions</h2>
                   <p id="unresolved_number_statement"></p>
 
+                  {requestData.filter(item => item.status === 'Y').map((item) => (
+                    <div className='request_content_container'>
+                      <div className='request_icon_container'>
+                        <img src='../icons/request_icon.png' className='request_image'></img>
+                        {/* {item.context} */}
+                      </div>
+                      <div className='request_data_container'>
+                        <div className='request_info_container'>
+                          {/* Context: {item.context}
+                          Status: {item.status} */}
+                          {formatRequest(item)}
+                        </div>
+                        <div className='request_resolve_container'>
+                          {/* <button onClick={enableWelcomeVisibility}>Update Settings</button> */}
+                          DO SOMETHING
+                        </div>
+                      </div>
+                    </div>
+                  ))}
 
                   {actionData.filter(item => item.resolved === 'N').map((item) => (
                   // {actionData.map((item) => (
@@ -396,7 +504,7 @@ function App() {
 
                                 <div className='education_subtitle'>Safety Information</div>
                                 <div className='okay_education_top' >
-                                <button onClick={switchEducationVisibility}>Okay</button>
+                                <button className='popup_button' onClick={switchEducationVisibility}>Okay</button>
                                 </div>
 
                               </div>
@@ -427,7 +535,7 @@ function App() {
 
                               <div className='browsing_subtitle'>Browsing History</div>
                               <div className='okay_browsing_top' >
-                              <button onClick={switchHistoryVisibility}>Okay</button>
+                                <button className='popup_button' onClick={switchHistoryVisibility}>Okay</button>
                               </div>
 
                             </div>
@@ -458,12 +566,20 @@ function App() {
 
                                 <div className='settings_subtitle'>Settings</div>
                                 <div className='okay_settings_top' >
-                                <button onClick={switchSettingsVisibility}>Okay</button>
+                                  <button className='popup_button' onClick={switchSettingsVisibility}>Okay</button>
                                 </div>
 
                               </div>
 
-                                <p>Settings Data</p>
+                                {settingsData.map((item) => (
+                                  <div className='settings_entry_container'>
+                                    <div className='context_container'>{item.context}</div>
+                                    <div className='chosen_options_container'>{item.opt1} {item.opt2} {item.opt3} {item.opt4}</div>
+                                    <div className='request_update_container'>
+                                      <button className='update_settings_button' onClick={() => updateRequest(item.context)}>Request Update</button>
+                                    </div>
+                                  </div>
+                                ))}
 
                             </div>
                           </div>

@@ -10,6 +10,7 @@ const socket = io(`http://localhost:${A_BACKEND}`);
 function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
+  const [requestData, setRequestData] = useState([]);
   const [messageData, setMessageData] = useState([]);
   const [settingsData, setSettingsData] = useState([]);
   const [welcomeVisible, setWelcomeVisible] = useState(false);
@@ -56,8 +57,30 @@ function App() {
       }
       else {
         console.log('App.jsx (A): setting configurations already exist.');
+        disableWelcomeVisibility();
         // TO DO: check settings configuration, process settings
       }
+    }
+  }
+
+  function formatRequest(request) {
+
+    let text = '';
+    const context = request.context;
+
+    if (context) {
+      const env = context[0];
+      const user = context[1];
+      if (user === 'A' && env === 'E') {
+        text = 'You requested to update email settings';
+      }
+      if (user === 'B' && env === 'E') {
+        text = 'User B requested to update email settings';
+      }
+      return text;
+    }
+    else {
+      console.error('App.jsx (A): no context found in request.')
     }
   }
 
@@ -67,6 +90,17 @@ function App() {
       const timeB = new Date(b.time);
       return timeB - timeA; // ascending order
     });
+  }
+
+  function updateRequest(context) {
+    const user = 'A';
+    const status = 'Y';
+    if (context) {
+      window.postMessage({
+        type: 'UPDATE_REQUEST',
+        payload: { context , user , status},
+      }, `http://localhost:${A_FRONTEND}`);
+    }
   }
 
   const fetchBrowserData = async () => {
@@ -107,6 +141,24 @@ function App() {
     }
   };
 
+  const fetchRequestData = async () => {
+    try {
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/requests`);
+      if (!response.ok) {
+        throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
+      }
+      const result = await response.json();
+      setRequestData(result.data.reverse()); // update the state with the fetched data, most recent at the top
+    } catch (e) {
+      console.error('App.jsx (A): error fetching dashboard data (requests): ', e);
+      setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchMessageData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/message`);
@@ -132,9 +184,8 @@ function App() {
         throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setSettingsData(result.data); // update the state with the fetched data, most recent at the top
-      checkSettings(settingsData);
-      console.log(settingsData);
+      checkSettings(result.data);
+      setSettingsData(result.data); // update the state with the fetched data
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (message): ', e);
       setError(e.message);
@@ -271,8 +322,8 @@ function App() {
   };
 
   function switchSettingsVisibility() {
-    console.log('App.jsx (A): switching visibility of welcome information.');
-    setWelcomeVisible(!welcomeVisible);
+    console.log('App.jsx (A): switching visibility of settings information.');
+    setSettingsVisible(!settingsVisible);
   };
 
   function switchHelpVisibility() {
@@ -291,12 +342,12 @@ function App() {
   };
 
   function enableWelcomeVisibility() {
-    console.log('App.jsx (A): switching visibility of settings.');
+    console.log('App.jsx (A): enabling visibility of settings configuration.');
     setWelcomeVisible(true);
   };
 
   function disableWelcomeVisibility() {
-    console.log('App.jsx (A): switching visibility of settings.');
+    console.log('App.jsx (A): disabling visibility of settings configuration.');
     setWelcomeVisible(false);
   };
 
@@ -305,6 +356,7 @@ function App() {
 
     // Fetch database data
     fetchSettingsData();
+    fetchRequestData();
     fetchBrowserData();
     fetchActionData();
     fetchMessageData();
@@ -358,6 +410,11 @@ function App() {
       sendToExt('USER_B_MESSAGE', null);
     });
 
+    socket.on('update_request', (data) => {
+      console.log('App.jsx (A): settings update request received: ', data);
+      fetchRequestData();
+    });
+
     // Clean up the socket connection when the component unmounts
     return () => {
       socket.off('message');
@@ -365,6 +422,7 @@ function App() {
       socket.off('a_choice');
       socket.off('a_message');
       socket.off('email_settings');
+      socket.off('update_request');
       socket.off('b_message');
       socket.off('b_response');
       socket.off('connect');
@@ -497,6 +555,25 @@ function App() {
               <div className='top_scrollbar'>
                 <h2 className='subtitle'>Status</h2>
                   {/* <p id='unresolved_number_statement'></p> */}
+
+                  {requestData.filter(item => item.status === 'Y').map((item) => (
+                    <div className='request_content_container'>
+                      <div className='request_icon_container'>
+                        <img src='../icons/request_icon.png' className='request_image'></img>
+                        {/* {item.context} */}
+                      </div>
+                      <div className='request_data_container'>
+                        <div className='request_info_container'>
+                          {/* Context: {item.context}
+                          Status: {item.status} */}
+                          {formatRequest(item)}
+                        </div>
+                        <div className='request_resolve_container'>
+                          <button onClick={enableWelcomeVisibility}>Update Settings</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
 
                   {actionData.filter(item => item.resolved === 'N').map((item) => (
                     <div className='status_content_container'>
@@ -653,12 +730,20 @@ function App() {
 
                                 <div className='popup_subtitle'>Settings</div>
                                 <div className='okay_settings_top' >
-                                <button className='popup_button' onClick={switchSettingsVisibility}>Okay</button>
+                                  <button className='popup_button' onClick={switchSettingsVisibility}>Okay</button>
                                 </div>
 
                               </div>
 
-                                <p>Settings Data</p>
+                                {settingsData.map((item) => (
+                                  <div className='settings_entry_container'>
+                                    <div className='context_container'>{item.context}</div>
+                                    <div className='chosen_options_container'>{item.opt1} {item.opt2} {item.opt3} {item.opt4}</div>
+                                    <div className='request_update_container'>
+                                      <button className='update_settings_button' onClick={() => updateRequest(item.context)}>Request Update</button>
+                                    </div>
+                                  </div>
+                                ))}
 
                             </div>
                           </div>

@@ -96,6 +96,7 @@ chrome.runtime.onMessageExternal.addListener(
 		sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });
 		return true;
 	}
+
   }
 );
 
