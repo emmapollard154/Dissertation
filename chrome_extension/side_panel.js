@@ -97,7 +97,6 @@ async function updateNumPending(newPending) {
         const oldUpdates = await getNumUpdates();
 
         if (oldPending > newPending) { // a request has been resolved
-            console.log("ATTEMPTING TO ADD STATUS ALERT");
             setNums(newPending, oldUpdates + 1);
             statusAlert(); // send alert to User A
         } else {
@@ -121,11 +120,45 @@ async function addUpdate() {
     }
 }
 
+// Create listener for tab events
+chrome.tabs.onActivated.addListener(active => {
+
+    const id = active.tabId;
+
+    chrome.tabs.get(id, (tab) => {
+        if (chrome.runtime.lastError) {
+        console.error("side_panel.js: error getting tab info - ", chrome.runtime.lastError.message);
+        return;
+        }
+
+        // Refresh tabs for specific URLs to correctly configure content
+        if (tab.url) {
+            if (tab.url.startsWith(`http://localhost:${EMAIL_PORT}/`)) {
+                chrome.tabs.reload(id, { bypassCache: false }, () => {
+                    if (chrome.runtime.lastError) {
+                    console.error("side_panel.js: ", chrome.runtime.lastError.message);
+                    } else {
+                    console.log(`background.js:  ${id} reloaded.`);
+                    }
+                });
+            }  
+            if (tab.url.startsWith(`http://localhost:${A_FRONTEND}/`)) {
+                chrome.tabs.reload(id, { bypassCache: false }, () => {
+                    if (chrome.runtime.lastError) {
+                    console.error("side_panel.js: ", chrome.runtime.lastError.message);
+                    } else {
+                    console.log(`background.js:  ${id} reloaded.`);
+                    }
+                });
+            }  
+        }
+    });
+});
+
 // Create listener for events on side panel
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
     if (message.action === 'updateNumPending') {
-        // updateNumPending(message.numPending);
         console.log('side_panel.js: updateNumPending received.')
         addUpdate();
         statusAlert();
@@ -166,14 +199,13 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                         }
                     });
                 } else {
+                    alert("Please open dashboard");
                     console.warn('side_panel.js : no active tab found to send message to.');
                     sendResponse({ status: 'failed', error: 'No active tab found' });
                 }
             });
 
             if (urlReceived === `http://localhost:${EMAIL_PORT}/`) { // on email webpage
-
-                console.log("ON EMAIL PAGE")
 
                 document.getElementById('speechContent').innerText = EMAIL_ANNOUNCEMENT;
 
@@ -193,6 +225,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                             }
                         });
                     } else {
+                        alert("Please open dashboard");
                         console.warn('side_panel.js: no active tab found to send message to.');
                         sendResponse({ status: 'failed', error: 'No active tab found' });
                     }
@@ -234,6 +267,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                     }
                 });
             } else {
+                alert("Please open dashboard");
                 console.warn('side_panel.js: no active tab found to send message to.');
                 sendResponse({ status: 'failed', error: 'No active tab found' });
             }

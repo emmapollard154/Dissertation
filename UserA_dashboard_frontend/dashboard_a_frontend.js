@@ -69,28 +69,17 @@ window.addEventListener('message', function(event) {
         sendDataToBackend(data);
     }
 
+    if (event.data && event.data.type === 'SET_EMAIL_SETTINGS') {
+        const settings = event.data.payload;
+        console.log('dashboard_a_frontend.js: received message data from User A: ', settings);
+
+        const data = {
+            data: settings,
+            target: 'SET_EMAIL_SETTINGS'
+        }
+        sendDataToBackend(data);
+    }
+
 });
-
-// document.addEventListener('DOMContentLoaded', () => {
-
-//     // TO DO: close history popup when okay button clicked
-//     const browsingBackground = document.getElementById('browsingBackground');
-//     const okayBrowsing = document.getElementById('okayBrowsing');
-
-//     // ADD SCRIPT SOURCE TO HISTORY HTML
-
-//     if (!browsingBackground) {
-//         console.error('dashboard_a_frontend.js: browsing history html not found.');
-//     }
-
-//     if (!okayBrowsing) {
-//         console.error('dashboard_a_frontend.js: open history button not found.');
-//     }
-
-//     okayBrowsing.addEventListener('click', function(event) {
-//         browsingBackground.classList.remove('show');
-//     });
-
-// });
 
 console.log('dashboard_a_frontend.js loaded and listening for messages.');
