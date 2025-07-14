@@ -498,7 +498,6 @@ function App() {
 
       <div className='general_container'>
 
-
         {welcomeVisible && (
           <div className='welcome_background' id='welcomeBackground'>
             <div className='welcome_popup' id='welcomePopup'>

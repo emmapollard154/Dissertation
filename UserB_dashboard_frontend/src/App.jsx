@@ -14,6 +14,7 @@ function App() {
   const [messageData, setMessageData] = useState([]);
   const [requestData, setRequestData] = useState([]);
   const [settingsData, setSettingsData] = useState([]);
+  const [helpVisible, setHelpVisible] = useState(false);
   const [educationVisible, setEducationVisible] = useState(false);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -245,22 +246,27 @@ function App() {
   };
 
   function switchSettingsVisibility() {
-    console.log('App.jsx (A): switching visibility of settings information.');
+    console.log('App.jsx (B): switching visibility of settings information.');
     setSettingsVisible(!settingsVisible);
   };
 
+  function switchHelpVisibility() {
+    console.log('App.jsx (B): switching visibility of help information.');
+    setHelpVisible(!helpVisible);
+  };
+
   function switchEducationVisibility() {
-    console.log('App.jsx (A): switching visibility of educational information.');
+    console.log('App.jsx (B): switching visibility of educational information.');
     setEducationVisible(!educationVisible);
   };
 
   function switchHistoryVisibility() {
-    console.log('App.jsx (A): switching visibility of browsing history.');
+    console.log('App.jsx (B): switching visibility of browsing history.');
     setHistoryVisible(!historyVisible);
   };
 
   function switchSettingsVisibility() {
-    console.log('App.jsx (A): switching visibility of settings.');
+    console.log('App.jsx (B): switching visibility of settings.');
     setSettingsVisible(!settingsVisible);
   };
 
@@ -372,9 +378,36 @@ function App() {
           </div>
         </div>
 
-        <div className='header_right'>
-            User B
+        <div className='header_middle'>
+          User B
         </div>
+
+        <div className='header_right'>
+          <button className='help_button' onClick={switchHelpVisibility}>?</button>
+        </div>
+
+        {helpVisible && (
+          <div className='help_background' id='helpBackground'>
+            <div className='help_popup' id='helpPopup'>
+              <div className='bottom_scrollbar'>
+                <div className='help_content'>
+                  <div className='help_header_container'>
+
+                    <div className='popup_subtitle'>Help Centre</div>
+                    <div className='okay_help_top' >
+                      <button className='popup_button' onClick={switchHelpVisibility}>Okay</button>
+                    </div>
+
+                  </div>
+
+                    <p>Help Information</p>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
 
       <div className='general_container'>
@@ -502,7 +535,7 @@ function App() {
                             <div className='education_content'>
                               <div className='education_header_container'>
 
-                                <div className='education_subtitle'>Safety Information</div>
+                                <div className='popup_subtitle'>Safety Information</div>
                                 <div className='okay_education_top' >
                                 <button className='popup_button' onClick={switchEducationVisibility}>Okay</button>
                                 </div>
@@ -533,7 +566,7 @@ function App() {
                           <div className='browsing_history_content'>
                             <div className='browsing_header_container'>
 
-                              <div className='browsing_subtitle'>Browsing History</div>
+                              <div className='popup_subtitle'>Browsing History</div>
                               <div className='okay_browsing_top' >
                                 <button className='popup_button' onClick={switchHistoryVisibility}>Okay</button>
                               </div>
@@ -564,7 +597,7 @@ function App() {
                             <div className='settings_content'>
                               <div className='settings_header_container'>
 
-                                <div className='settings_subtitle'>Settings</div>
+                                <div className='popup_subtitle'>Settings</div>
                                 <div className='okay_settings_top' >
                                   <button className='popup_button' onClick={switchSettingsVisibility}>Okay</button>
                                 </div>
