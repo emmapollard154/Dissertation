@@ -419,6 +419,7 @@
 .request_resolve_container button {
   height: 90%;
   top: 5%;
+  right: 5%;
   max-width: 100%;
   position: relative;
   background: var(--gray_blue);

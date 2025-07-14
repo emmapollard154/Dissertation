@@ -68,8 +68,8 @@ hubSocket.on('backendMessage', (message) => {
         }
 
         if (message.event === 'UPDATE_REQUEST') {
-            console.log('Server B: User A requested to update settings.');
-            io.emit('update_request', content); // send message to frontend
+            console.log('server.js (B): User A requested to update settings.');
+            io.emit('a_update_request', content); // send message to frontend
             console.log('server.js (B): sent update request message to frontend B.');
         }
     }
@@ -131,7 +131,7 @@ app.post('/api/data-b-frontend', async (req, res) => {
             if (data.data.type === 'UPDATE_REQUEST') {
                 console.log('server.js (B): sending message to hub');
                 hubSocket.emit('backendMessage', { event: 'UPDATE_REQUEST', data: data.data.payload }); // message hub
-                io.emit('update_request', data.data.payload); // respond to frontend
+                io.emit('b_update_request', data.data.payload); // respond to frontend
             }
             res.status(200).json({ message: 'server.js (B): data sent to hub.' });
             console.log({ message: 'server.js (B): data process and responses made.', result: response.data });

@@ -303,11 +303,19 @@ function App() {
     socket.on('a_choice', (data) => {
       console.log('App.jsx (B): User A made choice: ', data);
       fetchActionData();
+      alert("Action Required.");
     });
 
     socket.on('a_message', (data) => {
       console.log('App.jsx (B): User A sent message: ', data);
       fetchMessageData();
+      alert("New Message.");
+    });
+
+    socket.on('a_update_request', (data) => {
+      console.log('App.jsx (B): settings update request received: ', data);
+      fetchRequestData();
+      alert("Action Required.");
     });
 
     socket.on('email_settings', (data) => {
@@ -325,7 +333,7 @@ function App() {
       fetchMessageData();
     });
 
-    socket.on('update_request', (data) => {
+    socket.on('b_update_request', (data) => {
       console.log('App.jsx (B): settings update request received: ', data);
       fetchRequestData();
     });
@@ -338,7 +346,8 @@ function App() {
       socket.off('a_message');
       socket.off('b_response');
       socket.off('b_message');
-      socket.off('update_request');
+      socket.off('a_update_request');
+      socket.off('b_update_request');
       socket.off('connect');
       socket.off('connect_error');
       socket.off('welcome');

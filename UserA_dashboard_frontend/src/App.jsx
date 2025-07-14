@@ -393,6 +393,11 @@ function App() {
       fetchMessageData();
     });
 
+    socket.on('a_update_request', (data) => {
+      console.log('App.jsx (A): settings update request received: ', data);
+      fetchRequestData();
+    });
+
     socket.on('email_settings', (data) => {
       console.log('App.jsx (A): email settings updated: ', data);
       fetchSettingsData();
@@ -410,9 +415,10 @@ function App() {
       sendToExt('USER_B_MESSAGE', null);
     });
 
-    socket.on('update_request', (data) => {
+    socket.on('b_update_request', (data) => {
       console.log('App.jsx (A): settings update request received: ', data);
       fetchRequestData();
+      sendToExt('NUM_PENDING', null);
     });
 
     // Clean up the socket connection when the component unmounts
@@ -422,7 +428,8 @@ function App() {
       socket.off('a_choice');
       socket.off('a_message');
       socket.off('email_settings');
-      socket.off('update_request');
+      socket.off('a_update_request');
+      socket.off('b_update_request');
       socket.off('b_message');
       socket.off('b_response');
       socket.off('connect');

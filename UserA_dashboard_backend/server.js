@@ -327,7 +327,20 @@ app.post('/api/dashboard-data', (req, res) => {
         res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
 
         hubSocket.emit('backendMessage', { event: 'UPDATE_REQUEST', data: data }); // message hub
-        io.emit('update_request', data.payload); // send message to frontend
+
+        // Send message to frontend
+        if (user === 'A') {
+            console.log('server.js (A): update request from A.')
+            io.emit('a_update_request', data.payload); // send message to frontend
+        }
+        else if (user === 'B') {
+            console.log('server.js (A): update request from B.')
+            io.emit('b_update_request', data.payload); // send message to frontend
+        }
+        else {
+            console.warn('server.js (A): update request from unknown user.')
+        }
+
     }
 
 });
@@ -401,7 +414,7 @@ app.post('/api/data-from-b', (req, res) => {
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
         res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
-        io.emit('update_request', data.payload); // send message to frontend
+        io.emit('b_update_request', data.payload); // send message to frontend
     }
 
 });
