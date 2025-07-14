@@ -61,6 +61,18 @@ function App() {
     }
   }
 
+  function cancelUpdateRequest(context) {
+    console.log(context);
+    const user = 'B';
+    const status = 'N';
+    if (context) {
+      window.postMessage({
+        type: 'UPDATE_REQUEST',
+        payload: { context , user , status},
+      }, `http://localhost:${B_FRONTEND}`);
+    }
+  }
+
   const fetchSettingsData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/settings`);
@@ -315,7 +327,10 @@ function App() {
     socket.on('a_update_request', (data) => {
       console.log('App.jsx (B): settings update request received: ', data);
       fetchRequestData();
-      alert("Action Required.");
+      if (data.payload.status === 'Y') { // avoid alerting for cancelled request
+        alert("Action Required.");
+      }
+
     });
 
     socket.on('email_settings', (data) => {
@@ -436,13 +451,19 @@ function App() {
                       </div>
                       <div className='request_data_container'>
                         <div className='request_info_container'>
-                          {/* Context: {item.context}
-                          Status: {item.status} */}
                           {formatRequest(item)}
+
                         </div>
                         <div className='request_resolve_container'>
-                          {/* <button onClick={enableWelcomeVisibility}>Update Settings</button> */}
-                          DO SOMETHING
+
+                          <div className='request_resolve_subcontainer'>
+                            {item.context[1] === 'B' && (
+                            <button onClick={() => cancelUpdateRequest(item.context)}>
+                              Cancel
+                            </button>
+                            )}
+                          </div>
+
                         </div>
                       </div>
                     </div>

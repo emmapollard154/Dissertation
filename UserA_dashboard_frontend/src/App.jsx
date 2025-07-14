@@ -103,6 +103,18 @@ function App() {
     }
   }
 
+  function cancelUpdateRequest(context) {
+    console.log(context);
+    const user = 'A';
+    const status = 'N';
+    if (context) {
+      window.postMessage({
+        type: 'UPDATE_REQUEST',
+        payload: { context , user , status},
+      }, `http://localhost:${A_FRONTEND}`);
+    }
+  }
+
   const fetchBrowserData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/browsingHistory`);
@@ -580,7 +592,7 @@ function App() {
 
                           <div className='request_resolve_subcontainer'>
                             {item.context[1] === 'A' && (
-                            <button>
+                            <button onClick={() => cancelUpdateRequest(item.context)}>
                               Cancel
                             </button>
                             )}

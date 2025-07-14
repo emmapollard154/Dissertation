@@ -422,7 +422,6 @@
 .request_resolve_subcontainer {
   box-sizing: border-box;
   height: 100%;
-  border: 2px dashed red;
   margin-bottom: 1vh;
 }
 

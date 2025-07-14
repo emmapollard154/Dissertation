@@ -313,7 +313,14 @@ app.post('/api/dashboard-data', (req, res) => {
         const env = data.payload.context;
         const user = data.payload.user;
         const status = data.payload.status;
-        const context = env + user;
+        let context = '';
+
+        if (status === 'Y') {
+            context = env + user;
+        }
+        else if (status === 'N') { // cancelling request, full context already present
+            context = env;
+        }
 
         try {
             console.log('server.js (A): updating requests table.');
@@ -400,7 +407,14 @@ app.post('/api/data-from-b', (req, res) => {
         const env = data.payload.context;
         const user = data.payload.user;
         const status = data.payload.status;
-        const context = env + user;
+        let context = '';
+
+        if (status === 'Y') {
+            context = env + user;
+        }
+        else if (status === 'N') { // cancelling request, full context already present
+            context = env;
+        }
 
         try {
             console.log('server.js (A): updating requests table.');
