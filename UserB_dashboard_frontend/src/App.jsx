@@ -321,15 +321,15 @@ function App() {
     socket.on('a_message', (data) => {
       console.log('App.jsx (B): User A sent message: ', data);
       fetchMessageData();
-      alert("New Message.");
+      // alert("New Message.");
     });
 
     socket.on('a_update_request', (data) => {
       console.log('App.jsx (B): settings update request received: ', data);
       fetchRequestData();
-      if (data.payload.status === 'Y') { // avoid alerting for cancelled request
-        alert("Action Required.");
-      }
+      // if (data.payload.status === 'Y') { // avoid alerting for cancelled request
+      //   alert("Action Required.");
+      // }
 
     });
 
@@ -445,17 +445,18 @@ function App() {
 
                   {requestData.filter(item => item.status === 'Y').map((item) => (
                     <div className='request_content_container'>
+                      
                       <div className='request_icon_container'>
                         <img src='../icons/request_icon.png' className='request_image'></img>
                         {/* {item.context} */}
                       </div>
+
                       <div className='request_data_container'>
                         <div className='request_info_container'>
                           {formatRequest(item)}
-
                         </div>
-                        <div className='request_resolve_container'>
 
+                        <div className='request_resolve_container'>
                           <div className='request_resolve_subcontainer'>
                             {item.context[1] === 'B' && (
                             <button onClick={() => cancelUpdateRequest(item.context)}>
@@ -463,26 +464,40 @@ function App() {
                             </button>
                             )}
                           </div>
-
                         </div>
+
                       </div>
+
                     </div>
                   ))}
 
                   {actionData.filter(item => item.resolved === 'N').map((item) => (
-                  // {actionData.map((item) => (
                     <div className='status_content_container'>
+
                       <div className='status_icon_container'>
                         <img src='../icons/mail_action_icon.png' className='status_image'></img>
-                        {/* {item.context} */}
                       </div>
+
                       <div className='status_data_container'>
-                        <div className='status_meta_container'>A choice: {item.userAChoice} {simplifyTime(item.time)} </div>
-                        <div className='status_text_container'>
-                          <button id="btnNo" className='btn_no' onClick={(event) => responseBtn(event.target, {item})}>REJECT</button>
-                          <button id="btnYes" className='btn_yes' onClick={(event) => responseBtn(event.target, {item})}>ACCEPT</button>
+
+                        <div className='status_info_container'>
+                          A choice: {item.userAChoice} {simplifyTime(item.time)}
                         </div>
+
+                        <div className='status_resolve_container'>
+
+                          <div className='request_resolve_subcontainer'>
+                            <button id="btnNo" className='btn_no' onClick={(event) => responseBtn(event.target, {item})}>Reject</button>
+                          </div>
+
+                          <div className='request_resolve_subcontainer'>
+                            <button id="btnYes" className='btn_yes' onClick={(event) => responseBtn(event.target, {item})}>Accept</button>
+                          </div>
+
+                        </div>
+
                       </div>
+
                     </div>
                   ))}
                   

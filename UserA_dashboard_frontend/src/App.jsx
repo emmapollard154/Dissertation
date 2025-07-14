@@ -14,6 +14,8 @@ function App() {
   const [messageData, setMessageData] = useState([]);
   const [settingsData, setSettingsData] = useState([]);
   const [welcomeVisible, setWelcomeVisible] = useState(false);
+  const [togetherVisible, setTogetherVisible] = useState(false);
+  const [updateVisible, setUpdateVisible] = useState(false);
   const [helpVisible, setHelpVisible] = useState(false);
   const [educationVisible, setEducationVisible] = useState(false);
   const [historyVisible, setHistoryVisible] = useState(false);
@@ -353,6 +355,11 @@ function App() {
     setHistoryVisible(!historyVisible);
   };
 
+  function switchTogetherVisibility() {
+    console.log('App.jsx (A): switching visibility of together page.');
+    setTogetherVisible(!togetherVisible);
+  };
+
   function enableWelcomeVisibility() {
     console.log('App.jsx (A): enabling visibility of settings configuration.');
     setWelcomeVisible(true);
@@ -362,6 +369,12 @@ function App() {
     console.log('App.jsx (A): disabling visibility of settings configuration.');
     setWelcomeVisible(false);
   };
+
+  function proceedToUpdate() {
+    console.log('App.jsx (A): proceeding to setting update screen.');
+    setTogetherVisible(false);
+    setWelcomeVisible(!welcomeVisible); // switch to update screen
+  }
 
   // Hook to fetch data when the component mounts
   useEffect(() => {
@@ -430,7 +443,9 @@ function App() {
     socket.on('b_update_request', (data) => {
       console.log('App.jsx (A): settings update request received: ', data);
       fetchRequestData();
-      sendToExt('NUM_PENDING', null);
+      if (data.status === 'Y') { // avoid alerting for cancelled request
+        sendToExt('NUM_PENDING', null);
+      }
     });
 
     // Clean up the socket connection when the component unmounts
@@ -564,9 +579,6 @@ function App() {
           </div>
         )}
 
-
-
-
         <div className='top_panel'>
           <div className='top_left_container'>
             <div className='top_container'>
@@ -587,8 +599,83 @@ function App() {
                         </div>
                         <div className='request_resolve_container'>
                           <div className='request_resolve_subcontainer'>
-                            <button onClick={enableWelcomeVisibility}>Update Settings</button>
+                            <button onClick={switchTogetherVisibility}>Update Settings</button>
                           </div>
+
+                          {togetherVisible && (
+                            <div className='together_background' id='togetherBackground'>
+                              <div className='together_popup' id='togetherPopup'>
+                                <div className='bottom_scrollbar'>
+                                  <div className='together_content'>
+                                    <div className='together_header_container'>
+                                      <div className='together_subtitle'>Update Settings</div>
+                                    </div>
+
+                                    <div className='together_message_container'>
+                                      To update settings, confirm both users are present at this screen. Settings should be discussed and updated in person.
+                                    </div>
+
+                                    <div className='together_save_container'>
+                                      <div className='together_button_container'>
+                                        <button onClick={switchTogetherVisibility}>Cancel</button>
+                                      </div>
+                                      <div className='together_button_container'>
+                                        <button onClick={proceedToUpdate}>Confirm</button>
+                                      </div>
+                                    </div>
+
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {updateVisible && (
+                            <div className='welcome_background'>
+                              <div className='welcome_popup'>
+                                <div className='bottom_scrollbar'>
+                                  <div className='welcome_content'>
+                                    <div className='welcome_header_container'>
+
+                                      <div className='popup_subtitle'>Update Settings</div>
+                                      <div className='okay_welcome_top' >
+                                        <button className='popup_button' onClick={disableWelcomeVisibility}>Cancel</button>
+                                      </div>
+
+                                    </div>
+
+                                    <div className='settings_options_container'>
+
+                                      <form id="emailChoice">
+                                          <label className="options_container">Option 1
+                                          <input type="checkbox" name="email_choices" value="1" />
+                                          <span className="checkmark"></span>
+                                          </label>
+                                          <label className="options_container">Option 2
+                                          <input type="checkbox" name="email_choices" value="2" />
+                                          <span className="checkmark"></span>
+                                          </label>
+                                          <label className="options_container">Option 3
+                                          <input type="checkbox" name="email_choices" value="3" />
+                                          <span className="checkmark"></span>
+                                          </label>
+                                          <label className="options_container">Option 4
+                                          <input type="checkbox" name="email_choices" value="4" />
+                                          <span className="checkmark"></span>
+                                          </label>
+                                      </form>
+
+                                    </div>
+
+                                    <div className='settings_save_container'>
+                                      <button className="update_settings" id="updateSettings" onClick={updateSettingsData}>Save</button>
+                                    </div>
+
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
 
                           <div className='request_resolve_subcontainer'>
                             {item.context[1] === 'A' && (

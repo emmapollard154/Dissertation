@@ -437,6 +437,87 @@
   color: #ffffff;
 }
 
+.together_background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: var(--back-z);
+}
+
+.together_popup {
+    font-family: Arial, sans-serif;
+    position: absolute;
+    width: 30%;
+    height: 30%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    overflow: auto;
+    font-size: 2vh;
+}
+
+.together_content {
+  height: 95%;
+  text-align: center;
+  overflow: auto;
+  margin-right: 5%;
+  display: flex;
+  flex-direction: column;
+}
+
+.together_header_container {
+  height: 30%;
+  display: flex;
+  flex-direction: row;
+  box-sizing: border-box;
+  justify-content: center;
+}
+
+.together_subtitle {
+  font-size: 4vh;
+  font-weight: 600;
+  box-sizing: border-box;
+  margin-bottom: 2%;
+  padding-top: 2%;
+  color: var(--gray_blue);
+}
+
+.together_message_container {
+  height: 50%;
+}
+                           
+.together_save_container {
+  display: flex;
+  height: 20%;
+  flex-direction: row;
+  box-sizing: border-box;
+}
+
+.together_button_container {
+  box-sizing: border-box;
+  width: 50%;
+  justify-content: center;
+}
+
+.together_button_container button {
+  background-color: var(--gray_blue);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 2vh;
+  padding: 5% 10%;
+  width: 80%;
+  height: 90%;
+}
+
 .status_content_container {
   position: relative;
   box-sizing: border-box;
