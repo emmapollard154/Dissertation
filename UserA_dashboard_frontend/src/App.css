@@ -370,10 +370,11 @@
 .request_content_container {
   position: relative;
   box-sizing: border-box;
-  width: 100%;
+  width: 95%;
   display: flex;
   flex-direction: row;
   margin-top: 25px;
+  margin-right: 5%;
 }
 
 .request_icon_container {
@@ -414,13 +415,21 @@
   box-sizing: border-box;
   width: 50%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.request_resolve_subcontainer {
+  box-sizing: border-box;
+  height: 100%;
+  border: 2px dashed red;
+  margin-bottom: 1vh;
 }
 
 .request_resolve_container button {
   height: 90%;
   top: 5%;
-  right: 5%;
-  max-width: 100%;
+  width: 100%;
   position: relative;
   background: var(--gray_blue);
   text-align: center;

@@ -570,12 +570,22 @@ function App() {
                       </div>
                       <div className='request_data_container'>
                         <div className='request_info_container'>
-                          {/* Context: {item.context}
-                          Status: {item.status} */}
                           {formatRequest(item)}
+
                         </div>
                         <div className='request_resolve_container'>
-                          <button onClick={enableWelcomeVisibility}>Update Settings</button>
+                          <div className='request_resolve_subcontainer'>
+                            <button onClick={enableWelcomeVisibility}>Update Settings</button>
+                          </div>
+
+                          <div className='request_resolve_subcontainer'>
+                            {item.context[1] === 'A' && (
+                            <button>
+                              Cancel
+                            </button>
+                            )}
+                          </div>
+
                         </div>
                       </div>
                     </div>

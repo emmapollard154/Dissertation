@@ -397,8 +397,6 @@ app.post('/api/data-from-b', (req, res) => {
 
     if (target === 'UPDATE_REQUEST') {
 
-        console.log("UPDATE_REQUEST recevied ", data.payload)
-
         const env = data.payload.context;
         const user = data.payload.user;
         const status = data.payload.status;
