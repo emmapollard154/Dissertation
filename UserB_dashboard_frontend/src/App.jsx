@@ -14,6 +14,7 @@ function App() {
   const [messageData, setMessageData] = useState([]);
   const [requestData, setRequestData] = useState([]);
   const [settingsData, setSettingsData] = useState([]);
+  const [helpVisible, setHelpVisible] = useState(false);
   const [educationVisible, setEducationVisible] = useState(false);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -52,6 +53,18 @@ function App() {
   function updateRequest(context) {
     const user = 'B';
     const status = 'Y';
+    if (context) {
+      window.postMessage({
+        type: 'UPDATE_REQUEST',
+        payload: { context , user , status},
+      }, `http://localhost:${B_FRONTEND}`);
+    }
+  }
+
+  function cancelUpdateRequest(context) {
+    console.log(context);
+    const user = 'B';
+    const status = 'N';
     if (context) {
       window.postMessage({
         type: 'UPDATE_REQUEST',
@@ -245,22 +258,27 @@ function App() {
   };
 
   function switchSettingsVisibility() {
-    console.log('App.jsx (A): switching visibility of settings information.');
+    console.log('App.jsx (B): switching visibility of settings information.');
     setSettingsVisible(!settingsVisible);
   };
 
+  function switchHelpVisibility() {
+    console.log('App.jsx (B): switching visibility of help information.');
+    setHelpVisible(!helpVisible);
+  };
+
   function switchEducationVisibility() {
-    console.log('App.jsx (A): switching visibility of educational information.');
+    console.log('App.jsx (B): switching visibility of educational information.');
     setEducationVisible(!educationVisible);
   };
 
   function switchHistoryVisibility() {
-    console.log('App.jsx (A): switching visibility of browsing history.');
+    console.log('App.jsx (B): switching visibility of browsing history.');
     setHistoryVisible(!historyVisible);
   };
 
   function switchSettingsVisibility() {
-    console.log('App.jsx (A): switching visibility of settings.');
+    console.log('App.jsx (B): switching visibility of settings.');
     setSettingsVisible(!settingsVisible);
   };
 
@@ -297,11 +315,22 @@ function App() {
     socket.on('a_choice', (data) => {
       console.log('App.jsx (B): User A made choice: ', data);
       fetchActionData();
+      alert("Action Required.");
     });
 
     socket.on('a_message', (data) => {
       console.log('App.jsx (B): User A sent message: ', data);
       fetchMessageData();
+      // alert("New Message.");
+    });
+
+    socket.on('a_update_request', (data) => {
+      console.log('App.jsx (B): settings update request received: ', data);
+      fetchRequestData();
+      // if (data.payload.status === 'Y') { // avoid alerting for cancelled request
+      //   alert("Action Required.");
+      // }
+
     });
 
     socket.on('email_settings', (data) => {
@@ -319,7 +348,7 @@ function App() {
       fetchMessageData();
     });
 
-    socket.on('update_request', (data) => {
+    socket.on('b_update_request', (data) => {
       console.log('App.jsx (B): settings update request received: ', data);
       fetchRequestData();
     });
@@ -332,7 +361,8 @@ function App() {
       socket.off('a_message');
       socket.off('b_response');
       socket.off('b_message');
-      socket.off('update_request');
+      socket.off('a_update_request');
+      socket.off('b_update_request');
       socket.off('connect');
       socket.off('connect_error');
       socket.off('welcome');
@@ -372,9 +402,36 @@ function App() {
           </div>
         </div>
 
-        <div className='header_right'>
-            User B
+        <div className='header_middle'>
+          User B
         </div>
+
+        <div className='header_right'>
+          <button className='help_button' onClick={switchHelpVisibility}>?</button>
+        </div>
+
+        {helpVisible && (
+          <div className='help_background' id='helpBackground'>
+            <div className='help_popup' id='helpPopup'>
+              <div className='bottom_scrollbar'>
+                <div className='help_content'>
+                  <div className='help_header_container'>
+
+                    <div className='popup_subtitle'>Help Centre</div>
+                    <div className='okay_help_top' >
+                      <button className='popup_button' onClick={switchHelpVisibility}>Okay</button>
+                    </div>
+
+                  </div>
+
+                    <p>Help Information</p>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
 
       <div className='general_container'>
@@ -388,38 +445,59 @@ function App() {
 
                   {requestData.filter(item => item.status === 'Y').map((item) => (
                     <div className='request_content_container'>
+                      
                       <div className='request_icon_container'>
                         <img src='../icons/request_icon.png' className='request_image'></img>
                         {/* {item.context} */}
                       </div>
+
                       <div className='request_data_container'>
                         <div className='request_info_container'>
-                          {/* Context: {item.context}
-                          Status: {item.status} */}
                           {formatRequest(item)}
                         </div>
+
                         <div className='request_resolve_container'>
-                          {/* <button onClick={enableWelcomeVisibility}>Update Settings</button> */}
-                          DO SOMETHING
+                          <div className='request_resolve_subcontainer'>
+                            {item.context[1] === 'B' && (
+                            <button onClick={() => cancelUpdateRequest(item.context)}>
+                              Cancel
+                            </button>
+                            )}
+                          </div>
                         </div>
+
                       </div>
+
                     </div>
                   ))}
 
                   {actionData.filter(item => item.resolved === 'N').map((item) => (
-                  // {actionData.map((item) => (
                     <div className='status_content_container'>
+
                       <div className='status_icon_container'>
                         <img src='../icons/mail_action_icon.png' className='status_image'></img>
-                        {/* {item.context} */}
                       </div>
+
                       <div className='status_data_container'>
-                        <div className='status_meta_container'>A choice: {item.userAChoice} {simplifyTime(item.time)} </div>
-                        <div className='status_text_container'>
-                          <button id="btnNo" className='btn_no' onClick={(event) => responseBtn(event.target, {item})}>REJECT</button>
-                          <button id="btnYes" className='btn_yes' onClick={(event) => responseBtn(event.target, {item})}>ACCEPT</button>
+
+                        <div className='status_info_container'>
+                          A choice: {item.userAChoice} {simplifyTime(item.time)}
                         </div>
+
+                        <div className='status_resolve_container'>
+
+                          <div className='request_resolve_subcontainer'>
+                            <button id="btnNo" className='btn_no' onClick={(event) => responseBtn(event.target, {item})}>Reject</button>
+                          </div>
+
+                          <div className='request_resolve_subcontainer'>
+                            <button id="btnYes" className='btn_yes' onClick={(event) => responseBtn(event.target, {item})}>Accept</button>
+                          </div>
+
+                        </div>
+
                       </div>
+
                     </div>
                   ))}
                   
@@ -502,7 +580,7 @@ function App() {
                             <div className='education_content'>
                               <div className='education_header_container'>
 
-                                <div className='education_subtitle'>Safety Information</div>
+                                <div className='popup_subtitle'>Safety Information</div>
                                 <div className='okay_education_top' >
                                 <button className='popup_button' onClick={switchEducationVisibility}>Okay</button>
                                 </div>
@@ -533,7 +611,7 @@ function App() {
                           <div className='browsing_history_content'>
                             <div className='browsing_header_container'>
 
-                              <div className='browsing_subtitle'>Browsing History</div>
+                              <div className='popup_subtitle'>Browsing History</div>
                               <div className='okay_browsing_top' >
                                 <button className='popup_button' onClick={switchHistoryVisibility}>Okay</button>
                               </div>
@@ -564,7 +642,7 @@ function App() {
                             <div className='settings_content'>
                               <div className='settings_header_container'>
 
-                                <div className='settings_subtitle'>Settings</div>
+                                <div className='popup_subtitle'>Settings</div>
                                 <div className='okay_settings_top' >
                                   <button className='popup_button' onClick={switchSettingsVisibility}>Okay</button>
                                 </div>
