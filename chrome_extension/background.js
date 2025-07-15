@@ -97,6 +97,12 @@ chrome.runtime.onMessageExternal.addListener(
 		return true;
 	}
 
+    if (request.type === 'EMAIL_SETTINGS') {
+		chrome.runtime.sendMessage({ action: 'setEmailSettings' , settings: request.payload});
+		sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });
+		return true;
+	}
+
   }
 );
 

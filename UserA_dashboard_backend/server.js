@@ -304,7 +304,7 @@ app.post('/api/dashboard-data', (req, res) => {
         const id = data.id;
         const time = data.time;
         const choice =  'Y';
-        const context = 'S';
+        const context = 'Settings';
         const resolved = 'Y';
         const responseOutcome = '0';
 

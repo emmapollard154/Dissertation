@@ -119,6 +119,15 @@ function App() {
     }
   }
 
+  function checkContext(context) {
+    if (context === 'Email') {
+      return '../icons/mail_action_icon.png'
+    }
+    if (context === 'Settings') {
+      return '../icons/settings_action_icon.png'
+    }
+  }
+
   const fetchBrowserData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/browsingHistory`);
@@ -158,7 +167,6 @@ function App() {
   };
 
   const fetchRequestData = async () => {
-    console.log("fetchRequestData")
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/requests`);
       if (!response.ok) {
@@ -195,7 +203,6 @@ function App() {
   };
 
   const fetchSettingsData = async () => {
-    console.log("fetchSettingsData");
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/settings`);
       if (!response.ok) {
@@ -222,8 +229,6 @@ function App() {
   }
 
   function updateSettingsData(context) {
-    console.log("updateSettingsData");
-    console.log("context: ", context);
 
     let settingChoices = null;
     let updateSettings = null;
@@ -269,6 +274,8 @@ function App() {
         if (context) {
           cancelUpdateRequest(context);
         }
+
+        sendToExt('EMAIL_SETTINGS', chosen); // send to extension
 
       } else {
         console.warn('App.jsx (A): no choices found.');
@@ -463,11 +470,13 @@ function App() {
       console.log('App.jsx (A): settings update request received: ', data);
       fetchRequestData();
       fetchSettingsData();
+      fetchActionData();
     });
 
     socket.on('email_settings', (data) => {
       console.log('App.jsx (A): email settings updated: ', data);
       fetchSettingsData();
+      fetchActionData();
     });
 
     socket.on('b_response', (data) => {
@@ -486,6 +495,7 @@ function App() {
       console.log('App.jsx (A): settings update request received: ', data);
       fetchRequestData();
       fetchSettingsData();
+      fetchActionData();
       if (data.status === 'Y') { // avoid alerting for cancelled request
         sendToExt('NUM_PENDING', null);
       }
@@ -792,8 +802,7 @@ function App() {
                 {actionData.filter(item => item.resolved === 'Y').map((item) => (
                   <div className='history_content_container'>
                     <div className='history_icon_container'>
-                      <img src='../icons/mail_action_icon.png' className='history_image'></img>
-                      {/* {item.context} */}
+                      <img src={checkContext(item.context)} className='history_image'></img>
                     </div>
                     <div className='history_data_container'>
                       <div className='history_meta_container'>A choice: {item.userAChoice}, B response: {item.responseOutcome}</div>

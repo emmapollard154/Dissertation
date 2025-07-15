@@ -63,6 +63,19 @@ async function getNumPending() {
     }
 }
 
+// Function to get email settings
+async function getEmailSettings() {
+    try {
+        const result = await getStorageData(['EMAIL_SETTINGS']);
+        const emailSettings = result.EMAIL_SETTINGS;
+        console.log('getEmailSettings: ', emailSettings);
+        return emailSettings;
+    } catch (error) {
+        console.error('content_email.js: error retrieving EMAIL_SETTINGS: ', error);
+        throw error;
+    }
+}
+
 // Function to get the number of updates
 async function getNumUpdates() {
     try {
@@ -120,6 +133,31 @@ async function addUpdate() {
     }
 }
 
+// Function to send message to email content script
+async function sendToEmail(message) {
+    const url = `http://localhost:${EMAIL_PORT}/`
+    try {
+        const tabs = await chrome.tabs.query({});
+        for (const tab of tabs) {
+            console.log(url);
+            console.log(tab.url);
+            if (tab.url && tab.url === url) {
+                try {
+                    const response = await chrome.tabs.sendMessage(tab.id, {
+                        action: 'emailSettings', 
+                        message: message
+                }); 
+                    console.log('side_panel.js: received response from email content script: ', response);
+                } catch (error) {
+                    console.error(`side_panel.js: error sending message to tab ${tab.id}: `, error);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('side_panel.js: error querying tabs: ', error);
+    }
+}
+
 // Create listener for tab events
 chrome.tabs.onActivated.addListener(active => {
 
@@ -170,6 +208,21 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         messageAlert();
     }
 
+    if (message.action === 'setEmailSettings') {
+        console.log('side_panel.js: setEmailSettings received.')
+        chrome.storage.local.set({ 'EMAIL_SETTINGS' : message.settings }, function() {
+            console.log('content_email.js: setting EMAIL_SETTINGS to ', message.settings );
+        });
+        const emailSettings = getEmailSettings();
+        emailSettings.then(function(result) {
+            console.log(result);
+            document.getElementById('speechContent').innerText = result;
+        })
+        .catch(function(error) {
+            console.error('side_panel.js: request to get EMAIL_SETTINGS rejected: ', error);
+        });
+    }
+
     if (message.action === 'sendUrlToDashboard') {
 
         const urlReceived =  message.newUrlMessage[0];
@@ -216,12 +269,13 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                         // send message to the content script in the active tab
                         chrome.tabs.sendMessage(activeTab.id, {
                             action: 'onEmailPage',
-                        }, function(response) {
+                        // }, function(response) {
+                        }, function() {
                             if (chrome.runtime.lastError) {
-                                console.error('side_panel.js: error sending message to content script: ', chrome.runtime.lastError.message);
-                                sendResponse({ status: 'failed', error: chrome.runtime.lastError.message });
+                                console.error('side_panel.js: error sending message to content script') // : ', chrome.runtime.lastError.message);
+                                // sendResponse({ status: 'failed', error: chrome.runtime.lastError.message });
                             } else {
-                                sendResponse({ status: 'success', contentScriptResponse: response });
+                                // sendResponse({ status: 'success', contentScriptResponse: response });
                             }
                         });
                     } else {
