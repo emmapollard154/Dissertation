@@ -60,6 +60,8 @@ function App() {
       else {
         console.log('App.jsx (A): setting configurations already exist.');
         disableWelcomeVisibility();
+        disableUpdateVisibility();
+        
         // TO DO: check settings configuration, process settings
       }
     }
@@ -114,6 +116,15 @@ function App() {
         type: 'UPDATE_REQUEST',
         payload: { context , user , status},
       }, `http://localhost:${A_FRONTEND}`);
+    }
+  }
+
+  function checkContext(context) {
+    if (context === 'Email') {
+      return '../icons/mail_action_icon.png'
+    }
+    if (context === 'Settings') {
+      return '../icons/settings_action_icon.png'
     }
   }
 
@@ -210,10 +221,26 @@ function App() {
     }
   };
 
-  function updateSettingsData() {
+  // Function to get unique ID for email actions
+  function settingID() {
+      const now = new Date().toISOString(); // timestamp (unique)
+      var id = now.replace(/\D/g, ""); // keep only numeric values from timestamp
+      return `s${id}`; // e signifies email action
+  }
 
-    const settingChoices = document.getElementById('emailChoice');
-    const updateSettings = document.getElementById('updateSettings');
+  function updateSettingsData(context) {
+
+    let settingChoices = null;
+    let updateSettings = null;
+
+    if (!context) { // initial configuration
+      settingChoices = document.getElementById('emailChoice');
+      updateSettings = document.getElementById('updateSettings');
+    }
+    else { // settings update
+      settingChoices = document.getElementById('emailChoiceUpdate');
+      updateSettings = document.getElementById('resetSettings');
+    }
 
     if (!settingChoices) {
         console.warn('App.jsx (A): cannot find form in welcome popup.');
@@ -235,10 +262,21 @@ function App() {
             chosen[i] = 'N';
           }
         }
+
+        const id = settingID();
+        const time = new Date().toISOString();
+
         window.postMessage({
           type: 'SET_EMAIL_SETTINGS',
-          payload: { chosen },
+          payload: { chosen , id , time },
         }, `http://localhost:${A_FRONTEND}`);
+
+        if (context) {
+          cancelUpdateRequest(context);
+        }
+
+        sendToExt('EMAIL_SETTINGS', chosen); // send to extension
+
       } else {
         console.warn('App.jsx (A): no choices found.');
       }
@@ -370,10 +408,20 @@ function App() {
     setWelcomeVisible(false);
   };
 
+  function enableUpdateVisibility() {
+    console.log('App.jsx (A): enabling visibility of update configuration.');
+    setUpdateVisible(true);
+  };
+
+  function disableUpdateVisibility() {
+    console.log('App.jsx (A): disabling visibility of update configuration.');
+    setUpdateVisible(false);
+  };
+
   function proceedToUpdate() {
     console.log('App.jsx (A): proceeding to setting update screen.');
     setTogetherVisible(false);
-    setWelcomeVisible(!welcomeVisible); // switch to update screen
+    enableUpdateVisibility(); // switch to update screen
   }
 
   // Hook to fetch data when the component mounts
@@ -421,11 +469,14 @@ function App() {
     socket.on('a_update_request', (data) => {
       console.log('App.jsx (A): settings update request received: ', data);
       fetchRequestData();
+      fetchSettingsData();
+      fetchActionData();
     });
 
     socket.on('email_settings', (data) => {
       console.log('App.jsx (A): email settings updated: ', data);
       fetchSettingsData();
+      fetchActionData();
     });
 
     socket.on('b_response', (data) => {
@@ -443,6 +494,8 @@ function App() {
     socket.on('b_update_request', (data) => {
       console.log('App.jsx (A): settings update request received: ', data);
       fetchRequestData();
+      fetchSettingsData();
+      fetchActionData();
       if (data.status === 'Y') { // avoid alerting for cancelled request
         sendToExt('NUM_PENDING', null);
       }
@@ -570,7 +623,7 @@ function App() {
                   </div>
 
                   <div className='settings_save_container'>
-                    <button className="update_settings" id="updateSettings" onClick={updateSettingsData}>Save</button>
+                    <button className="update_settings" id="updateSettings" onClick={() => updateSettingsData(null)}>Save</button>
                   </div>
 
                 </div>
@@ -639,14 +692,14 @@ function App() {
 
                                       <div className='popup_subtitle'>Update Settings</div>
                                       <div className='okay_welcome_top' >
-                                        <button className='popup_button' onClick={disableWelcomeVisibility}>Cancel</button>
+                                        <button className='popup_button' onClick={disableUpdateVisibility}>Cancel</button>
                                       </div>
 
                                     </div>
 
                                     <div className='settings_options_container'>
 
-                                      <form id="emailChoice">
+                                      <form id="emailChoiceUpdate">
                                           <label className="options_container">Option 1
                                           <input type="checkbox" name="email_choices" value="1" />
                                           <span className="checkmark"></span>
@@ -668,7 +721,7 @@ function App() {
                                     </div>
 
                                     <div className='settings_save_container'>
-                                      <button className="update_settings" id="updateSettings" onClick={updateSettingsData}>Save</button>
+                                      <button className="update_settings" id="resetSettings" onClick={() => updateSettingsData(item.context)}>Save</button>
                                     </div>
 
                                   </div>
@@ -749,8 +802,7 @@ function App() {
                 {actionData.filter(item => item.resolved === 'Y').map((item) => (
                   <div className='history_content_container'>
                     <div className='history_icon_container'>
-                      <img src='../icons/mail_action_icon.png' className='history_image'></img>
-                      {/* {item.context} */}
+                      <img src={checkContext(item.context)} className='history_image'></img>
                     </div>
                     <div className='history_data_container'>
                       <div className='history_meta_container'>A choice: {item.userAChoice}, B response: {item.responseOutcome}</div>

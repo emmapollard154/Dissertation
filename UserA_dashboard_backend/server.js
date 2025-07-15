@@ -300,6 +300,26 @@ app.post('/api/dashboard-data', (req, res) => {
             console.error('server.js (A): database insertion error: ', err.message);
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
+
+        const id = data.id;
+        const time = data.time;
+        const choice =  'Y';
+        const context = 'Settings';
+        const resolved = 'Y';
+        const responseOutcome = '0';
+
+        console.log(id, time, choice, context, resolved, responseOutcome);
+
+        try {
+            console.log('server.js (A): inserting into action table.');
+            const stmt = db.prepare('INSERT INTO action (actionID, context, userAChoice, time, resolved, responseOutcome) VALUES (?, ?, ?, ?, ?, ?)');
+            stmt.run(id, context, choice, time, resolved, responseOutcome);
+        }
+        catch(err) {
+            console.error('server.js (A): database insertion error: ', err.message);
+            return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
+        }
+
         res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
 
         hubSocket.emit('backendMessage', { event: 'SET_EMAIL_SETTINGS', data: data.chosen }); // message hub

@@ -153,8 +153,9 @@ function attachMenuListeners(menuPopup) {
 
     if (okayMenu) {
         okayMenu.addEventListener('click', function(event) {
-            event.preventDefault();
             const choice = menuChoice.elements['user_a_choices'].value;
+            event.preventDefault();
+            console.log(choice);
             if (choice) {
                 sendChoice(choice);
             } else {
@@ -179,14 +180,6 @@ function attachMenuListeners(menuPopup) {
     }
 }
 
-// // Function to get current time in sqlite datetime format
-// function timeToDatetime() {
-//     const now = new Date().toISOString();
-//     const [date, rawTime] = now.split('T');
-//     const time = rawTime.split('.')[0];
-//     return `${date} ${time}`;
-// }
-
 // Function to get unique ID for email actions
 function emailID() {
     const now = new Date().toISOString(); // timestamp (unique)
@@ -202,32 +195,40 @@ function sendChoice(choice) {
     chrome.runtime.sendMessage({ action: "sendChoiceToDashboardA", id: id, choice: choice, time: time });
 }
 
-// Create listener for actions on email page
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-
-    console.log('content_email.js received message from: ', sender.id, 'with data:', request);
-
-    if (request.action === 'onEmailPage') { 
-        const eventDetected = 'onEmailPage';
-        injectInfoHtml();
-        injectMenuHtml();
-        document.addEventListener('click', function(event) {
-
-            if (event.target.matches('button')) {
-                const btnText = event.target.innerText;
-                if (btnText.includes('Reply') || btnText.includes('Forward')) { // risky button clicked
-                    event.preventDefault();
-                    if (infoBackground) {
-                        infoBackground.style.display = 'block'; // show popup
-                    } else {
-                        console.warn('content_email.js: infoBackground not found.');
-                    }
-                } else {
-                    // safe button clicked
-                }
+// Function to get stored data
+function getStorageData(keys) {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get(keys, function(result) {
+            if (chrome.runtime.lastError) {
+                return reject(chrome.runtime.lastError);
             }
+            resolve(result);
+        });
+    });
+}
 
-            if (event.target.matches('a')) { // link pressed
+// Function to get email settings
+async function getEmailSettings() {
+    try {
+        const result = await getStorageData(['EMAIL_SETTINGS']);
+        const emailSettings = result.EMAIL_SETTINGS;
+        return emailSettings;
+    } catch (error) {
+        console.error('content_email.js: error retrieving EMAIL_SETTINGS: ', error);
+        throw error;
+    }
+}
+
+// Function to inject html and add listeners
+function loadAll() {
+
+    injectInfoHtml();
+    injectMenuHtml();
+    document.addEventListener('click', function(event) {
+
+        if (event.target.matches('button')) {
+            const btnText = event.target.innerText;
+            if (btnText.includes('Reply') || btnText.includes('Forward')) { // risky button clicked
                 event.preventDefault();
                 if (infoBackground) {
                     infoBackground.style.display = 'block'; // show popup
@@ -235,11 +236,154 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                     console.warn('content_email.js: infoBackground not found.');
                 }
             }
+        }
 
-        }, true);
+        if (event.target.matches('a')) { // link pressed
+            event.preventDefault();
+            if (infoBackground) {
+                infoBackground.style.display = 'block'; // show popup
+            } else {
+                console.warn('content_email.js: infoBackground not found.');
+            }
+        }
 
-        sendResponse({ status: 'content_processed', eventDetected: eventDetected});
+    }, true);
+
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve();
+        }, 500);
+    });
+
+    // sendResponse({ status: 'content_processed', eventDetected: type});
+}
+
+
+// Create listener for actions on email page
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+
+    console.log('content_email.js received message from: ', sender.id, 'with data:', request);
+
+    // loadAll();
+
+    if (request.action === 'onEmailPage') { 
+        // const eventDetected = 'onEmailPage';
+        loadAll().then( () => {
+
+            const emailSettings = getEmailSettings();
+
+            emailSettings.then(function(result) {
+
+                console.log('content_email.js: current settings: ', result);
+
+                const option1 = document.getElementById('option1');
+                const option2 = document.getElementById('option2');
+                const option3 = document.getElementById('option3');
+                const option4 = document.getElementById('option4');
+
+                console.log(option1, option2, option3, option4);
+
+                if (option1 && option2 && option3 && option4) {
+
+                    const option1cont = option1.closest('.options_container');
+                    const option2cont = option2.closest('.options_container');
+                    const option3cont = option3.closest('.options_container');
+                    const option4cont = option4.closest('.options_container');
+
+                    // Disable blocked options
+                    if (result[0] === 'N') {
+                        option1.disabled = true;
+                        option1.checked = false; // deselect
+                        option2.checked = true; // autoselect next option
+                        option1cont.classList.add('disabled-option');
+                    } else {
+                        option1.disabled = false;
+                        option1cont.classList.remove('disabled-option');
+                    }
+
+                    if (result[1] === 'N') {
+                        option2.disabled = true;
+                        option2.checked = false; // deselect
+                        option3.checked = true; // autoselect next option
+                        option2cont.classList.add('disabled-option');
+                    } else {
+                        option2.disabled = false;
+                        option2cont.classList.remove('disabled-option');
+                    }
+
+                    if (result[2] === 'N') {
+                        option3.disabled = true;
+                        option3.checked = false; // deselect
+                        option4.checked = true; // autoselect next option
+                        option3cont.classList.add('disabled-option');
+                    } else {
+                        option3.disabled = false;
+                        option3cont.classList.remove('disabled-option');
+                    }
+
+                    if (result[3] === 'N') {
+                        option4.disabled = true;
+                        option4.checked = false; // deselect
+                        option4cont.classList.add('disabled-option');
+                    } else {
+                        option4.disabled = false;
+                        option4cont.classList.remove('disabled-option');
+                    }
+                }
+                else {
+                    console.error('content_email.js: radio option not found');
+                }
+
+            })
+            .catch(function(error) {
+                console.error('content_email.js: request to get EMAIL_SETTINGS rejected: ', error);
+            });
+
+        })
+        .catch(error => {
+            console.error('content_email: error during loadAll(): ', error);
+        });
+
     }
+
+    // if (request.action === 'emailSettings') { 
+    //     // const eventDetected = 'emailSettings';
+    //     loadAll();
+
+    //     const emailSettings = getEmailSettings();
+    //     emailSettings.then(function(result) {
+
+    //         const option1 = document.getElementById('option1');
+    //         const option2 = document.getElementById('option2');
+    //         const option3 = document.getElementById('option3');
+    //         const option4 = document.getElementById('option4');
+
+    //         if (option1 && option2 && option3 && option4) {
+    //             // Disable blocked options
+    //             if (result[0] === 'N') {
+    //                 option1.disabled = true;
+    //             }
+    //             if (result[1] === 'N') {
+    //                 option2.disabled = true;
+    //             }
+    //             if (result[2] === 'N') {
+    //                 option3.disabled = true;
+    //             }
+    //             if (result[3] === 'N') {
+    //                 option4.disabled = true;
+    //             }
+    //         }
+    //         else {
+    //             console.error('content_email.js: radio option not found');
+    //         }
+
+    //     })
+    //     .catch(function(error) {
+    //         console.error('content_email.js: request to get EMAIL_SETTINGS rejected: ', error);
+    //     });
+
+    // }
+
 });
 
 console.log("content_email.js: email content script loaded and listening for messages");

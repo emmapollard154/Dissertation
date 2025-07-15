@@ -47,14 +47,12 @@
   user-select: none;
 }
 
-/* hide default radio button */
 .options_container input {
   position: absolute;
   opacity: 0;
   cursor: pointer;
 }
 
-/* customsie radio button */
 .checkmark {
   position: absolute;
   top: 0;
@@ -90,4 +88,19 @@
 	height: 8px;
 	border-radius: 50%;
 	background: white;
+}
+
+.options_container.disabled-option {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.options_container input:disabled ~ .checkmark {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.options_container input:disabled ~ .checkmark:after {
+    display: none;
 }
