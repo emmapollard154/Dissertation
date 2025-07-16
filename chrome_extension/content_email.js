@@ -1,5 +1,7 @@
 // content_email.js: content script for email browser
 
+const EMAIL_PORT = 5174;
+
 // References to html elements
 let infoBackground = null;
 let infoPopup = null;
@@ -12,7 +14,7 @@ let okayMenu = null;
 let backMenu = null;
 
 // Function to fetch and inject HTML and attach listeners for information popup
-async function injectInfoHtml() {
+async function injectInfoHtml(link) {
 
     infoBackground = document.getElementById('infoBackground');
     infoPopup = document.getElementById('infoPopup');
@@ -48,7 +50,7 @@ async function injectInfoHtml() {
 
         if (infoBackground) {
             console.log('content_email.js: information HTML injected into the page body.');
-            attachInfoListeners(infoBackground);
+            attachInfoListeners(infoBackground, link);
         } else {
             console.error('content_email.js: failed to find infoBackground within the fetched HTML content.');
         }
@@ -56,11 +58,12 @@ async function injectInfoHtml() {
     } catch (error) {
         console.error('content_email.js: error injecting information HTML: ', error);
     }
+    return;
 }
 
 
 // Function to fetch and inject HTML and attach listeners for menu popup
-async function injectMenuHtml() {
+async function injectMenuHtml(link) {
 
     menuBackground = document.getElementById('menuBackground');
     menuPopup = document.getElementById('menuPopup');
@@ -97,7 +100,7 @@ async function injectMenuHtml() {
 
         if (menuBackground) {
             console.log('content_email.js: menu HTML injected into the page body.');
-            attachMenuListeners(menuBackground);
+            attachMenuListeners(menuBackground, link);
         } else {
             console.error('content_email.js: failed to find menuBackground within the fetched HTML content.');
         }
@@ -105,15 +108,23 @@ async function injectMenuHtml() {
     } catch (error) {
         console.error('content_email.js: error injecting menu HTML: ', error);
     }
+    return;
 }
 
 
 // Function to attach event listeners to the information popup buttons
-function attachInfoListeners(informationPopup) {
+function attachInfoListeners(informationPopup, link) {
     if (!informationPopup) return;
 
+    const infoText = document.getElementById('infoText');
     const okayInfo = document.getElementById('okayInfo');
     const cancelInfo = document.getElementById('cancelInfo');
+
+    if (infoText) {
+        address = document.createElement('p');
+        address.innerHTML = link.href;
+        infoText.append(address);
+    }
 
     if (okayInfo) {
         okayInfo.addEventListener('click', function(event) {
@@ -140,7 +151,7 @@ function attachInfoListeners(informationPopup) {
 }
 
 // Function to attach event listeners to the menu popup buttons
-function attachMenuListeners(menuPopup) {
+function attachMenuListeners(menuPopup, link) {
     if (!menuPopup) return;
 
     const menuChoice = document.getElementById('user_a_choice');
@@ -156,7 +167,7 @@ function attachMenuListeners(menuPopup) {
             const choice = menuChoice.elements['user_a_choices'].value;
             event.preventDefault();
             if (choice) {
-                sendChoice(choice);
+                processChoice(choice, link);
             } else {
                 console.warn('content_email.js: no choice made.');
             }
@@ -186,12 +197,42 @@ function emailID() {
     return `e${id}`; // e signifies email action
 }
 
-// Function to send user selected choice in menu popup to background script
-function sendChoice(choice) {
-    // const time =  timeToDatetime();
+// Function to send user selected choice to background script and process choice on page
+function processChoice(choice, link) {
     const time = new Date().toISOString();
     const id = emailID();
     chrome.runtime.sendMessage({ action: "sendChoiceToDashboardA", id: id, choice: choice, time: time });
+
+    if (choice === '3') {
+        link.classList.add('disabled'); // set disabled attribute for CSS
+        link.setAttribute('disabled', 'disabled');
+        link.classList.add('name'); // store href in name attribute
+        link.setAttribute('name', link.href);
+        link.innerHTML = link.href; // display link target
+        link.href = ''; // remove clickable link
+        link.id = id; // add ID to link corresponding to actionID
+    }
+
+    if (choice === '4') {
+        link.classList.add('disabled'); // set disabled attribute for CSS
+        link.setAttribute('disabled', 'disabled');
+        link.classList.add('name'); // store href in name attribute
+        link.setAttribute('name', link.href);
+        link.innerHTML = link.href; // display link target
+        link.href = ''; // remove clickable link
+        link.id = id; // add ID to link corresponding to actionID
+    }
+
+    if (choice === '5') {
+        link.classList.add('disabled'); // set disabled attribute for CSS
+        link.setAttribute('disabled', 'disabled');
+        link.classList.add('name'); // store href in name attribute
+        link.setAttribute('name', link.href);
+        link.innerHTML = link.href; // display link target
+        link.href = ''; // remove clickable link
+        link.id = id; // add ID to link corresponding to actionID
+    }
+
 }
 
 // Function to get stored data
@@ -221,24 +262,23 @@ async function getEmailSettings() {
 // Function to inject html and add listeners
 function loadAll() {
 
-    injectInfoHtml();
-    injectMenuHtml();
-    document.addEventListener('click', function(event) {
+    let link = '';
 
-        if (event.target.matches('button')) {
-            const btnText = event.target.innerText;
-            if (btnText.includes('Reply') || btnText.includes('Forward')) { // risky button clicked
-                event.preventDefault();
-                if (infoBackground) {
-                    infoBackground.style.display = 'block'; // show popup
-                } else {
-                    console.warn('content_email.js: infoBackground not found.');
-                }
-            }
-        }
+    document.addEventListener('click', async function(event) {
 
         if (event.target.matches('a')) { // link pressed
             event.preventDefault();
+
+            link = event.target;
+
+            if (link.href === `http://localhost:${EMAIL_PORT}/`) {
+                console.log('content_email.js: link to own page clicked.');
+                return; // do nothing
+            }
+
+            await injectInfoHtml(link);
+            await injectMenuHtml(link);
+            
             if (infoBackground) {
                 infoBackground.style.display = 'block'; // show popup
             } else {
@@ -248,13 +288,7 @@ function loadAll() {
 
     }, true);
 
-    return new Promise(resolve => {
-        setTimeout(() => {
-            resolve();
-        }, 500);
-    });
-
-    // sendResponse({ status: 'content_processed', eventDetected: type});
+    return;
 }
 
 
@@ -265,7 +299,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
     if (request.action === 'onEmailPage') { 
 
-        loadAll().then( () => {
+        loadAll();
 
             const emailSettings = getEmailSettings();
 
@@ -347,10 +381,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 console.error('content_email.js: request to get EMAIL_SETTINGS rejected: ', error);
             });
 
-        })
-        .catch(error => {
-            console.error('content_email: error during loadAll(): ', error);
-        });
+        // })
+        // .catch(error => {
+        //     console.error('content_email: error during loadAll(): ', error);
+        // });
 
     }
 });
