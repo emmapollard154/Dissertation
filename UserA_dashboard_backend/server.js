@@ -241,29 +241,46 @@ app.post('/api/dashboard-data', (req, res) => {
         const choice = data.choice;
         const time = data.time;
         const context = data.context;
-        let resolved = "E";
+        const responseOutcome = '0';
+        let addAction = false;
+        let resolved = 'N';
 
-        // TEMP
-        if (choice === "1") {
-            resolved = "Y";
-        } else {
-            resolved = "N";
+        if (choice === '1') {
+            resolved = 'Y';
+            addAction = false;
+        }
+        if (choice === '2') {
+            resolved = 'Y';
+            addAction = true;
+        }
+        if (choice === '3') {
+            resolved = 'N';
+            addAction = true;
+        }
+        if (choice === '4') {
+            resolved = 'N';
+            addAction = true;
+        }
+        if (choice === '5') {
+            resolved = 'Y';
+            addAction = false;
         }
 
-        const responseOutcome = "0";
+        if (addAction) {
+            try {
+                console.log('server.js (A): inserting into action table.');
+                const stmt = db.prepare('INSERT INTO action (actionID, context, userAChoice, time, resolved, responseOutcome) VALUES (?, ?, ?, ?, ?, ?)');
+                stmt.run(id, context, choice, time, resolved, responseOutcome);
+            }
+            catch(err) {
+                console.error('server.js (A): database insertion error: ', err.message);
+                return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
+            }
+            io.emit('a_choice', choice);
+            res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
+            hubSocket.emit('backendMessage', { event: 'USER_A_CHOICE', data: choice }); // message hub
+        }
 
-        try {
-            console.log('server.js (A): inserting into action table.');
-            const stmt = db.prepare('INSERT INTO action (actionID, context, userAChoice, time, resolved, responseOutcome) VALUES (?, ?, ?, ?, ?, ?)');
-            stmt.run(id, context, choice, time, resolved, responseOutcome);
-        }
-        catch(err) {
-            console.error('server.js (A): database insertion error: ', err.message);
-            return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
-        }
-        io.emit('a_choice', choice);
-        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
-        hubSocket.emit('backendMessage', { event: 'USER_A_CHOICE', data: choice }); // message hub
     }
 
     if (target === 'USER_A_MESSAGE') {
