@@ -1,42 +1,56 @@
 <!-- html content to inject into email browser -->
 
-<div class="menu_popup_background" id="menuBackground">
-    <link rel="stylesheet" href="${chrome.runtime.getURL('menu_popup.css')}">
-    <div class="menu_popup" id="menuPopup">
-        <div class="menu_popup_content">
-            <h1>Menu</h1>
+<div class='menu_popup_background' id='menuBackground'>
+    <link rel='stylesheet' href='${chrome.runtime.getURL('menu_popup.css')}'>
+    <div class='menu_popup' id='menuPopup'>
+        <div class='menu_popup_content'>
 
-            <form id="user_a_choice" name="menu-form">
+            <div class='menu_popup_header'>
+                How would you like to respond?
+            </div>
 
-                <label class="options_container">
-                    Option 1
-                    <input type="radio" name="user_a_choices" id='option1' value="1" checked>
-                    <span class="checkmark"></span>
-                </label>
+            <div class='menu_form_container'>
 
-                <label class="options_container">
-                    Option 2
-                    <input type="radio" name="user_a_choices" id='option2' value="2">
-                    <span class="checkmark"></span>
-                </label>
+                <form id='user_a_choice' name='menu-form'>
 
-                <label class="options_container">
-                    Option 3
-                    <input type="radio" name="user_a_choices" id='option3' value="3">
-                    <span class="checkmark"></span>
-                </label>
+                    <label class='options_container'>
+                        <p>Continue (no interference)</p>
+                        <input type='radio' name='user_a_choices' id='option1' value='1' checked>
+                        <span class='checkmark'></span>
+                    </label>
 
-                <label class="options_container">
-                    Option 4
-                    <input type="radio" name="user_a_choices" id='option4' value="4">
-                    <span class="checkmark"></span>
-                </label>
+                    <label class='options_container'>
+                        <p> </p>
+                        <input type='radio' name='user_a_choices' id='option2' value='2'>
+                        <span class='checkmark'></span>
+                    </label>
 
-                <button class="btn_okay" id="okayMenu">Okay</button>
-                <button class="btn_back" id="backMenu">Back</button>
+                    <label class='options_container'>
+                        <p>Ask User B to check (accept or reject) this action. Do not continue with action at the moment.</p>
+                        <input type='radio' name='user_a_choices' id='option3' value='3'>
+                        <span class='checkmark'></span>
+                    </label>
 
-            </form>
+                    <label class='options_container'>
+                        <p>Ask User B to check (accept or reject) this action. Block action if User B rejects request.</p>
+                        <input type='radio' name='user_a_choices' id='option4' value='4'>
+                        <span class='checkmark'></span>
+                    </label>
 
+                    <label class='options_container'>
+                        <p>Block this action. Prevent action being carried out in the future. User B will not be informed.</p>
+                        <input type='radio' name='user_a_choices' id='option5' value='5'>
+                        <span class='checkmark'></span>
+                    </label>
+
+                </form>
+
+            </div>
+
+            <div class='menu_button_container'>
+                <div class='menu_button_subcontainer'><button class='btn_back' id='backMenu'>Back</button></div>
+                <div class='menu_button_subcontainer'><button class='btn_okay' id='okayMenu'>Okay</button></div>
+            </div>
 
         </div>
     </div>

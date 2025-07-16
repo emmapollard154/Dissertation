@@ -117,7 +117,8 @@ const db = new sqlite3.Database('../dashboard.db', (err) => {
             opt1 CHAR(1),
             opt2 CHAR(1),
             opt3 CHAR(1),
-            opt4 CHAR(1)
+            opt4 CHAR(1),
+            opt5 CHAR(1)
         )`, (createErr) => {
             if (createErr) {
                 console.error('server.js (A): error creating table:', createErr.message);
@@ -290,11 +291,12 @@ app.post('/api/dashboard-data', (req, res) => {
         const opt2 = data.chosen[1];
         const opt3 = data.chosen[2];
         const opt4 = data.chosen[3];
+        const opt5 = data.chosen[4];
 
         try {
             console.log('server.js (A): updating settings table.');
-            const stmt = db.prepare('INSERT OR REPLACE INTO settings (context, opt1, opt2, opt3, opt4) VALUES (?, ?, ?, ?, ?)'); // insert email settings, or update is exists
-            stmt.run('E', opt1, opt2, opt3, opt4);
+            const stmt = db.prepare('INSERT OR REPLACE INTO settings (context, opt1, opt2, opt3, opt4, opt5) VALUES (?, ?, ?, ?, ?, ?)'); // insert email settings, or update is exists
+            stmt.run('E', opt1, opt2, opt3, opt4, opt5);
         }
         catch(err) {
             console.error('server.js (A): database insertion error: ', err.message);

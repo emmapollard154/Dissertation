@@ -155,7 +155,6 @@ function attachMenuListeners(menuPopup) {
         okayMenu.addEventListener('click', function(event) {
             const choice = menuChoice.elements['user_a_choices'].value;
             event.preventDefault();
-            console.log(choice);
             if (choice) {
                 sendChoice(choice);
             } else {
@@ -264,10 +263,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
     console.log('content_email.js received message from: ', sender.id, 'with data:', request);
 
-    // loadAll();
-
     if (request.action === 'onEmailPage') { 
-        // const eventDetected = 'onEmailPage';
+
         loadAll().then( () => {
 
             const emailSettings = getEmailSettings();
@@ -280,8 +277,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 const option2 = document.getElementById('option2');
                 const option3 = document.getElementById('option3');
                 const option4 = document.getElementById('option4');
-
-                console.log(option1, option2, option3, option4);
+                const option5 = document.getElementById('option5');
 
                 if (option1 && option2 && option3 && option4) {
 
@@ -289,6 +285,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                     const option2cont = option2.closest('.options_container');
                     const option3cont = option3.closest('.options_container');
                     const option4cont = option4.closest('.options_container');
+                    const option5cont = option5.closest('.options_container');
 
                     // Disable blocked options
                     if (result[0] === 'N') {
@@ -303,8 +300,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
                     if (result[1] === 'N') {
                         option2.disabled = true;
-                        option2.checked = false; // deselect
-                        option3.checked = true; // autoselect next option
+                        option2.checked = false;
+                        option3.checked = true;
                         option2cont.classList.add('disabled-option');
                     } else {
                         option2.disabled = false;
@@ -313,8 +310,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
                     if (result[2] === 'N') {
                         option3.disabled = true;
-                        option3.checked = false; // deselect
-                        option4.checked = true; // autoselect next option
+                        option3.checked = false;
+                        option4.checked = true;
                         option3cont.classList.add('disabled-option');
                     } else {
                         option3.disabled = false;
@@ -323,12 +320,23 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
                     if (result[3] === 'N') {
                         option4.disabled = true;
-                        option4.checked = false; // deselect
+                        option4.checked = false;
+                        option5.checked = true;
                         option4cont.classList.add('disabled-option');
                     } else {
                         option4.disabled = false;
                         option4cont.classList.remove('disabled-option');
                     }
+
+                    if (result[4] === 'N') {
+                        option5.disabled = true;
+                        option5.checked = false;
+                        option5cont.classList.add('disabled-option');
+                    } else {
+                        option5.disabled = false;
+                        option5cont.classList.remove('disabled-option');
+                    }
+
                 }
                 else {
                     console.error('content_email.js: radio option not found');
@@ -345,45 +353,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         });
 
     }
-
-    // if (request.action === 'emailSettings') { 
-    //     // const eventDetected = 'emailSettings';
-    //     loadAll();
-
-    //     const emailSettings = getEmailSettings();
-    //     emailSettings.then(function(result) {
-
-    //         const option1 = document.getElementById('option1');
-    //         const option2 = document.getElementById('option2');
-    //         const option3 = document.getElementById('option3');
-    //         const option4 = document.getElementById('option4');
-
-    //         if (option1 && option2 && option3 && option4) {
-    //             // Disable blocked options
-    //             if (result[0] === 'N') {
-    //                 option1.disabled = true;
-    //             }
-    //             if (result[1] === 'N') {
-    //                 option2.disabled = true;
-    //             }
-    //             if (result[2] === 'N') {
-    //                 option3.disabled = true;
-    //             }
-    //             if (result[3] === 'N') {
-    //                 option4.disabled = true;
-    //             }
-    //         }
-    //         else {
-    //             console.error('content_email.js: radio option not found');
-    //         }
-
-    //     })
-    //     .catch(function(error) {
-    //         console.error('content_email.js: request to get EMAIL_SETTINGS rejected: ', error);
-    //     });
-
-    // }
-
 });
 
 console.log("content_email.js: email content script loaded and listening for messages");
