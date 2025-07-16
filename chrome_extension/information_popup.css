@@ -1,3 +1,7 @@
+:root {
+  --gray_blue: rgb(45, 45, 90);
+}
+
 .info_popup_background {
     display: none;
     position: fixed;
@@ -18,18 +22,55 @@
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    width: 60%;
+    height: 60%
+    min-height: 60%;
 }
 
 .info_popup_content {
-    text-align: center;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-.info_popup button {
-    background-color: #4caf50;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
+.info_popup_header {
+  font-size: 4vh;
+  height: 15%;
+  padding-left: 2%;
+  overflow: visible;
+  word-wrap: break-word;
+  overflow-wrap: break-word; 
+}
+
+.info_text_container {
+  height: 70%;
+  padding-left: 5%;
+}
+
+.info_text_container p {
+  font-size: 2vh;
+}
+
+.info_button_container {
+  height: 15%;
+  display: flex;
+  flex-direction: row;
+}
+
+.info_button_subcontainer {
+  width: 50%;
+}
+
+.info_button_subcontainer button {
+  background-color: var(--gray_blue);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 2vh;
+  width: 60%;
+  height: 76%;
+  margin-top: 2%;
+  margin-left: 20%;
 }

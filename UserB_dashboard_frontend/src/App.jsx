@@ -73,6 +73,16 @@ function App() {
     }
   }
 
+  function checkContext(context) {
+    if (context === 'Email') {
+      return '../icons/mail_action_icon.png'
+    }
+    if (context === 'Settings') {
+      return '../icons/settings_action_icon.png'
+    }
+  }
+
+
   const fetchSettingsData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/settings`);
@@ -330,7 +340,8 @@ function App() {
       // if (data.payload.status === 'Y') { // avoid alerting for cancelled request
       //   alert("Action Required.");
       // }
-
+      fetchSettingsData();
+      fetchActionData();
     });
 
     socket.on('email_settings', (data) => {
@@ -351,6 +362,8 @@ function App() {
     socket.on('b_update_request', (data) => {
       console.log('App.jsx (B): settings update request received: ', data);
       fetchRequestData();
+      fetchSettingsData();
+      fetchActionData();
     });
 
     // Clean up the socket connection when the component unmounts
@@ -548,8 +561,7 @@ function App() {
                 {actionData.filter(item => item.resolved === 'Y').map((item) => (
                   <div className='history_content_container'>
                     <div className='history_icon_container'>
-                      <img src='../icons/mail_action_icon.png' className='history_image'></img>
-                      {/* {item.context} */}
+                      <img src={checkContext(item.context)} className='history_image'></img>
                     </div>
                     <div className='history_data_container'>
                       <div className='history_meta_container'>A choice: {item.userAChoice}, B response: {item.responseOutcome}</div>
@@ -652,7 +664,7 @@ function App() {
                                 {settingsData.map((item) => (
                                   <div className='settings_entry_container'>
                                     <div className='context_container'>{item.context}</div>
-                                    <div className='chosen_options_container'>{item.opt1} {item.opt2} {item.opt3} {item.opt4}</div>
+                                    <div className='chosen_options_container'>{item.opt1} {item.opt2} {item.opt3} {item.opt4} {item.opt5}</div>
                                     <div className='request_update_container'>
                                       <button className='update_settings_button' onClick={() => updateRequest(item.context)}>Request Update</button>
                                     </div>

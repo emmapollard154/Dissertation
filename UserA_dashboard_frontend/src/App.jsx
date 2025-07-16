@@ -603,20 +603,24 @@ function App() {
 
                     <form id="emailChoice">
                         <label className="options_container">Option 1
-                        <input type="checkbox" name="email_choices" value="1" />
-                        <span className="checkmark"></span>
+                          <input type="checkbox" name="email_choices" value="1" />
+                          <span className="checkmark"></span>
                         </label>
                         <label className="options_container">Option 2
-                        <input type="checkbox" name="email_choices" value="2" />
-                        <span className="checkmark"></span>
+                          <input type="checkbox" name="email_choices" value="2" />
+                          <span className="checkmark"></span>
                         </label>
                         <label className="options_container">Option 3
-                        <input type="checkbox" name="email_choices" value="3" />
-                        <span className="checkmark"></span>
+                          <input type="checkbox" name="email_choices" value="3" />
+                          <span className="checkmark"></span>
                         </label>
                         <label className="options_container">Option 4
-                        <input type="checkbox" name="email_choices" value="4" />
-                        <span className="checkmark"></span>
+                          <input type="checkbox" name="email_choices" value="4" />
+                          <span className="checkmark"></span>
+                        </label>
+                        <label className="options_container">Option 5
+                          <input type="checkbox" name="email_choices" value="5" />
+                          <span className="checkmark"></span>
                         </label>
                     </form>
 
@@ -701,20 +705,24 @@ function App() {
 
                                       <form id="emailChoiceUpdate">
                                           <label className="options_container">Option 1
-                                          <input type="checkbox" name="email_choices" value="1" />
-                                          <span className="checkmark"></span>
+                                            <input type="checkbox" name="email_choices" value="1" />
+                                            <span className="checkmark"></span>
                                           </label>
                                           <label className="options_container">Option 2
-                                          <input type="checkbox" name="email_choices" value="2" />
-                                          <span className="checkmark"></span>
+                                            <input type="checkbox" name="email_choices" value="2" />
+                                            <span className="checkmark"></span>
                                           </label>
                                           <label className="options_container">Option 3
-                                          <input type="checkbox" name="email_choices" value="3" />
-                                          <span className="checkmark"></span>
+                                            <input type="checkbox" name="email_choices" value="3" />
+                                            <span className="checkmark"></span>
                                           </label>
                                           <label className="options_container">Option 4
-                                          <input type="checkbox" name="email_choices" value="4" />
-                                          <span className="checkmark"></span>
+                                            <input type="checkbox" name="email_choices" value="4" />
+                                            <span className="checkmark"></span>
+                                          </label>
+                                          <label className="options_container">Option 5
+                                            <input type="checkbox" name="email_choices" value="5" />
+                                            <span className="checkmark"></span>
                                           </label>
                                       </form>
 
@@ -905,7 +913,7 @@ function App() {
                                 {settingsData.map((item) => (
                                   <div className='settings_entry_container'>
                                     <div className='context_container'>{item.context}</div>
-                                    <div className='chosen_options_container'>{item.opt1} {item.opt2} {item.opt3} {item.opt4}</div>
+                                    <div className='chosen_options_container'>{item.opt1} {item.opt2} {item.opt3} {item.opt4} {item.opt5}</div>
                                     <div className='request_update_container'>
                                       <button className='update_settings_button' onClick={() => updateRequest(item.context)}>Request Update</button>
                                     </div>
