@@ -1,6 +1,10 @@
 // content_email.js: content script for email browser
 
 const EMAIL_PORT = 5174;
+let EXTENSION_LOADED =  false;
+let LINK = '';
+let CURRENT_PARENT = ''; // variable to store click event target
+let MODIFIED_HTML = new Map(); // map to store modified html for pages containing pending links
 
 // References to html elements
 let infoBackground = null;
@@ -23,6 +27,17 @@ async function injectInfoHtml(link) {
 
     if (infoBackground && infoPopup && okayInfo && cancelInfo) {
         console.log('content_email.js: information html elements already exist.');
+        const infoText = document.getElementById('infoText');
+
+        if (infoText) {
+            address = document.getElementById('infoTextURL');
+            if (address) {
+                if (link) {
+                    address.innerHTML = link.href;
+                }
+            }
+        }
+
         return;
     }
 
@@ -121,10 +136,14 @@ function attachInfoListeners(informationPopup, link) {
     const cancelInfo = document.getElementById('cancelInfo');
 
     if (infoText) {
-        address = document.createElement('p');
-        address.innerHTML = link.href;
-        infoText.append(address);
+        address = document.getElementById('infoTextURL');
+        if (address) {
+            if (link) {
+                address.innerHTML = link.href;
+            }
+        }
     }
+
 
     if (okayInfo) {
         okayInfo.addEventListener('click', function(event) {
@@ -172,6 +191,13 @@ function attachMenuListeners(menuPopup, link) {
                 console.warn('content_email.js: no choice made.');
             }
             menuPopup.style.display = 'none';
+
+            if (choice === '3' || choice === '4' || choice === '5') { // store modified html with url as key
+                console.log('content_email.js: storing html');
+
+                MODIFIED_HTML.set(CURRENT_PARENT,  document.documentElement.innerHTML);
+
+            }
         });
     } else {
         console.warn('content_email.js: "Okay" button not found in popup.');
@@ -203,14 +229,17 @@ function processChoice(choice, link) {
     const id = emailID();
     chrome.runtime.sendMessage({ action: "sendChoiceToDashboardA", id: id, choice: choice, time: time });
 
+    console.log(link);
+
     if (choice === '3') {
         link.classList.add('disabled'); // set disabled attribute for CSS
         link.setAttribute('disabled', 'disabled');
         link.classList.add('name'); // store href in name attribute
         link.setAttribute('name', link.href);
+        // setPendingElems(link);
+        setPendingLinks(link.href);
         link.innerHTML = link.href; // display link target
         link.href = ''; // remove clickable link
-        link.id = id; // add ID to link corresponding to actionID
     }
 
     if (choice === '4') {
@@ -218,9 +247,10 @@ function processChoice(choice, link) {
         link.setAttribute('disabled', 'disabled');
         link.classList.add('name'); // store href in name attribute
         link.setAttribute('name', link.href);
+        // setPendingElems(link);
+        setPendingLinks(link.href);
         link.innerHTML = link.href; // display link target
         link.href = ''; // remove clickable link
-        link.id = id; // add ID to link corresponding to actionID
     }
 
     if (choice === '5') {
@@ -228,9 +258,10 @@ function processChoice(choice, link) {
         link.setAttribute('disabled', 'disabled');
         link.classList.add('name'); // store href in name attribute
         link.setAttribute('name', link.href);
+        // setPendingElems(link);
+        setPendingLinks(link.href);
         link.innerHTML = link.href; // display link target
         link.href = ''; // remove clickable link
-        link.id = id; // add ID to link corresponding to actionID
     }
 
 }
@@ -244,6 +275,41 @@ function getStorageData(keys) {
             }
             resolve(result);
         });
+    });
+}
+
+// Function to retrieve pending links
+async function getPendingLinks() {
+    try {
+        const result = await getStorageData(['PENDING_ACTIONS']);
+        const ids = result.PENDING_ACTIONS;
+        if (!ids) {
+            console.log('PENDING_ACTIONS does not exist.');
+            return [];
+        }
+        return ids;
+    } catch (error) {
+        console.error('content_email.js: error retrieving PENDING_ACTIONS: ', error);
+        return [];
+    }
+}
+
+// Function to store IDs of pending requests
+function setPendingLinks(url) {
+
+    console.log("setPendingLinks");
+    console.log("url trying to add: ", url);
+
+    let current = getPendingLinks(); // get current pending actions
+
+    current.then(function(result) { // add to pending actions
+        console.log("current pending actions: ", result);
+        if (!result.includes(url)) { // avoid double entries
+            result.push(url);  
+            chrome.storage.local.set({ 'PENDING_ACTIONS': result }, function() {
+            console.log('content_email.js: setting PENDING_ACTIONS to ', result);
+            })
+        }
     });
 }
 
@@ -262,35 +328,110 @@ async function getEmailSettings() {
 // Function to inject html and add listeners
 function loadAll() {
 
-    let link = '';
+    let currentLinks = getPendingLinks(); // get current pending actions
 
-    document.addEventListener('click', async function(event) {
+    currentLinks.then(async function(result) { 
 
-        if (event.target.matches('a')) { // link pressed
-            event.preventDefault();
+        if (EXTENSION_LOADED) {
 
-            link = event.target;
+            document.addEventListener('click', async function(event) {
 
-            if (link.href === `http://localhost:${EMAIL_PORT}/`) {
-                console.log('content_email.js: link to own page clicked.');
-                return; // do nothing
-            }
+                console.log('content_email.js: click detected.');
 
-            await injectInfoHtml(link);
-            await injectMenuHtml(link);
-            
-            if (infoBackground) {
-                infoBackground.style.display = 'block'; // show popup
-            } else {
-                console.warn('content_email.js: infoBackground not found.');
-            }
+                console.log("MODIFIED_HTML: ", MODIFIED_HTML);
+                let entries = MODIFIED_HTML.entries();
+                console.log("MODIFIED_HTML entries: ", entries);
+
+                console.log(MODIFIED_HTML.size);
+
+                for (const [key, value] of MODIFIED_HTML.entries()) { // Explicitly calling .entries()
+                    console.log(`Key: ${key}, Value: ${value}`);
+                }
+
+
+                if (event.target.matches('a')) { // link pressed
+
+                    event.preventDefault();
+
+                    LINK = event.target;
+
+                    console.log("link pressed");
+                    console.log(LINK);
+                    
+
+                    if (LINK.href === `http://localhost:${EMAIL_PORT}/`) { // clicked link to own page
+                        console.log('content_email.js: link to own page clicked.');
+                        if (LINK.name) {
+                            if (result.includes(LINK.name)) { // clicked on disabled link
+                                console.log("link in PENDING_ACTIONS clicked, DO SOMETHING");
+                            }
+                        }
+                        console.log("TRYING TO RETURN");
+                        return;
+                    }
+
+                    await injectInfoHtml(LINK);
+                    await injectMenuHtml(LINK);
+                    
+                    if (infoBackground) {
+                        infoBackground.style.display = 'block'; // show popup
+                    } else {
+                        console.warn('content_email.js: infoBackground not found.');
+                    }
+
+                }
+                else {
+                    console.log("link not pressed")
+                    console.log(event.target);
+
+                    let eventID = event.target.id;
+
+                    if (!eventID.includes('menu') && !eventID.includes('info') && !eventID.includes('Menu') && !eventID.includes('Info')) { // ignore popup content
+                        console.log("event id doesn't contain info or menu");
+
+                        for (const className of event.target.classList) {
+                            console.log(className);
+                            console.log("className includes info: ", className.includes('info'));
+                            if (!className.includes('menu') && !className.includes('info')) {
+                                console.log("info and menu not in class name")
+
+                                console.log("Storing temporary parent element");
+                                CURRENT_PARENT = event.target.outerHTML;
+                                console.log("CURRENT_PARENT: ", CURRENT_PARENT);
+
+                                for (const key of MODIFIED_HTML.keys()) {
+                                    if (key.includes(CURRENT_PARENT)) {
+                                        console.log('content_email.js: manually overriding html.');
+                                        document.documentElement.innerHTML = MODIFIED_HTML.get(key);
+
+                                    }
+                                }
+
+
+                                break;
+                            }
+                            else {
+                                console.log("element contains info or menu in classlist");
+                            }
+                        }
+
+                    }
+                    else {
+                        console.log("element contains info or menu in id");
+                    }
+                    
+                }
+
+            }, true);
+
+            return;
         }
+        else {
+            console.log("extension not loaded");
+        }
+    });
 
-    }, true);
-
-    return;
 }
-
 
 // Create listener for actions on email page
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -298,6 +439,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     console.log('content_email.js received message from: ', sender.id, 'with data:', request);
 
     if (request.action === 'onEmailPage') { 
+
+        EXTENSION_LOADED = true;
+        if (EXTENSION_LOADED) {
+            console.log('content_email.js: extension loaded.');
+        }
 
         loadAll();
 
@@ -381,12 +527,23 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 console.error('content_email.js: request to get EMAIL_SETTINGS rejected: ', error);
             });
 
-        // })
-        // .catch(error => {
-        //     console.error('content_email: error during loadAll(): ', error);
-        // });
-
     }
 });
 
 console.log("content_email.js: email content script loaded and listening for messages");
+
+// TEMP: clear PENDING_ACTIONS
+
+// chrome.storage.local.set({ 'PENDING_ACTIONS': [] }, function() {
+// console.log('content_email.js: cleared PENDING_ACTIONS.');
+// })
+
+
+let initial = getPendingLinks(); // get current pending actions
+initial.then(function(result) {
+    console.log('PENDING_ACTIONS: ', result);
+});
+
+if (!EXTENSION_LOADED) {
+    console.log('Extension not loaded.');
+}
