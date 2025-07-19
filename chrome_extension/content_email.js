@@ -1,10 +1,14 @@
 // content_email.js: content script for email browser
 
 const EMAIL_PORT = 5174;
+let INJECTED = false;
 let EXTENSION_LOADED =  false;
 let LINK = '';
+let PENDING_ACTIONS = [];
 let CURRENT_PARENT = ''; // variable to store click event target
 let MODIFIED_HTML = new Map(); // map to store modified html for pages containing pending links
+let ORIGINAL_HTML = new Map(); // map to store original html results for regular clicks
+let CLICKED_BEFORE = [];
 
 // References to html elements
 let infoBackground = null;
@@ -24,22 +28,6 @@ async function injectInfoHtml(link) {
     infoPopup = document.getElementById('infoPopup');
     okayInfo = document.getElementById('okayInfo');
     cancelInfo = document.getElementById('cancelInfo');
-
-    if (infoBackground && infoPopup && okayInfo && cancelInfo) {
-        console.log('content_email.js: information html elements already exist.');
-        const infoText = document.getElementById('infoText');
-
-        if (infoText) {
-            address = document.getElementById('infoTextURL');
-            if (address) {
-                if (link) {
-                    address.innerHTML = link.href;
-                }
-            }
-        }
-
-        return;
-    }
 
     try {
         const infoHtml = chrome.runtime.getURL('information_popup.html');
@@ -86,11 +74,6 @@ async function injectMenuHtml(link) {
     okayMenu = document.getElementById('okayMenu');
     backMenu = document.getElementById('backMenu');
 
-    if (menuBackground && menuPopup && okayMenu && backMenu) {
-        console.log('content_email.js: menu html elements already exist.');
-        return;
-    }
-
     try {
         const menuHtml = chrome.runtime.getURL('menu_popup.html');
         const response = await fetch(menuHtml);
@@ -123,6 +106,7 @@ async function injectMenuHtml(link) {
     } catch (error) {
         console.error('content_email.js: error injecting menu HTML: ', error);
     }
+    INJECTED = true;
     return;
 }
 
@@ -147,6 +131,7 @@ function attachInfoListeners(informationPopup, link) {
 
     if (okayInfo) {
         okayInfo.addEventListener('click', function(event) {
+            console.log("okayInfo clicked");
             event.preventDefault();
             if (menuBackground) {
                 informationPopup.style.display = 'none'; // hide info popup
@@ -193,10 +178,8 @@ function attachMenuListeners(menuPopup, link) {
             menuPopup.style.display = 'none';
 
             if (choice === '3' || choice === '4' || choice === '5') { // store modified html with url as key
-                console.log('content_email.js: storing html');
-
+                console.log('content_email.js: storing modified html');
                 MODIFIED_HTML.set(CURRENT_PARENT,  document.documentElement.innerHTML);
-
             }
         });
     } else {
@@ -236,8 +219,8 @@ function processChoice(choice, link) {
         link.setAttribute('disabled', 'disabled');
         link.classList.add('name'); // store href in name attribute
         link.setAttribute('name', link.href);
-        // setPendingElems(link);
-        setPendingLinks(link.href);
+        PENDING_ACTIONS.push(link.href);
+        // setPendingLinks(link.href);
         link.innerHTML = link.href; // display link target
         link.href = ''; // remove clickable link
     }
@@ -247,8 +230,8 @@ function processChoice(choice, link) {
         link.setAttribute('disabled', 'disabled');
         link.classList.add('name'); // store href in name attribute
         link.setAttribute('name', link.href);
-        // setPendingElems(link);
-        setPendingLinks(link.href);
+        PENDING_ACTIONS.push(link.href);
+        // setPendingLinks(link.href);
         link.innerHTML = link.href; // display link target
         link.href = ''; // remove clickable link
     }
@@ -258,8 +241,8 @@ function processChoice(choice, link) {
         link.setAttribute('disabled', 'disabled');
         link.classList.add('name'); // store href in name attribute
         link.setAttribute('name', link.href);
-        // setPendingElems(link);
-        setPendingLinks(link.href);
+        PENDING_ACTIONS.push(link.href);
+        // setPendingLinks(link.href);
         link.innerHTML = link.href; // display link target
         link.href = ''; // remove clickable link
     }
@@ -278,41 +261,6 @@ function getStorageData(keys) {
     });
 }
 
-// Function to retrieve pending links
-async function getPendingLinks() {
-    try {
-        const result = await getStorageData(['PENDING_ACTIONS']);
-        const ids = result.PENDING_ACTIONS;
-        if (!ids) {
-            console.log('PENDING_ACTIONS does not exist.');
-            return [];
-        }
-        return ids;
-    } catch (error) {
-        console.error('content_email.js: error retrieving PENDING_ACTIONS: ', error);
-        return [];
-    }
-}
-
-// Function to store IDs of pending requests
-function setPendingLinks(url) {
-
-    console.log("setPendingLinks");
-    console.log("url trying to add: ", url);
-
-    let current = getPendingLinks(); // get current pending actions
-
-    current.then(function(result) { // add to pending actions
-        console.log("current pending actions: ", result);
-        if (!result.includes(url)) { // avoid double entries
-            result.push(url);  
-            chrome.storage.local.set({ 'PENDING_ACTIONS': result }, function() {
-            console.log('content_email.js: setting PENDING_ACTIONS to ', result);
-            })
-        }
-    });
-}
-
 // Function to get email settings
 async function getEmailSettings() {
     try {
@@ -328,109 +276,129 @@ async function getEmailSettings() {
 // Function to inject html and add listeners
 function loadAll() {
 
-    let currentLinks = getPendingLinks(); // get current pending actions
+    if (EXTENSION_LOADED) {
 
-    currentLinks.then(async function(result) { 
+        let flagged = false;
+        let clickedBefore = false;
+        let popupElement = false;
 
-        if (EXTENSION_LOADED) {
+        document.addEventListener('click', async function(event) {
 
-            document.addEventListener('click', async function(event) {
+            console.log(PENDING_ACTIONS);
 
-                console.log('content_email.js: click detected.');
+            if (!clickedBefore && !flagged && !popupElement) {
+                console.log("CURRENT_PARENT doesn't have original html stored.");
+                console.log('content_email.js: storing original html.');
+                console.log("CURRENT_PARENT: ", CURRENT_PARENT);
+                ORIGINAL_HTML.set(CURRENT_PARENT, document.documentElement.innerHTML);
+            }
 
-                console.log("MODIFIED_HTML: ", MODIFIED_HTML);
-                let entries = MODIFIED_HTML.entries();
-                console.log("MODIFIED_HTML entries: ", entries);
+            flagged = false;
+            clickedBefore = false;
+            popupElement = false;
 
-                console.log(MODIFIED_HTML.size);
+            if (event.target.matches('a')) { // link pressed
 
-                for (const [key, value] of MODIFIED_HTML.entries()) { // Explicitly calling .entries()
-                    console.log(`Key: ${key}, Value: ${value}`);
-                }
+                event.preventDefault();
+                LINK = event.target;
+                console.log('content_email.js: link element pressed - ', LINK);
 
+                if (LINK.href === `http://localhost:${EMAIL_PORT}/`) { // clicked link to own page
+                    console.log('content_email.js: link to own page clicked.');
 
-                if (event.target.matches('a')) { // link pressed
-
-                    event.preventDefault();
-
-                    LINK = event.target;
-
-                    console.log("link pressed");
-                    console.log(LINK);
-                    
-
-                    if (LINK.href === `http://localhost:${EMAIL_PORT}/`) { // clicked link to own page
-                        console.log('content_email.js: link to own page clicked.');
-                        if (LINK.name) {
-                            if (result.includes(LINK.name)) { // clicked on disabled link
-                                console.log("link in PENDING_ACTIONS clicked, DO SOMETHING");
-                            }
-                        }
-                        console.log("TRYING TO RETURN");
-                        return;
+                    if (PENDING_ACTIONS.includes(LINK.name)) {
+                        console.log('content_email.js: pending link clicked.');
+                        console.log("DO SOMETHING");
                     }
 
-                    await injectInfoHtml(LINK);
-                    await injectMenuHtml(LINK);
-                    
-                    if (infoBackground) {
-                        infoBackground.style.display = 'block'; // show popup
-                    } else {
-                        console.warn('content_email.js: infoBackground not found.');
+                    return;
+                }
+
+                await injectInfoHtml(LINK);
+                await injectMenuHtml(LINK);
+                
+                if (infoBackground) {
+                    infoBackground.style.display = 'block'; // show popup
+                } else {
+                    console.warn('content_email.js: infoBackground not found.');
+                }
+
+            }
+            else {
+                console.log('content_email.js: non-link element pressed - ', event.target);
+
+                let eventID = event.target.id;
+
+                if (!eventID.includes('menu') && !eventID.includes('info') && !eventID.includes('Menu') && !eventID.includes('Info') && !eventID.includes('option')) { // ignore popup content
+
+                    for (const className of event.target.classList) {
+                        if (!className.includes('menu') && !className.includes('info') && !className.includes('checkmark') && !className.includes('option')) {
+                            // do nothing
+                        }
+                        else {
+                            console.log('content_email.js: popup element pressed.');
+                            popupElement = true;
+                        }
                     }
 
                 }
                 else {
-                    console.log("link not pressed")
-                    console.log(event.target);
+                    console.log('content_email.js: popup element pressed.');
+                    popupElement = true;
+                }
 
-                    let eventID = event.target.id;
+                if (!popupElement) {
 
-                    if (!eventID.includes('menu') && !eventID.includes('info') && !eventID.includes('Menu') && !eventID.includes('Info')) { // ignore popup content
-                        console.log("event id doesn't contain info or menu");
+                    console.log('content_email.js: non-popup element pressed.');
+                    CURRENT_PARENT = event.target.outerHTML; // html of event target
 
-                        for (const className of event.target.classList) {
-                            console.log(className);
-                            console.log("className includes info: ", className.includes('info'));
-                            if (!className.includes('menu') && !className.includes('info')) {
-                                console.log("info and menu not in class name")
+                    if (CLICKED_BEFORE.includes(CURRENT_PARENT)) {
+                        console.log("CURRENT PARENT has been clicked before");
 
-                                console.log("Storing temporary parent element");
-                                CURRENT_PARENT = event.target.outerHTML;
-                                console.log("CURRENT_PARENT: ", CURRENT_PARENT);
-
-                                for (const key of MODIFIED_HTML.keys()) {
-                                    if (key.includes(CURRENT_PARENT)) {
-                                        console.log('content_email.js: manually overriding html.');
-                                        document.documentElement.innerHTML = MODIFIED_HTML.get(key);
-
-                                    }
-                                }
-
-
-                                break;
-                            }
-                            else {
-                                console.log("element contains info or menu in classlist");
+                        // Check if element is already parent to a pending link
+                        for (const key of MODIFIED_HTML.keys()) {
+                            if (key.includes(CURRENT_PARENT)) {
+                                console.log("CURRENT_PARENT identified as overridden: ", CURRENT_PARENT);
+                                console.log('content_email.js: manually overriding html.');
+                                document.documentElement.innerHTML = MODIFIED_HTML.get(key);
+                                flagged = true;
+                                return;
                             }
                         }
 
-                    }
-                    else {
-                        console.log("element contains info or menu in id");
-                    }
+                        if(!flagged) {
+                            console.log('content_email.js: fresh parent clicked.');
+
+                            for (const key of ORIGINAL_HTML.keys()) {
+                                if (key.includes(CURRENT_PARENT)) {
+                                    console.log("CURRENT_PARENT has original html stored.");
+                                    console.log('content_email.js: loading original html.');
+                                    console.log('for key ', key);
+                                    document.documentElement.innerHTML = ORIGINAL_HTML.get(key);
+                                    clickedBefore = true;
+                                    // break;
+                                    return;
+                                }
+                            }
+                        }
+
+
+                    } else {
+                        console.log("CURRENT PARENT has NOT been clicked before");
                     
+                        CLICKED_BEFORE.push(CURRENT_PARENT);
+                    }
                 }
 
-            }, true);
+            }
 
-            return;
-        }
-        else {
-            console.log("extension not loaded");
-        }
-    });
+        }, true);
 
+        return;
+    }
+    else {
+        console.log('content_email.js: extension not loaded.');
+    }
 }
 
 // Create listener for actions on email page
@@ -444,8 +412,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         if (EXTENSION_LOADED) {
             console.log('content_email.js: extension loaded.');
         }
-
         loadAll();
+
+        if (INJECTED) {
 
             const emailSettings = getEmailSettings();
 
@@ -527,22 +496,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 console.error('content_email.js: request to get EMAIL_SETTINGS rejected: ', error);
             });
 
+        }
     }
 });
 
 console.log("content_email.js: email content script loaded and listening for messages");
-
-// TEMP: clear PENDING_ACTIONS
-
-// chrome.storage.local.set({ 'PENDING_ACTIONS': [] }, function() {
-// console.log('content_email.js: cleared PENDING_ACTIONS.');
-// })
-
-
-let initial = getPendingLinks(); // get current pending actions
-initial.then(function(result) {
-    console.log('PENDING_ACTIONS: ', result);
-});
 
 if (!EXTENSION_LOADED) {
     console.log('Extension not loaded.');
