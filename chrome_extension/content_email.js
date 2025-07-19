@@ -1,7 +1,6 @@
 // content_email.js: content script for email browser
 
 const EMAIL_PORT = 5174;
-let INJECTED = false;
 let EXTENSION_LOADED =  false;
 let LINK = '';
 let PENDING_ACTIONS = [];
@@ -106,7 +105,7 @@ async function injectMenuHtml(link) {
     } catch (error) {
         console.error('content_email.js: error injecting menu HTML: ', error);
     }
-    INJECTED = true;
+
     return;
 }
 
@@ -170,16 +169,18 @@ function attachMenuListeners(menuPopup, link) {
         okayMenu.addEventListener('click', function(event) {
             const choice = menuChoice.elements['user_a_choices'].value;
             event.preventDefault();
-            if (choice) {
-                processChoice(choice, link);
-            } else {
-                console.warn('content_email.js: no choice made.');
-            }
-            menuPopup.style.display = 'none';
+            if (link) {
+                if (choice) {
+                    processChoice(choice, link);
+                } else {
+                    console.warn('content_email.js: no choice made.');
+                }
+                menuPopup.style.display = 'none';
 
-            if (choice === '3' || choice === '4' || choice === '5') { // store modified html with url as key
-                console.log('content_email.js: storing modified html');
-                MODIFIED_HTML.set(CURRENT_PARENT,  document.documentElement.innerHTML);
+                if (choice === '3' || choice === '4' || choice === '5') { // store modified html with url as key
+                    console.log('content_email.js: storing modified html');
+                    MODIFIED_HTML.set(CURRENT_PARENT,  document.documentElement.innerHTML);
+                }
             }
         });
     } else {
@@ -414,89 +415,90 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         }
         loadAll();
 
-        if (INJECTED) {
+        injectInfoHtml(null).then(function() {
+            injectMenuHtml(null).then(function() {
 
-            const emailSettings = getEmailSettings();
+                const emailSettings = getEmailSettings();
 
-            emailSettings.then(function(result) {
+                emailSettings.then(function(result) {
 
-                console.log('content_email.js: current settings: ', result);
+                    console.log('content_email.js: current settings: ', result);
 
-                const option1 = document.getElementById('option1');
-                const option2 = document.getElementById('option2');
-                const option3 = document.getElementById('option3');
-                const option4 = document.getElementById('option4');
-                const option5 = document.getElementById('option5');
+                    const option1 = document.getElementById('option1');
+                    const option2 = document.getElementById('option2');
+                    const option3 = document.getElementById('option3');
+                    const option4 = document.getElementById('option4');
+                    const option5 = document.getElementById('option5');
 
-                if (option1 && option2 && option3 && option4) {
+                    if (option1 && option2 && option3 && option4) {
 
-                    const option1cont = option1.closest('.options_container');
-                    const option2cont = option2.closest('.options_container');
-                    const option3cont = option3.closest('.options_container');
-                    const option4cont = option4.closest('.options_container');
-                    const option5cont = option5.closest('.options_container');
+                        const option1cont = option1.closest('.options_container');
+                        const option2cont = option2.closest('.options_container');
+                        const option3cont = option3.closest('.options_container');
+                        const option4cont = option4.closest('.options_container');
+                        const option5cont = option5.closest('.options_container');
 
-                    // Disable blocked options
-                    if (result[0] === 'N') {
-                        option1.disabled = true;
-                        option1.checked = false; // deselect
-                        option2.checked = true; // autoselect next option
-                        option1cont.classList.add('disabled-option');
-                    } else {
-                        option1.disabled = false;
-                        option1cont.classList.remove('disabled-option');
+                        // Disable blocked options
+                        if (result[0] === 'N') {
+                            option1.disabled = true;
+                            option1.checked = false; // deselect
+                            option2.checked = true; // autoselect next option
+                            option1cont.classList.add('disabled-option');
+                        } else {
+                            option1.disabled = false;
+                            option1cont.classList.remove('disabled-option');
+                        }
+
+                        if (result[1] === 'N') {
+                            option2.disabled = true;
+                            option2.checked = false;
+                            option3.checked = true;
+                            option2cont.classList.add('disabled-option');
+                        } else {
+                            option2.disabled = false;
+                            option2cont.classList.remove('disabled-option');
+                        }
+
+                        if (result[2] === 'N') {
+                            option3.disabled = true;
+                            option3.checked = false;
+                            option4.checked = true;
+                            option3cont.classList.add('disabled-option');
+                        } else {
+                            option3.disabled = false;
+                            option3cont.classList.remove('disabled-option');
+                        }
+
+                        if (result[3] === 'N') {
+                            option4.disabled = true;
+                            option4.checked = false;
+                            option5.checked = true;
+                            option4cont.classList.add('disabled-option');
+                        } else {
+                            option4.disabled = false;
+                            option4cont.classList.remove('disabled-option');
+                        }
+
+                        if (result[4] === 'N') {
+                            option5.disabled = true;
+                            option5.checked = false;
+                            option5cont.classList.add('disabled-option');
+                        } else {
+                            option5.disabled = false;
+                            option5cont.classList.remove('disabled-option');
+                        }
+
+                    }
+                    else {
+                        console.warn('content_email.js: radio option not found');
                     }
 
-                    if (result[1] === 'N') {
-                        option2.disabled = true;
-                        option2.checked = false;
-                        option3.checked = true;
-                        option2cont.classList.add('disabled-option');
-                    } else {
-                        option2.disabled = false;
-                        option2cont.classList.remove('disabled-option');
-                    }
-
-                    if (result[2] === 'N') {
-                        option3.disabled = true;
-                        option3.checked = false;
-                        option4.checked = true;
-                        option3cont.classList.add('disabled-option');
-                    } else {
-                        option3.disabled = false;
-                        option3cont.classList.remove('disabled-option');
-                    }
-
-                    if (result[3] === 'N') {
-                        option4.disabled = true;
-                        option4.checked = false;
-                        option5.checked = true;
-                        option4cont.classList.add('disabled-option');
-                    } else {
-                        option4.disabled = false;
-                        option4cont.classList.remove('disabled-option');
-                    }
-
-                    if (result[4] === 'N') {
-                        option5.disabled = true;
-                        option5.checked = false;
-                        option5cont.classList.add('disabled-option');
-                    } else {
-                        option5.disabled = false;
-                        option5cont.classList.remove('disabled-option');
-                    }
-
-                }
-                else {
-                    console.error('content_email.js: radio option not found');
-                }
-
-            })
-            .catch(function(error) {
-                console.error('content_email.js: request to get EMAIL_SETTINGS rejected: ', error);
+                })
+                .catch(function(error) {
+                    console.error('content_email.js: request to get EMAIL_SETTINGS rejected: ', error);
+                });
             });
-
-        }
+        });
     }
 });
 
