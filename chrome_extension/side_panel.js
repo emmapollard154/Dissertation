@@ -171,15 +171,28 @@ chrome.tabs.onActivated.addListener(active => {
 
         // Refresh tabs for specific URLs to correctly configure content
         if (tab.url) {
+            // if (tab.url.startsWith(`http://localhost:${EMAIL_PORT}/`)) {
+            //     chrome.tabs.reload(id, { bypassCache: false }, () => {
+            //         if (chrome.runtime.lastError) {
+            //         console.error("side_panel.js: ", chrome.runtime.lastError.message);
+            //         } else {
+            //         console.log(`background.js:  ${id} reloaded.`);
+            //         }
+            //     });
+            // }  
+
             if (tab.url.startsWith(`http://localhost:${EMAIL_PORT}/`)) {
-                chrome.tabs.reload(id, { bypassCache: false }, () => {
+                // send message to the content script in the active tab
+                chrome.tabs.sendMessage(tab.id, {
+                    action: 'extensionLoaded',
+                }, function() {
                     if (chrome.runtime.lastError) {
-                    console.error("side_panel.js: ", chrome.runtime.lastError.message);
-                    } else {
-                    console.log(`background.js:  ${id} reloaded.`);
+                        console.error('side_panel.js: error sending message to content script')
                     }
                 });
-            }  
+            }
+
+
             if (tab.url.startsWith(`http://localhost:${A_FRONTEND}/`)) {
                 chrome.tabs.reload(id, { bypassCache: false }, () => {
                     if (chrome.runtime.lastError) {
@@ -269,13 +282,9 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                         // send message to the content script in the active tab
                         chrome.tabs.sendMessage(activeTab.id, {
                             action: 'onEmailPage',
-                        // }, function(response) {
                         }, function() {
                             if (chrome.runtime.lastError) {
-                                console.error('side_panel.js: error sending message to content script') // : ', chrome.runtime.lastError.message);
-                                // sendResponse({ status: 'failed', error: chrome.runtime.lastError.message });
-                            } else {
-                                // sendResponse({ status: 'success', contentScriptResponse: response });
+                                console.error('side_panel.js: error sending message to content script')
                             }
                         });
                     } else {
