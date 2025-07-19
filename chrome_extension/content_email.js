@@ -407,6 +407,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
     console.log('content_email.js received message from: ', sender.id, 'with data:', request);
 
+    if (request.action === 'extensionLoaded') {
+        alert('Extension loaded, please refresh the page.');
+    }
+
     if (request.action === 'onEmailPage') { 
 
         EXTENSION_LOADED = true;
