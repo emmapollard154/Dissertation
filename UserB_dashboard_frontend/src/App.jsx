@@ -7,6 +7,14 @@ const B_BACKEND = 8080;
 const B_FRONTEND = 6173;
 const socket = io(`http://localhost:${B_BACKEND}`);
 
+const CHOICE_MAP = new Map([
+  ['2', 'User A clicked on a link in an email.'],
+  ['3', 'User A requested you to approve or reject clicking on an email link (one time request).'],
+  ['4', 'User A requested you to approve or reject clicking on an email link (link will be blocked if rejected).'],
+  ['Y', 'User A updated setting configuration.'],
+
+]);
+
 // Main App component for dashboard
 function App() {
   const [browsingData, setBrowsingData] = useState([]);
@@ -59,6 +67,36 @@ function App() {
         payload: { context , user , status},
       }, `http://localhost:${B_FRONTEND}`);
     }
+  }
+
+  function formatContext(context) {
+    let ctxt = '';
+    if (context) {
+      ctxt = context;
+    }
+    return ctxt;
+  }
+
+  function displayChoice(choice, url) {
+    let msg = '';
+    let data = '';
+    if (choice) {
+      msg = CHOICE_MAP.get(choice);
+    }
+    if (url) {
+      data = url;
+    }
+    return msg + '\n'+ data;
+  }
+
+  function displayOutcome(response) {
+    if (response === 'Y') {
+      return 'Approved';
+    }
+    if (response === 'N') {
+      return 'Rejected';
+    }
+    return '';
   }
 
   function cancelUpdateRequest(context) {
@@ -454,65 +492,57 @@ function App() {
             <div className='top_container'>
               <div className='top_scrollbar'>
                 <h2 className="subtitle">Actions</h2>
-                  <p id="unresolved_number_statement"></p>
+                <p id="unresolved_number_statement"></p>
 
-                  {requestData.filter(item => item.status === 'Y').map((item) => (
-                    <div className='request_content_container'>
-                      
-                      <div className='request_icon_container'>
-                        <img src='../icons/request_icon.png' className='request_image'></img>
-                        {/* {item.context} */}
+                {requestData.filter(item => item.status === 'Y').map((item) => (
+                  <div className='request_content_container'>
+                    
+                    <div className='request_icon_container'>
+                      <img src='../icons/request_icon.png' className='request_image'></img>
+                      {/* {item.context} */}
+                    </div>
+
+                    <div className='request_data_container'>
+                      <div className='request_info_container'>
+                        {formatRequest(item)}
                       </div>
 
-                      <div className='request_data_container'>
-                        <div className='request_info_container'>
-                          {formatRequest(item)}
+                      <div className='request_resolve_container'>
+                        <div className='request_resolve_subcontainer'>
+                          {item.context[1] === 'B' && (
+                          <button onClick={() => cancelUpdateRequest(item.context)}>
+                            Cancel
+                          </button>
+                          )}
                         </div>
-
-                        <div className='request_resolve_container'>
-                          <div className='request_resolve_subcontainer'>
-                            {item.context[1] === 'B' && (
-                            <button onClick={() => cancelUpdateRequest(item.context)}>
-                              Cancel
-                            </button>
-                            )}
-                          </div>
-                        </div>
-
                       </div>
 
                     </div>
-                  ))}
 
-                  {actionData.filter(item => item.resolved === 'N').map((item) => (
-                    <div className='status_content_container'>
+                  </div>
+                ))}
 
-                      <div className='status_icon_container'>
-                        <img src='../icons/mail_action_icon.png' className='status_image'></img>
-                      </div>
-
-                      <div className='status_data_container'>
-
-                        <div className='status_info_container'>
-                          A choice: {item.userAChoice} {simplifyTime(item.time)}
-                        </div>
-
-                        <div className='status_resolve_container'>
-
-                          <div className='request_resolve_subcontainer'>
-                            <button id="btnNo" className='btn_no' onClick={(event) => responseBtn(event.target, {item})}>Reject</button>
-                          </div>
-
-                          <div className='request_resolve_subcontainer'>
-                            <button id="btnYes" className='btn_yes' onClick={(event) => responseBtn(event.target, {item})}>Accept</button>
-                          </div>
-
-                        </div>
-
-                      </div>
-
+                {actionData.filter(item => item.resolved === 'N').map((item) => (
+                  <div className='status_content_container'>
+                    <div className='status_icon_container'>
+                      <img src='../icons/mail_action_icon.png' className='status_image'></img>
+                      {/* {item.context} */}
                     </div>
-                  ))}
+                    <div className='status_data_container'>
+                      <div className='status_meta_container'>
+                        <div className='status_context_container'>
+                          {formatContext(item.context)}
+                        </div>
+                        <div className='status_time_container'>
+                          {simplifyTime(item.time)}
+                        </div>
+                      </div>
+                      <div className='status_text_container'>
+                        {displayChoice(item.userAChoice, item.url)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
                   
               </div>
             </div>
@@ -564,9 +594,25 @@ function App() {
                       <img src={checkContext(item.context)} className='history_image'></img>
                     </div>
                     <div className='history_data_container'>
-                      <div className='history_meta_container'>A choice: {item.userAChoice}, B response: {item.responseOutcome}</div>
-                      <div className='history_text_container'>{simplifyTime(item.time)}</div>
+                      <div className='history_meta_container'>
+                        <div className='history_context_container'>
+                          {formatContext(item.context)}
+                        </div>
+                        <div className='history_time_container'>
+                          {simplifyTime(item.time)}
+                        </div>
+                      </div>
+                      <div className='history_bulk_container'>
+                        <div className='history_text_container'>
+                          {displayChoice(item.userAChoice, item.url)}
+                        </div>
+                        <div className='history_response_container'>
+                          {displayOutcome(item.responseOutcome)}
+                        </div>
+                      </div>
                     </div>
+
+
                   </div>
                 ))}
 

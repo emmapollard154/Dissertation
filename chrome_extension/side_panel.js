@@ -2,7 +2,15 @@
 
 const A_FRONTEND = 5173;
 const EMAIL_PORT = 5174;
+
 const EMAIL_ANNOUNCEMENT = 'You are on the email webpage';
+const CHOICE_SPEECH = new Map([
+    ['1', 'You chose to click on an email link without informing User B.'],
+    ['2', 'You chose to click on an email link. User B will be able to see the link you clicked.'],
+    ['3', 'Waiting for User B to accept or reject clicking on this link. If User B rejects the action, you can try again.'],
+    ['4', 'Waiting for User B to accept or reject clicking on this link. If User B rejects the action, the action will be blocked.'],
+    ['5', 'You chose to block this action independently.'],
+]);
 
 
 // Function to set 'update' in button
@@ -310,6 +318,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         const id = message.id;
         const choice = message.choice;
         const time = message.time;
+        const url = message.url;
 
         chrome.tabs.query({ url: `http://localhost:${A_FRONTEND}/*` }, (tabs) => {
             if (tabs && tabs.length > 0) {
@@ -320,7 +329,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                     action: 'emailAChoice',
                     id: id,
                     choice: choice,
-                    time: time
+                    time: time,
+                    url: url
                 }, function(response) {
                     if (chrome.runtime.lastError) {
                         console.error('side_panel.js: error sending message to content script: ', chrome.runtime.lastError.message);
@@ -336,6 +346,13 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             }
         });
     }    
+
+    if (message.action === 'displaySpeechContent') {
+        const choice = message.choice;
+        console.log("update speech content, choice: ", choice);
+        document.getElementById('speechContent').innerText = CHOICE_SPEECH.get(choice);
+    }
+
 });
 
 // Clear updates when dashboard accessed

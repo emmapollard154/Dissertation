@@ -6,6 +6,13 @@ const A_BACKEND = 5000;
 const A_FRONTEND = 5173;
 const socket = io(`http://localhost:${A_BACKEND}`);
 
+const CHOICE_MAP = new Map([
+  ['2', 'User A clicked on a link in an email.'],
+  ['3', 'User A requested you to approve or reject clicking on an email link (one time request).'],
+  ['4', 'User A requested you to approve or reject clicking on an email link (link will be blocked if rejected).'],
+  ['Y', 'User A updated setting configuration.'],
+]);
+
 // Main App component for dashboard
 function App() {
   const [browsingData, setBrowsingData] = useState([]);
@@ -94,6 +101,36 @@ function App() {
       const timeB = new Date(b.time);
       return timeB - timeA; // ascending order
     });
+  }
+
+  function formatContext(context) {
+    let ctxt = '';
+    if (context) {
+      ctxt = context;
+    }
+    return ctxt;
+  }
+
+  function displayChoice(choice, url) {
+    let msg = '';
+    let data = '';
+    if (choice) {
+      msg = CHOICE_MAP.get(choice);
+    }
+    if (url) {
+      data = url;
+    }
+    return msg + '\n'+ data;
+  }
+
+  function displayOutcome(response) {
+    if (response === 'Y') {
+      return 'Approved';
+    }
+    if (response === 'N') {
+      return 'Rejected';
+    }
+    return '';
   }
 
   function updateRequest(context) {
@@ -758,8 +795,17 @@ function App() {
                         {/* {item.context} */}
                       </div>
                       <div className='status_data_container'>
-                        <div className='status_meta_container'>A choice: {item.userAChoice}</div>
-                        <div className='status_text_container'>{simplifyTime(item.time)}</div>
+                        <div className='status_meta_container'>
+                          <div className='status_context_container'>
+                            {formatContext(item.context)}
+                          </div>
+                          <div className='status_time_container'>
+                            {simplifyTime(item.time)}
+                          </div>
+                        </div>
+                        <div className='status_text_container'>
+                          {displayChoice(item.userAChoice, item.url)}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -813,9 +859,25 @@ function App() {
                       <img src={checkContext(item.context)} className='history_image'></img>
                     </div>
                     <div className='history_data_container'>
-                      <div className='history_meta_container'>A choice: {item.userAChoice}, B response: {item.responseOutcome}</div>
-                      <div className='history_text_container'>{simplifyTime(item.time)}</div>
+                      <div className='history_meta_container'>
+                        <div className='history_context_container'>
+                          {formatContext(item.context)}
+                        </div>
+                        <div className='history_time_container'>
+                          {simplifyTime(item.time)}
+                        </div>
+                      </div>
+                      <div className='history_bulk_container'>
+                        <div className='history_text_container'>
+                          {displayChoice(item.userAChoice, item.url)}
+                        </div>
+                        <div className='history_response_container'>
+                          {displayOutcome(item.responseOutcome)}
+                        </div>
+                      </div>
                     </div>
+
+
                   </div>
                 ))}
 
