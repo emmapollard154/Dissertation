@@ -310,6 +310,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         const id = message.id;
         const choice = message.choice;
         const time = message.time;
+        const url = message.url;
 
         chrome.tabs.query({ url: `http://localhost:${A_FRONTEND}/*` }, (tabs) => {
             if (tabs && tabs.length > 0) {
@@ -320,7 +321,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                     action: 'emailAChoice',
                     id: id,
                     choice: choice,
-                    time: time
+                    time: time,
+                    url: url
                 }, function(response) {
                     if (chrome.runtime.lastError) {
                         console.error('side_panel.js: error sending message to content script: ', chrome.runtime.lastError.message);

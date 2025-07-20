@@ -22,12 +22,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
         const id = request.id
         const choice = request.choice;
-        const time = request.time
+        const time = request.time;
+        const url = request.url;
 
         const payload = {
             id: id,
             choice: choice,
             time: time,
+            url: url,
             context: "Email"
         }
 

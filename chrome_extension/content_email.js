@@ -211,9 +211,7 @@ function emailID() {
 function processChoice(choice, link) {
     const time = new Date().toISOString();
     const id = emailID();
-    chrome.runtime.sendMessage({ action: "sendChoiceToDashboardA", id: id, choice: choice, time: time });
-
-    console.log(link);
+    chrome.runtime.sendMessage({ action: "sendChoiceToDashboardA", id: id, choice: choice, time: time, url: link.href });
 
     if (choice === '3') {
         link.classList.add('disabled'); // set disabled attribute for CSS
@@ -221,7 +219,6 @@ function processChoice(choice, link) {
         link.classList.add('name'); // store href in name attribute
         link.setAttribute('name', link.href);
         PENDING_ACTIONS.push(link.href);
-        // setPendingLinks(link.href);
         link.innerHTML = link.href; // display link target
         link.href = ''; // remove clickable link
     }
@@ -232,7 +229,6 @@ function processChoice(choice, link) {
         link.classList.add('name'); // store href in name attribute
         link.setAttribute('name', link.href);
         PENDING_ACTIONS.push(link.href);
-        // setPendingLinks(link.href);
         link.innerHTML = link.href; // display link target
         link.href = ''; // remove clickable link
     }
@@ -243,7 +239,6 @@ function processChoice(choice, link) {
         link.classList.add('name'); // store href in name attribute
         link.setAttribute('name', link.href);
         PENDING_ACTIONS.push(link.href);
-        // setPendingLinks(link.href);
         link.innerHTML = link.href; // display link target
         link.href = ''; // remove clickable link
     }
@@ -408,7 +403,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     console.log('content_email.js received message from: ', sender.id, 'with data:', request);
 
     if (request.action === 'extensionLoaded') {
-        alert('Extension loaded, please refresh the page.');
+        if (!EXTENSION_LOADED) {
+            alert('Extension loaded, please refresh the page.');
+        }
     }
 
     if (request.action === 'onEmailPage') { 

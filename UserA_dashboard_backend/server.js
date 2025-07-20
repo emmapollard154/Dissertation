@@ -89,7 +89,8 @@ const db = new sqlite3.Database('../dashboard.db', (err) => {
             userAChoice CHARACTER(1),
             time DATETIME,
             resolved CHARACTER(1),
-            responseOutcome CHARACTER(1)
+            responseOutcome CHARACTER(1),
+            url VARCHAR(64)
         )`, (createErr) => {
             if (createErr) {
                 console.error('server.js (A): error creating table:', createErr.message);
@@ -107,7 +108,7 @@ const db = new sqlite3.Database('../dashboard.db', (err) => {
             if (createErr) {
                 console.error('server.js (A): error creating table:', createErr.message);
             } else {
-                console.log('server.js (A): action table created / already exists.');
+                console.log('server.js (A): message table created / already exists.');
             }
         });
 
@@ -242,10 +243,11 @@ app.post('/api/dashboard-data', (req, res) => {
         const time = data.time;
         const context = data.context;
         const responseOutcome = '0';
+        const url = data.url;
         let addAction = false;
         let resolved = 'N';
 
-        if (choice === '1') {
+        if (choice === '1' || choice === '5') {
             resolved = 'Y';
             addAction = false;
         }
@@ -253,24 +255,16 @@ app.post('/api/dashboard-data', (req, res) => {
             resolved = 'Y';
             addAction = true;
         }
-        if (choice === '3') {
+        if (choice === '3' || choice === '4') {
             resolved = 'N';
             addAction = true;
-        }
-        if (choice === '4') {
-            resolved = 'N';
-            addAction = true;
-        }
-        if (choice === '5') {
-            resolved = 'Y';
-            addAction = false;
         }
 
         if (addAction) {
             try {
                 console.log('server.js (A): inserting into action table.');
-                const stmt = db.prepare('INSERT INTO action (actionID, context, userAChoice, time, resolved, responseOutcome) VALUES (?, ?, ?, ?, ?, ?)');
-                stmt.run(id, context, choice, time, resolved, responseOutcome);
+                const stmt = db.prepare('INSERT INTO action (actionID, context, userAChoice, time, resolved, responseOutcome, url) VALUES (?, ?, ?, ?, ?, ?, ?)');
+                stmt.run(id, context, choice, time, resolved, responseOutcome, url);
             }
             catch(err) {
                 console.error('server.js (A): database insertion error: ', err.message);
