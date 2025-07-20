@@ -11,7 +11,6 @@ const CHOICE_MAP = new Map([
   ['3', 'User A requested you to approve or reject clicking on an email link (one time request).'],
   ['4', 'User A requested you to approve or reject clicking on an email link (link will be blocked if rejected).'],
   ['Y', 'User A updated setting configuration.'],
-
 ]);
 
 // Main App component for dashboard
@@ -115,7 +114,6 @@ function App() {
   function displayChoice(choice, url) {
     let msg = '';
     let data = '';
-    console.log(url);
     if (choice) {
       msg = CHOICE_MAP.get(choice);
     }

@@ -338,50 +338,45 @@
 
 .status_data_container {
   box-sizing: border-box;
-  width: 175%;
+  width: 140%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.status_meta_container {
+  box-sizing: border-box;
+  width: 100%;
+  height: 50%;
   display: flex;
   flex-direction: row;
   overflow: auto;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  margin-left: 5%;
+  font-weight: bold;
 }
 
-.status_info_container {
-  box-sizing: border-box;
-  width: 150%;
-  height: 100%;
-  font-size: 2vh;
-  padding-right: 5%;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-.status_resolve_container {
+.status_context_container {
   box-sizing: border-box;
   width: 50%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
-.status_resolve_subcontainer {
+.status_time_container {
   box-sizing: border-box;
+  width: 50%;
   height: 100%;
-  margin-bottom: 1vh;
+  text-align: end;
+  padding-right: 5%;
 }
 
-.status_resolve_container button {
-  height: 90%;
-  top: 5%;
-  width: 100%;
-  position: relative;
-  background: var(--gray_blue);
-  text-align: center;
+.status_text_container {
   box-sizing: border-box;
-  font-size: 2vh;
-  color: #ffffff;
+  width: 100%;
+  height: 150%;
 }
 
 .msg_panel {
@@ -614,6 +609,46 @@
   box-sizing: border-box;
   width: 100%;
   height: 50%;
+  display: flex;
+  flex-direction: row;
+  overflow: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  font-weight: bold;
+}
+
+.history_context_container {
+  box-sizing: border-box;
+  width: 50%;
+  height: 100%;
+}
+
+.history_time_container {
+  box-sizing: border-box;
+  width: 50%;
+  height: 100%;
+  text-align: end;
+  padding-right: 5%;
+}
+
+.history_response_container {
+  box-sizing: border-box;
+  width: 50%;
+  height: 100%;
+  text-align: end;
+  padding-right: 5%;
+  font-weight: bold;
+}
+
+.history_bulk_container {
+  box-sizing: border-box;
+  width: 100%;
+  height: 50%;
+  display: flex;
+  flex-direction: row;
+  overflow: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .history_text_container {

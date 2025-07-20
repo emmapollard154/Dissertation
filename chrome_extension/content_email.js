@@ -4,6 +4,8 @@ const EMAIL_PORT = 5174;
 let EXTENSION_LOADED =  false;
 let LINK = '';
 let PENDING_ACTIONS = [];
+let PARENT_LINKS = new Map(); // store html elements and corresponding links
+let CHOICES = new Map(); // store current pending links and corresponding choices
 let CURRENT_PARENT = ''; // variable to store click event target
 let MODIFIED_HTML = new Map(); // map to store modified html for pages containing pending links
 let ORIGINAL_HTML = new Map(); // map to store original html results for regular clicks
@@ -19,6 +21,26 @@ let menuPopup = null;
 let menuChoice = null; // radio
 let okayMenu = null;
 let backMenu = null;
+
+
+// Function to respond to user choice
+function completeAction(elem, choice) {
+    if (choice === '1') { // click on link
+
+    }
+    if (choice === '2') { // click on link
+        
+    }
+    if (choice === '3') { // block temporarily
+        
+    }
+    if (choice === '4') { // block, permanently if rejected
+        
+    }
+    if (choice === '5') { // block immediately, permanently
+        
+    }
+}
 
 // Function to fetch and inject HTML and attach listeners for information popup
 async function injectInfoHtml(link) {
@@ -181,6 +203,13 @@ function attachMenuListeners(menuPopup, link) {
                     console.log('content_email.js: storing modified html');
                     MODIFIED_HTML.set(CURRENT_PARENT,  document.documentElement.innerHTML);
                 }
+
+                chrome.runtime.sendMessage({ // send message to side panel to confirm choice
+                    action: "displaySpeechContent", 
+                    choice: PARENT_LINKS.get(CURRENT_PARENT)
+                });
+
+                completeAction(CURRENT_PARENT, choice);
             }
         });
     } else {
@@ -211,7 +240,16 @@ function emailID() {
 function processChoice(choice, link) {
     const time = new Date().toISOString();
     const id = emailID();
-    chrome.runtime.sendMessage({ action: "sendChoiceToDashboardA", id: id, choice: choice, time: time, url: link.href });
+
+    chrome.runtime.sendMessage({ 
+        action: "sendChoiceToDashboardA", 
+        id: id, 
+        choice: choice, 
+        time: time, 
+        url: link.href 
+    });
+
+    PARENT_LINKS.set(CURRENT_PARENT, choice);
 
     if (choice === '3') {
         link.classList.add('disabled'); // set disabled attribute for CSS
@@ -219,6 +257,7 @@ function processChoice(choice, link) {
         link.classList.add('name'); // store href in name attribute
         link.setAttribute('name', link.href);
         PENDING_ACTIONS.push(link.href);
+        CHOICES.set(link.href, choice);
         link.innerHTML = link.href; // display link target
         link.href = ''; // remove clickable link
     }
@@ -229,6 +268,7 @@ function processChoice(choice, link) {
         link.classList.add('name'); // store href in name attribute
         link.setAttribute('name', link.href);
         PENDING_ACTIONS.push(link.href);
+        CHOICES.set(link.href, choice);
         link.innerHTML = link.href; // display link target
         link.href = ''; // remove clickable link
     }
@@ -283,7 +323,6 @@ function loadAll() {
             console.log(PENDING_ACTIONS);
 
             if (!clickedBefore && !flagged && !popupElement) {
-                console.log("CURRENT_PARENT doesn't have original html stored.");
                 console.log('content_email.js: storing original html.');
                 console.log("CURRENT_PARENT: ", CURRENT_PARENT);
                 ORIGINAL_HTML.set(CURRENT_PARENT, document.documentElement.innerHTML);
@@ -302,9 +341,12 @@ function loadAll() {
                 if (LINK.href === `http://localhost:${EMAIL_PORT}/`) { // clicked link to own page
                     console.log('content_email.js: link to own page clicked.');
 
-                    if (PENDING_ACTIONS.includes(LINK.name)) {
-                        console.log('content_email.js: pending link clicked.');
-                        console.log("DO SOMETHING");
+                    if (PENDING_ACTIONS.includes(LINK.name)) { // clicked on blocked link
+                        console.log('content_email.js: pending link clicked. Updating side panel.');
+                        chrome.runtime.sendMessage({ // send message to side panel to remind user of choice
+                            action: "displaySpeechContent", 
+                            choice: CHOICES.get(LINK.name)
+                        });
                     }
 
                     return;
@@ -349,12 +391,11 @@ function loadAll() {
                     CURRENT_PARENT = event.target.outerHTML; // html of event target
 
                     if (CLICKED_BEFORE.includes(CURRENT_PARENT)) {
-                        console.log("CURRENT PARENT has been clicked before");
+                        console.log('content_email.js: element has been clicked before.');
 
                         // Check if element is already parent to a pending link
                         for (const key of MODIFIED_HTML.keys()) {
                             if (key.includes(CURRENT_PARENT)) {
-                                console.log("CURRENT_PARENT identified as overridden: ", CURRENT_PARENT);
                                 console.log('content_email.js: manually overriding html.');
                                 document.documentElement.innerHTML = MODIFIED_HTML.get(key);
                                 flagged = true;
@@ -367,12 +408,9 @@ function loadAll() {
 
                             for (const key of ORIGINAL_HTML.keys()) {
                                 if (key.includes(CURRENT_PARENT)) {
-                                    console.log("CURRENT_PARENT has original html stored.");
                                     console.log('content_email.js: loading original html.');
-                                    console.log('for key ', key);
                                     document.documentElement.innerHTML = ORIGINAL_HTML.get(key);
                                     clickedBefore = true;
-                                    // break;
                                     return;
                                 }
                             }
