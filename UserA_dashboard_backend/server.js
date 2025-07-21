@@ -400,6 +400,7 @@ app.post('/api/data-from-b', (req, res) => {
         const id = data.data.actionID;
         const outcome = data.outcome;
         const time = data.data.time;
+        const url = data.data.url;
 
         try{
             console.log('server.js (A): inserting into action table.');
@@ -412,7 +413,7 @@ app.post('/api/data-from-b', (req, res) => {
         }
 
         res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
-        io.emit('b_response', outcome); // send message to frontend
+        io.emit('b_response', { outcome,  url }); // send message to frontend
     }
 
 

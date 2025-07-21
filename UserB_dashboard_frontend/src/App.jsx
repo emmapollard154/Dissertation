@@ -11,7 +11,7 @@ const CHOICE_MAP = new Map([
   ['2', 'User A clicked on a link in an email.'],
   ['3', 'User A requested you to approve or reject clicking on an email link (one time request).'],
   ['4', 'User A requested you to approve or reject clicking on an email link (link will be blocked if rejected).'],
-  ['Y', 'User A updated setting configuration.'],
+  ['Y', 'Setting configuration updated.'],
 
 ]);
 
@@ -499,7 +499,6 @@ function App() {
                     
                     <div className='request_icon_container'>
                       <img src='../icons/request_icon.png' className='request_image'></img>
-                      {/* {item.context} */}
                     </div>
 
                     <div className='request_data_container'>
@@ -526,7 +525,6 @@ function App() {
                   <div className='status_content_container'>
                     <div className='status_icon_container'>
                       <img src='../icons/mail_action_icon.png' className='status_image'></img>
-                      {/* {item.context} */}
                     </div>
                     <div className='status_data_container'>
                       <div className='status_meta_container'>
@@ -539,6 +537,14 @@ function App() {
                       </div>
                       <div className='status_text_container'>
                         {displayChoice(item.userAChoice, item.url)}
+                      </div>
+                    </div>
+                    <div className='status_resolve_container'>
+                      <div className='request_resolve_subcontainer'>
+                        <button id="btnNo" className='btn_no' onClick={(event) => responseBtn(event.target, {item})}>Reject</button>
+                      </div>
+                      <div className='request_resolve_subcontainer'>
+                        <button id="btnYes" className='btn_yes' onClick={(event) => responseBtn(event.target, {item})}>Accept</button>
                       </div>
                     </div>
                   </div>

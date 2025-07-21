@@ -22,23 +22,118 @@ let menuChoice = null; // radio
 let okayMenu = null;
 let backMenu = null;
 
+// Function to process User B decision
+function processOutcome(url, outcome) {
+    if (!url || !outcome) {
+        console.error('content_email.js: error reading url or outcome for User B response.')
+    }
+
+    const elem = [...PARENT_LINKS].find(([key, val]) => val == url)[0]; // corresponding html element
+    const choice = CHOICES.get(url); // choice made by User A
+
+    chrome.runtime.sendMessage({ // send message to side panel to confirm rejection
+        action: "displaySpeechResponse", 
+        choice: choice,
+        outcome: outcome,
+        url: url
+    });
+
+    if (choice === '3') {
+        if (outcome === 'Y') {
+
+        }
+        if (outcome === 'N') {
+
+        }
+
+        // remove from pending actions
+        console.log('content_email.js: removing from pending actions.');
+        console.log("MODIFIED_HTML size: ", MODIFIED_HTML.size);
+        console.log("CHOICES size: ", CHOICES.size);
+        console.log("PARENT_LINKS size: ", PARENT_LINKS.size);
+
+        MODIFIED_HTML.delete(elem); // reset html for element
+        CHOICES.delete(url);
+        PARENT_LINKS.delete(elem);
+
+        const i = CLICKED_BEFORE.indexOf(elem);
+        if (i > -1) { // element found
+            CLICKED_BEFORE.splice(i, 1);
+        }
+
+        const j = PENDING_ACTIONS.indexOf(url);
+        if (j > -1) { // element found
+            PENDING_ACTIONS.splice(j, 1);
+        }
+
+        console.log("MODIFIED_HTML size: ", MODIFIED_HTML.size);
+        console.log("CHOICES size: ", CHOICES.size);
+        console.log("PARENT_LINKS size: ", PARENT_LINKS.size);
+
+    }
+    else if (choice === '4') {
+        if (outcome === 'Y') {
+
+
+            // remove from pending actions
+
+            console.log('content_email.js: removing from pending actions.');
+            console.log("MODIFIED_HTML size: ", MODIFIED_HTML.size);
+            console.log("CHOICES size: ", CHOICES.size);
+            console.log("PARENT_LINKS size: ", PARENT_LINKS.size);
+
+            MODIFIED_HTML.delete(elem); // reset html for element
+            CHOICES.delete(url);
+            PARENT_LINKS.delete(elem);
+
+            const i = CLICKED_BEFORE.indexOf(elem);
+            if (i > -1) { // element found
+                CLICKED_BEFORE.splice(i, 1);
+            }
+
+            const j = PENDING_ACTIONS.indexOf(url);
+            if (j > -1) { // element found
+                PENDING_ACTIONS.splice(j, 1);
+            }
+
+            console.log("MODIFIED_HTML size: ", MODIFIED_HTML.size);
+            console.log("CHOICES size: ", CHOICES.size);
+            console.log("PARENT_LINKS size: ", PARENT_LINKS.size);
+
+        }
+        if (outcome === 'N') {
+
+        }
+    }
+    else {
+        console.warn('content_email.js: received response from User B for unexpected choice - ', choice);
+    }
+
+
+}
 
 // Function to respond to user choice
 function completeAction(elem, choice) {
+    const url = PARENT_LINKS.get(elem);
+    if (!url) {
+        console.error('content_email.js: no link found for element.');
+    }
     if (choice === '1') { // click on link
-
+        console.log('content_email.js: opening link (', url, ') in new tab.');
+        window.open(url, '_blank');
     }
     if (choice === '2') { // click on link
-        
+        console.log('content_email.js: opening link (', url, ') in new tab.');
+        window.open(url, '_blank');
     }
-    if (choice === '3') { // block temporarily
-        
+    if (choice === '3') { // block temporarily, wait for B response
+        console.log('content_email.js: blocking link (', url, '). Waiting for User B response.');
     }
-    if (choice === '4') { // block, permanently if rejected
-        
+    if (choice === '4') { // block permanently if rejected, wait for B response
+        console.log('content_email.js: blocking link (', url, '). Waiting for User B response.');
     }
     if (choice === '5') { // block immediately, permanently
-        
+        console.log('content_email.js: blocking link (', url, ') permanently.');
     }
 }
 
@@ -206,7 +301,7 @@ function attachMenuListeners(menuPopup, link) {
 
                 chrome.runtime.sendMessage({ // send message to side panel to confirm choice
                     action: "displaySpeechContent", 
-                    choice: PARENT_LINKS.get(CURRENT_PARENT)
+                    choice: choice
                 });
 
                 completeAction(CURRENT_PARENT, choice);
@@ -249,7 +344,7 @@ function processChoice(choice, link) {
         url: link.href 
     });
 
-    PARENT_LINKS.set(CURRENT_PARENT, choice);
+    PARENT_LINKS.set(CURRENT_PARENT, link.href);
 
     if (choice === '3') {
         link.classList.add('disabled'); // set disabled attribute for CSS
@@ -279,6 +374,7 @@ function processChoice(choice, link) {
         link.classList.add('name'); // store href in name attribute
         link.setAttribute('name', link.href);
         PENDING_ACTIONS.push(link.href);
+        CHOICES.set(link.href, choice);
         link.innerHTML = link.href; // display link target
         link.href = ''; // remove clickable link
     }
@@ -319,8 +415,6 @@ function loadAll() {
         let popupElement = false;
 
         document.addEventListener('click', async function(event) {
-
-            console.log(PENDING_ACTIONS);
 
             if (!clickedBefore && !flagged && !popupElement) {
                 console.log('content_email.js: storing original html.');
@@ -443,6 +537,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.action === 'extensionLoaded') {
         if (!EXTENSION_LOADED) {
             alert('Extension loaded, please refresh the page.');
+            location.reload();
         }
     }
 
@@ -539,6 +634,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             });
         });
     }
+
+    if (request.action === 'userBResponse') {
+        console.log('content_email.js: User B sent a response for ', request.url, ' (', request.outcome, ').');
+        processOutcome(request.url, request.outcome);
+    }
+
+    sendResponse({ status: 'content_processed', dataProcessed: request });
 });
 
 console.log("content_email.js: email content script loaded and listening for messages");

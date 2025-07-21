@@ -195,7 +195,7 @@ chrome.tabs.onActivated.addListener(active => {
                     action: 'extensionLoaded',
                 }, function() {
                     if (chrome.runtime.lastError) {
-                        console.error('side_panel.js: error sending message to content script')
+                        console.error("side_panel.js: ", chrome.runtime.lastError.message);
                     }
                 });
             }
@@ -266,7 +266,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                         data: browserData
                     }, function(response) {
                         if (chrome.runtime.lastError) {
-                            console.error('side_panel.js: error sending message to content script: ', chrome.runtime.lastError.message);
+                            console.error("side_panel.js: ", chrome.runtime.lastError.message);
                             sendResponse({ status: 'failed', error: chrome.runtime.lastError.message });
                         } else {
                             sendResponse({ status: 'success', contentScriptResponse: response });
@@ -292,7 +292,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                             action: 'onEmailPage',
                         }, function() {
                             if (chrome.runtime.lastError) {
-                                console.error('side_panel.js: error sending message to content script')
+                                console.error("side_panel.js: ", chrome.runtime.lastError.message);
                             }
                         });
                     } else {
@@ -333,7 +333,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                     url: url
                 }, function(response) {
                     if (chrome.runtime.lastError) {
-                        console.error('side_panel.js: error sending message to content script: ', chrome.runtime.lastError.message);
+                        console.error("side_panel.js: ", chrome.runtime.lastError.message);
                         sendResponse({ status: 'failed', error: chrome.runtime.lastError.message });
                     } else {
                         sendResponse({ status: 'success', contentScriptResponse: response });
@@ -349,8 +349,77 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
     if (message.action === 'displaySpeechContent') {
         const choice = message.choice;
-        console.log("update speech content, choice: ", choice);
+        console.log('side_panel.js: updating speech bubble content (chosen ' , choice, ').');
         document.getElementById('speechContent').innerText = CHOICE_SPEECH.get(choice);
+    }
+
+    if (message.action === 'displaySpeechResponse') {
+        const choice = message.choice;
+        const outcome = message.outcome;
+        const url = message.url;
+
+        console.log('side_panel.js: updating speech bubble content (chosen ' , choice, ' outcome ', outcome, ').');
+
+        if (choice === '3') {
+            if (outcome === 'Y') {
+
+                document.getElementById('speechContent').innerText = 'User B accepted request to click on link: ';
+                const link = document.createElement('a'); // create clickable link in side panel
+                link.href = url;
+                link.textContent = url;
+                link.target = '_blank';
+                speechContent.appendChild(link);
+
+            }
+            if (outcome === 'N') {
+                document.getElementById('speechContent').innerText = 'User B rejected request to click on link: ' + url + '. You can ask again if you want to.';
+            }
+        }
+        if (choice === '4') {
+            if (outcome === 'Y') {
+
+                document.getElementById('speechContent').innerText = 'User B accepted request to click on link: ';
+                const link = document.createElement('a'); // create clickable link in side panel
+                link.href = url;
+                link.textContent = url;
+                link.target = '_blank';
+                speechContent.appendChild(link);
+
+            }
+            if (outcome === 'N') {
+                document.getElementById('speechContent').innerText = 'User B rejected request to click on link: ' + url + '. This link will stay blocked.';
+            }
+        }
+    }
+
+    if (message.action === 'userBResponse') {
+        console.log('side_panel.js: sending response to email webpage - ', message);
+
+        const url = message.url;
+        const outcome = message.outcome;
+
+        console.log('side_panel.js: updating speech bubble content (action ' , url, ' outcome ', outcome, ').');
+
+        chrome.tabs.query({ url: `http://localhost:${EMAIL_PORT}/*` }, (tabs) => {
+            if (tabs && tabs.length > 0) {
+                const activeTab = tabs[0];
+
+                // send message to the content script in the active tab
+                chrome.tabs.sendMessage(activeTab.id, {
+                    action: 'userBResponse',
+                    outcome: message.outcome,
+                    url: message.url
+                }, function() {
+                    if (chrome.runtime.lastError) {
+                        console.error("side_panel.js: ", chrome.runtime.lastError.message);
+                    }
+                });
+            } else {
+                alert("Please open dashboard");
+                console.warn('side_panel.js: no active tab found to send message to.');
+                sendResponse({ status: 'failed', error: 'No active tab found' });
+            }
+        });
     }
 
 });

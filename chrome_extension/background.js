@@ -103,6 +103,12 @@ chrome.runtime.onMessageExternal.addListener(
 		return true;
 	}
 
+    if (request.type === 'USER_B_RESPONSE') {
+		chrome.runtime.sendMessage({ action: 'userBResponse' , outcome: request.payload.outcome , url: request.payload.url});
+		sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });
+		return true;
+	}
+
   }
 );
 

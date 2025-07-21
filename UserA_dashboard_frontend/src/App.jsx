@@ -7,10 +7,10 @@ const A_FRONTEND = 5173;
 const socket = io(`http://localhost:${A_BACKEND}`);
 
 const CHOICE_MAP = new Map([
-  ['2', 'User A clicked on a link in an email.'],
-  ['3', 'User A requested you to approve or reject clicking on an email link (one time request).'],
-  ['4', 'User A requested you to approve or reject clicking on an email link (link will be blocked if rejected).'],
-  ['Y', 'User A updated setting configuration.'],
+  ['2', 'You clicked on a link in an email.'],
+  ['3', 'You requested you to approve or reject clicking on an email link (one time request).'],
+  ['4', 'You requested you to approve or reject clicking on an email link (link will be blocked if rejected).'],
+  ['Y', 'Setting configuration updated.'],
 ]);
 
 // Main App component for dashboard
@@ -520,6 +520,7 @@ function App() {
       console.log('App.jsx (A): User B sent a response: ', data);
       fetchActionData();
       sendToExt('NUM_PENDING', null);
+      sendToExt('USER_B_RESPONSE', data);
     });
 
     socket.on('b_message', (data) => {
@@ -627,40 +628,43 @@ function App() {
             <div className='welcome_popup' id='welcomePopup'>
               <div className='bottom_scrollbar'>
                 <div className='welcome_content'>
+
                   <div className='welcome_header_container'>
-
                     <div className='popup_subtitle'>Welcome</div>
-                    <div className='okay_welcome_top' >
-                    <button className='popup_button' onClick={disableWelcomeVisibility}>Okay</button>
-                    </div>
+                  </div>
 
+                  <div className='welcome_instruction_container'>
+                    <div className='popup_instruction'>Select the options you want to allow (email).</div>
                   </div>
 
                   <div className='settings_options_container'>
-
                     <form id="emailChoice">
-                        <label className="options_container">Option 1
+                        <label className="options_container">
+                          Continue (no interference)
                           <input type="checkbox" name="email_choices" value="1" />
                           <span className="checkmark"></span>
                         </label>
-                        <label className="options_container">Option 2
+                        <label className="options_container">
+                          Record action for User B too see later. Continue with action.
                           <input type="checkbox" name="email_choices" value="2" />
                           <span className="checkmark"></span>
                         </label>
-                        <label className="options_container">Option 3
+                        <label className="options_container">
+                          Ask User B to check (accept or reject) this action. Do not continue with action at the moment.
                           <input type="checkbox" name="email_choices" value="3" />
                           <span className="checkmark"></span>
                         </label>
-                        <label className="options_container">Option 4
+                        <label className="options_container">
+                          Ask User B to check (accept or reject) this action. Block action if User B rejects request.
                           <input type="checkbox" name="email_choices" value="4" />
                           <span className="checkmark"></span>
                         </label>
-                        <label className="options_container">Option 5
+                        <label className="options_container">
+                          Block this action. Prevent action being carried out in the future. User B will not be informed.
                           <input type="checkbox" name="email_choices" value="5" />
                           <span className="checkmark"></span>
                         </label>
                     </form>
-
                   </div>
 
                   <div className='settings_save_container'>
@@ -678,13 +682,11 @@ function App() {
             <div className='top_container'>
               <div className='top_scrollbar'>
                 <h2 className='subtitle'>Status</h2>
-                  {/* <p id='unresolved_number_statement'></p> */}
 
                   {requestData.filter(item => item.status === 'Y').map((item) => (
                     <div className='request_content_container'>
                       <div className='request_icon_container'>
                         <img src='../icons/request_icon.png' className='request_image'></img>
-                        {/* {item.context} */}
                       </div>
                       <div className='request_data_container'>
                         <div className='request_info_container'>
@@ -729,40 +731,46 @@ function App() {
                               <div className='welcome_popup'>
                                 <div className='bottom_scrollbar'>
                                   <div className='welcome_content'>
-                                    <div className='welcome_header_container'>
 
+                                    <div className='welcome_header_container'>
                                       <div className='popup_subtitle'>Update Settings</div>
                                       <div className='okay_welcome_top' >
                                         <button className='popup_button' onClick={disableUpdateVisibility}>Cancel</button>
                                       </div>
+                                    </div>
 
+                                    <div className='welcome_instruction_container'>
+                                      <div className='popup_instruction'>Select the options you want to allow (email).</div>
                                     </div>
 
                                     <div className='settings_options_container'>
-
                                       <form id="emailChoiceUpdate">
-                                          <label className="options_container">Option 1
-                                            <input type="checkbox" name="email_choices" value="1" />
-                                            <span className="checkmark"></span>
-                                          </label>
-                                          <label className="options_container">Option 2
-                                            <input type="checkbox" name="email_choices" value="2" />
-                                            <span className="checkmark"></span>
-                                          </label>
-                                          <label className="options_container">Option 3
-                                            <input type="checkbox" name="email_choices" value="3" />
-                                            <span className="checkmark"></span>
-                                          </label>
-                                          <label className="options_container">Option 4
-                                            <input type="checkbox" name="email_choices" value="4" />
-                                            <span className="checkmark"></span>
-                                          </label>
-                                          <label className="options_container">Option 5
-                                            <input type="checkbox" name="email_choices" value="5" />
-                                            <span className="checkmark"></span>
-                                          </label>
+                                        <label className="options_container">
+                                          Continue (no interference)
+                                          <input type="checkbox" name="email_choices" value="1" />
+                                          <span className="checkmark"></span>
+                                        </label>
+                                        <label className="options_container">
+                                          Record action for User B too see later. Continue with action.
+                                          <input type="checkbox" name="email_choices" value="2" />
+                                          <span className="checkmark"></span>
+                                        </label>
+                                        <label className="options_container">
+                                          Ask User B to check (accept or reject) this action. Do not continue with action at the moment.
+                                          <input type="checkbox" name="email_choices" value="3" />
+                                          <span className="checkmark"></span>
+                                        </label>
+                                        <label className="options_container">
+                                          Ask User B to check (accept or reject) this action. Block action if User B rejects request.
+                                          <input type="checkbox" name="email_choices" value="4" />
+                                          <span className="checkmark"></span>
+                                        </label>
+                                        <label className="options_container">
+                                          Block this action. Prevent action being carried out in the future. User B will not be informed.
+                                          <input type="checkbox" name="email_choices" value="5" />
+                                          <span className="checkmark"></span>
+                                        </label>
                                       </form>
-
                                     </div>
 
                                     <div className='settings_save_container'>
@@ -792,7 +800,6 @@ function App() {
                     <div className='status_content_container'>
                       <div className='status_icon_container'>
                         <img src='../icons/mail_action_icon.png' className='status_image'></img>
-                        {/* {item.context} */}
                       </div>
                       <div className='status_data_container'>
                         <div className='status_meta_container'>
