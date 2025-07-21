@@ -15,6 +15,7 @@ const OPTIONS_MAP = new Map([
 ]);
 
 const CHOICE_MAP = new Map([
+  ['0', 'User B checked your browsing history.'],
   ['2', 'You clicked on a link in an email.'],
   ['3', 'You requested you to approve or reject clicking on an email link (one time request).'],
   ['4', 'You requested you to approve or reject clicking on an email link (link will be blocked if rejected).'],
@@ -188,6 +189,9 @@ function App() {
     if (context === 'Settings') {
       return '../icons/settings_action_icon.png'
     }
+    if (context === 'View') {
+      return '../icons/browsing_action_icon.png'
+    }
   }
 
   const fetchBrowserData = async () => {
@@ -316,11 +320,9 @@ function App() {
       if (choices) {
         for (let i=0; i < choices.length; i++) {
           if (choices[i].checked) {
-            console.log('Option ' + (i+1) + ' selected.');
             chosen[i] = 'Y';
           }
           else {
-            console.log('Option ' + (i+1) + ' not selected.');
             chosen[i] = 'N';
           }
         }
@@ -562,6 +564,11 @@ function App() {
       if (data.status === 'Y') { // avoid alerting for cancelled request
         sendToExt('NUM_PENDING', null);
       }
+    });
+
+    socket.on('b_view', () => {
+      console.log('App.jsx (A): browsing history view detected.');
+      fetchActionData();
     });
 
     // Clean up the socket connection when the component unmounts

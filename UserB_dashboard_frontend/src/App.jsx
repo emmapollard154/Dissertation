@@ -16,6 +16,7 @@ const OPTIONS_MAP = new Map([
 ]);
 
 const CHOICE_MAP = new Map([
+  ['0', 'You checked the browsing history of User A.'],
   ['2', 'User A clicked on a link in an email.'],
   ['3', 'User A requested you to approve or reject clicking on an email link (one time request).'],
   ['4', 'User A requested you to approve or reject clicking on an email link (link will be blocked if rejected).'],
@@ -126,6 +127,9 @@ function App() {
     if (context === 'Settings') {
       return '../icons/settings_action_icon.png'
     }
+    if (context === 'View') {
+      return '../icons/browsing_action_icon.png'
+    }
   }
 
 
@@ -228,7 +232,6 @@ function App() {
       console.log('App.jsx (B): "Yes" button clicked: ', actionID.item);
       
       let now = new Date().toISOString();
-      // now = simplifyTime(now);
       actionID.item.time = now; // update time to user b response
 
       window.postMessage({
@@ -241,7 +244,6 @@ function App() {
       console.log('App.jsx (B): "No" button clicked: ', actionID.item);
 
       let now = new Date().toISOString();
-      // now = simplifyTime(now);
       actionID.item.time = now; // update time to user b response
 
       window.postMessage({
@@ -330,6 +332,27 @@ function App() {
     }
   };
 
+// Function to get unique ID for viewing actions
+function viewID() {
+    const now = new Date().toISOString(); // timestamp (unique)
+    var id = now.replace(/\D/g, ""); // keep only numeric values from timestamp
+    return `v${id}`; // v signifies viewing action
+}
+
+  // Function to add browsing history to action table
+  function logBrowsingView() {
+
+    const actionID = viewID();
+    const context = 'View';
+    const time = new Date().toISOString();
+    // const time = simplifyTime(timeISO);
+
+    window.postMessage({
+      type: 'USER_B_VIEW',
+      payload: { actionID, context, time }
+    }, `http://localhost:${B_FRONTEND}`);
+  }
+
   function switchSettingsVisibility() {
     console.log('App.jsx (B): switching visibility of settings information.');
     setSettingsVisible(!settingsVisible);
@@ -347,6 +370,9 @@ function App() {
 
   function switchHistoryVisibility() {
     console.log('App.jsx (B): switching visibility of browsing history.');
+    if (!historyVisible) { // User B opens browsing history, add to action history
+      logBrowsingView();
+    }
     setHistoryVisible(!historyVisible);
   };
 
@@ -394,7 +420,6 @@ function App() {
     socket.on('a_message', (data) => {
       console.log('App.jsx (B): User A sent message: ', data);
       fetchMessageData();
-      // alert("New Message.");
     });
 
     socket.on('a_update_request', (data) => {
@@ -426,6 +451,11 @@ function App() {
       console.log('App.jsx (B): settings update request received: ', data);
       fetchRequestData();
       fetchSettingsData();
+      fetchActionData();
+    });
+
+    socket.on('b_view', (data) => {
+      console.log('App.jsx (B): browsing history view detected: ', data);
       fetchActionData();
     });
 

@@ -463,6 +463,26 @@ app.post('/api/data-from-b', (req, res) => {
         io.emit('b_update_request', data.payload); // send message to frontend
     }
 
+    if (target === 'USER_B_VIEW') {
+        console.log('server.js (A): trying to add User B view to action table.');
+
+        const id = data.payload.actionID;
+        const context = data.payload.context;
+        const time = data.payload.time;
+
+        try {
+            console.log('server.js (A): inserting into action table.');
+            const stmt = db.prepare('INSERT INTO action (actionID, context, userAChoice, time, resolved, responseOutcome, url) VALUES (?, ?, ?, ?, ?, ?, ?)');
+            stmt.run(id, context, '0', time, 'Y', '0', '');
+        }
+        catch(err) {
+            console.error('server.js (A): database insertion error: ', err.message);
+            return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
+        }
+        io.emit('b_view', data.payload);
+
+    }
+
 });
 
 // Start the server

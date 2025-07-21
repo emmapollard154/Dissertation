@@ -47,12 +47,7 @@ function processOutcome(url, outcome) {
 
         }
 
-        // remove from pending actions
         console.log('content_email.js: removing from pending actions.');
-        console.log("MODIFIED_HTML: ", MODIFIED_HTML);
-        console.log("CHOICES: ", CHOICES);
-        console.log("PARENT_LINKS: ", PARENT_LINKS);
-
         MODIFIED_HTML.delete(elem); // reset html for element
         CHOICES.delete(url);
         PARENT_LINKS.delete(elem);
@@ -74,7 +69,6 @@ function processOutcome(url, outcome) {
         if (outcome === 'Y') {
 
             console.log('content_email.js: removing from pending actions.');
-
             MODIFIED_HTML.delete(elem); // reset html for element
             CHOICES.delete(url);
             PARENT_LINKS.delete(elem);
