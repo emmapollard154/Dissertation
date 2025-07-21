@@ -280,20 +280,22 @@
 
 .checkmark {
   position: absolute;
-  top: 0;
-  left: 0;
-  height: 25px;
-  width: 25px;
-  background-color: #eee;
+  top: 10%;
+  left: 0%;
+  height: 2vh;
+  width: 2vh;
+  background-color: #eeeeee;
+  border: 1px solid #333333;
   border-radius: 50%;
 }
 
 .options_container:hover input ~ .checkmark {
-  background-color: #ccc;
+  background-color: #cccccc;
 }
 
 .options_container input:checked ~ .checkmark {
-  background-color: #2196F3;
+  background-color: var(--gray_blue);
+  background: solid;
 }
 
 .checkmark:after {
@@ -307,12 +309,11 @@
 }
 
 .options_container .checkmark:after {
- 	top: 9px;
-	left: 9px;
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: white;
+  height: 2vh;
+  width: 2vh;
+  background-color: var(--gray_blue);
+  border: 1px solid #333333;
+  border-radius: 50%;
 }
 
 .settings_options_container {
@@ -1140,8 +1141,33 @@
   box-sizing: border-box;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  display: flex;
+  flex-direction: column;
   width: 70%;
   height: 100%;
+}
+
+.chosen_options_subcontainer {
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+  margin-bottom: 2%;
+}
+
+.chosen_options_left {
+  width: 10%;
+  margin-left: 5%;
+  text-align: left;
+}
+
+.chosen_options_right {
+  width: 90%;
+  margin-right: 5%;
+  text-align: left;
 }
 
 .request_update_container {

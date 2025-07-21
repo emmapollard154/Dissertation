@@ -237,7 +237,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         const emailSettings = getEmailSettings();
         emailSettings.then(function(result) {
             console.log(result);
-            document.getElementById('speechContent').innerText = result;
         })
         .catch(function(error) {
             console.error('side_panel.js: request to get EMAIL_SETTINGS rejected: ', error);

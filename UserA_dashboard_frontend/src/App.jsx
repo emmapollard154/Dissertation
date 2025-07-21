@@ -6,6 +6,14 @@ const A_BACKEND = 5000;
 const A_FRONTEND = 5173;
 const socket = io(`http://localhost:${A_BACKEND}`);
 
+const OPTIONS_MAP = new Map([
+  [1 , 'Continue (no interference).'],
+  [2 , 'Record action for User B too see later. Continue with action.'],
+  [3 , 'Ask User B to check (accept or reject) this action. Do not continue with action at the moment.'],
+  [4 , 'Ask User B to check (accept or reject) this action. Block action if User B rejects request.'],
+  [5 , 'Block this action. Prevent action being carried out in the future. User B will not be informed.'],
+]);
+
 const CHOICE_MAP = new Map([
   ['2', 'You clicked on a link in an email.'],
   ['3', 'You requested you to approve or reject clicking on an email link (one time request).'],
@@ -95,6 +103,13 @@ function App() {
     }
   }
 
+  // Format context of settings
+  function displayContext(context) {
+    if (context === 'E') {
+      return 'Email';
+    }
+  }
+
   const orderActionData = (data) => {
     return [...data].sort((a, b) => {
       const timeA = new Date(a.time);
@@ -131,6 +146,16 @@ function App() {
       return 'Rejected';
     }
     return '';
+  }
+
+  function displayResponse(response) {
+    if (response === 'Y') {
+      return '✔';
+    }
+    if (response === 'N') {
+      return '✖';
+    }
+    return '?';
   }
 
   function updateRequest(context) {
@@ -639,31 +664,31 @@ function App() {
 
                   <div className='settings_options_container'>
                     <form id="emailChoice">
-                        <label className="options_container">
-                          Continue (no interference)
-                          <input type="checkbox" name="email_choices" value="1" />
-                          <span className="checkmark"></span>
-                        </label>
-                        <label className="options_container">
-                          Record action for User B too see later. Continue with action.
-                          <input type="checkbox" name="email_choices" value="2" />
-                          <span className="checkmark"></span>
-                        </label>
-                        <label className="options_container">
-                          Ask User B to check (accept or reject) this action. Do not continue with action at the moment.
-                          <input type="checkbox" name="email_choices" value="3" />
-                          <span className="checkmark"></span>
-                        </label>
-                        <label className="options_container">
-                          Ask User B to check (accept or reject) this action. Block action if User B rejects request.
-                          <input type="checkbox" name="email_choices" value="4" />
-                          <span className="checkmark"></span>
-                        </label>
-                        <label className="options_container">
-                          Block this action. Prevent action being carried out in the future. User B will not be informed.
-                          <input type="checkbox" name="email_choices" value="5" />
-                          <span className="checkmark"></span>
-                        </label>
+                      <label className="options_container">
+                        {OPTIONS_MAP.get(1)}
+                        <input type="checkbox" name="email_choices" value="1" />
+                        <span className="checkmark"></span>
+                      </label>
+                      <label className="options_container">
+                        {OPTIONS_MAP.get(2)}
+                        <input type="checkbox" name="email_choices" value="2" />
+                        <span className="checkmark"></span>
+                      </label>
+                      <label className="options_container">
+                        {OPTIONS_MAP.get(3)}
+                        <input type="checkbox" name="email_choices" value="3" />
+                        <span className="checkmark"></span>
+                      </label>
+                      <label className="options_container">
+                        {OPTIONS_MAP.get(4)}
+                        <input type="checkbox" name="email_choices" value="4" />
+                        <span className="checkmark"></span>
+                      </label>
+                      <label className="options_container">
+                        {OPTIONS_MAP.get(5)}
+                        <input type="checkbox" name="email_choices" value="5" />
+                        <span className="checkmark"></span>
+                      </label>
                     </form>
                   </div>
 
@@ -746,27 +771,27 @@ function App() {
                                     <div className='settings_options_container'>
                                       <form id="emailChoiceUpdate">
                                         <label className="options_container">
-                                          Continue (no interference)
+                                          {OPTIONS_MAP.get(1)}
                                           <input type="checkbox" name="email_choices" value="1" />
                                           <span className="checkmark"></span>
                                         </label>
                                         <label className="options_container">
-                                          Record action for User B too see later. Continue with action.
+                                          {OPTIONS_MAP.get(2)}
                                           <input type="checkbox" name="email_choices" value="2" />
                                           <span className="checkmark"></span>
                                         </label>
                                         <label className="options_container">
-                                          Ask User B to check (accept or reject) this action. Do not continue with action at the moment.
+                                          {OPTIONS_MAP.get(3)}
                                           <input type="checkbox" name="email_choices" value="3" />
                                           <span className="checkmark"></span>
                                         </label>
                                         <label className="options_container">
-                                          Ask User B to check (accept or reject) this action. Block action if User B rejects request.
+                                          {OPTIONS_MAP.get(4)}
                                           <input type="checkbox" name="email_choices" value="4" />
                                           <span className="checkmark"></span>
                                         </label>
                                         <label className="options_container">
-                                          Block this action. Prevent action being carried out in the future. User B will not be informed.
+                                          {OPTIONS_MAP.get(5)}
                                           <input type="checkbox" name="email_choices" value="5" />
                                           <span className="checkmark"></span>
                                         </label>
@@ -981,8 +1006,29 @@ function App() {
 
                                 {settingsData.map((item) => (
                                   <div className='settings_entry_container'>
-                                    <div className='context_container'>{item.context}</div>
-                                    <div className='chosen_options_container'>{item.opt1} {item.opt2} {item.opt3} {item.opt4} {item.opt5}</div>
+                                    <div className='context_container'>{displayContext(item.context)}</div>
+                                    <div className='chosen_options_container'>
+                                      <div className='chosen_options_subcontainer'>
+                                        <div className='chosen_options_left'>{displayResponse(item.opt1)}</div>
+                                        <div className='chosen_options_right'>{OPTIONS_MAP.get(1)}</div>
+                                      </div>
+                                      <div className='chosen_options_subcontainer'>
+                                        <div className='chosen_options_left'>{displayResponse(item.opt2)}</div>
+                                        <div className='chosen_options_right'>{OPTIONS_MAP.get(2)}</div>
+                                      </div>
+                                      <div className='chosen_options_subcontainer'>
+                                        <div className='chosen_options_left'>{displayResponse(item.opt3)}</div>
+                                        <div className='chosen_options_right'>{OPTIONS_MAP.get(3)}</div>
+                                      </div>
+                                      <div className='chosen_options_subcontainer'>
+                                        <div className='chosen_options_left'>{displayResponse(item.opt4)}</div>
+                                        <div className='chosen_options_right'>{OPTIONS_MAP.get(4)}</div>
+                                      </div>
+                                      <div className='chosen_options_subcontainer'>
+                                        <div className='chosen_options_left'>{displayResponse(item.opt5)}</div>
+                                        <div className='chosen_options_right'>{OPTIONS_MAP.get(5)}</div>
+                                      </div>
+                                    </div>
                                     <div className='request_update_container'>
                                       <button className='update_settings_button' onClick={() => updateRequest(item.context)}>Request Update</button>
                                     </div>
