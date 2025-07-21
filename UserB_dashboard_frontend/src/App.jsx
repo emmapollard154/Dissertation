@@ -7,11 +7,20 @@ const B_BACKEND = 8080;
 const B_FRONTEND = 6173;
 const socket = io(`http://localhost:${B_BACKEND}`);
 
+const OPTIONS_MAP = new Map([
+  [1 , 'Continue (no interference).'],
+  [2 , 'Record action for User B too see later. Continue with action.'],
+  [3 , 'Ask User B to check (accept or reject) this action. Do not continue with action at the moment.'],
+  [4 , 'Ask User B to check (accept or reject) this action. Block action if User B rejects request.'],
+  [5 , 'Block this action. Prevent action being carried out in the future. User B will not be informed.'],
+]);
+
 const CHOICE_MAP = new Map([
+  ['0', 'You checked the browsing history of User A.'],
   ['2', 'User A clicked on a link in an email.'],
   ['3', 'User A requested you to approve or reject clicking on an email link (one time request).'],
   ['4', 'User A requested you to approve or reject clicking on an email link (link will be blocked if rejected).'],
-  ['Y', 'User A updated setting configuration.'],
+  ['Y', 'Setting configuration updated.'],
 
 ]);
 
@@ -118,6 +127,9 @@ function App() {
     if (context === 'Settings') {
       return '../icons/settings_action_icon.png'
     }
+    if (context === 'View') {
+      return '../icons/browsing_action_icon.png'
+    }
   }
 
 
@@ -220,7 +232,6 @@ function App() {
       console.log('App.jsx (B): "Yes" button clicked: ', actionID.item);
       
       let now = new Date().toISOString();
-      // now = simplifyTime(now);
       actionID.item.time = now; // update time to user b response
 
       window.postMessage({
@@ -233,7 +244,6 @@ function App() {
       console.log('App.jsx (B): "No" button clicked: ', actionID.item);
 
       let now = new Date().toISOString();
-      // now = simplifyTime(now);
       actionID.item.time = now; // update time to user b response
 
       window.postMessage({
@@ -289,6 +299,23 @@ function App() {
     }
   }
 
+  // Format context of settings
+  function displayContext(context) {
+    if (context === 'E') {
+      return 'Email';
+    }
+  }
+
+  function displayResponse(response) {
+    if (response === 'Y') {
+      return '✔';
+    }
+    if (response === 'N') {
+      return '✖';
+    }
+    return '?';
+  }
+
   // Function to send message to backend B
   function sendMessage() {
     const messageInput = document.getElementById('messageInput')
@@ -304,6 +331,27 @@ function App() {
       messageInput.value = '';
     }
   };
+
+// Function to get unique ID for viewing actions
+function viewID() {
+    const now = new Date().toISOString(); // timestamp (unique)
+    var id = now.replace(/\D/g, ""); // keep only numeric values from timestamp
+    return `v${id}`; // v signifies viewing action
+}
+
+  // Function to add browsing history to action table
+  function logBrowsingView() {
+
+    const actionID = viewID();
+    const context = 'View';
+    const time = new Date().toISOString();
+    // const time = simplifyTime(timeISO);
+
+    window.postMessage({
+      type: 'USER_B_VIEW',
+      payload: { actionID, context, time }
+    }, `http://localhost:${B_FRONTEND}`);
+  }
 
   function switchSettingsVisibility() {
     console.log('App.jsx (B): switching visibility of settings information.');
@@ -322,6 +370,9 @@ function App() {
 
   function switchHistoryVisibility() {
     console.log('App.jsx (B): switching visibility of browsing history.');
+    if (!historyVisible) { // User B opens browsing history, add to action history
+      logBrowsingView();
+    }
     setHistoryVisible(!historyVisible);
   };
 
@@ -369,7 +420,6 @@ function App() {
     socket.on('a_message', (data) => {
       console.log('App.jsx (B): User A sent message: ', data);
       fetchMessageData();
-      // alert("New Message.");
     });
 
     socket.on('a_update_request', (data) => {
@@ -401,6 +451,11 @@ function App() {
       console.log('App.jsx (B): settings update request received: ', data);
       fetchRequestData();
       fetchSettingsData();
+      fetchActionData();
+    });
+
+    socket.on('b_view', (data) => {
+      console.log('App.jsx (B): browsing history view detected: ', data);
       fetchActionData();
     });
 
@@ -499,7 +554,6 @@ function App() {
                     
                     <div className='request_icon_container'>
                       <img src='../icons/request_icon.png' className='request_image'></img>
-                      {/* {item.context} */}
                     </div>
 
                     <div className='request_data_container'>
@@ -526,7 +580,6 @@ function App() {
                   <div className='status_content_container'>
                     <div className='status_icon_container'>
                       <img src='../icons/mail_action_icon.png' className='status_image'></img>
-                      {/* {item.context} */}
                     </div>
                     <div className='status_data_container'>
                       <div className='status_meta_container'>
@@ -539,6 +592,14 @@ function App() {
                       </div>
                       <div className='status_text_container'>
                         {displayChoice(item.userAChoice, item.url)}
+                      </div>
+                    </div>
+                    <div className='status_resolve_container'>
+                      <div className='request_resolve_subcontainer'>
+                        <button id="btnNo" className='btn_no' onClick={(event) => responseBtn(event.target, {item})}>Reject</button>
+                      </div>
+                      <div className='request_resolve_subcontainer'>
+                        <button id="btnYes" className='btn_yes' onClick={(event) => responseBtn(event.target, {item})}>Accept</button>
                       </div>
                     </div>
                   </div>
@@ -709,8 +770,29 @@ function App() {
 
                                 {settingsData.map((item) => (
                                   <div className='settings_entry_container'>
-                                    <div className='context_container'>{item.context}</div>
-                                    <div className='chosen_options_container'>{item.opt1} {item.opt2} {item.opt3} {item.opt4} {item.opt5}</div>
+                                    <div className='context_container'>{displayContext(item.context)}</div>
+                                    <div className='chosen_options_container'>
+                                      <div className='chosen_options_subcontainer'>
+                                        <div className='chosen_options_left'>{displayResponse(item.opt1)}</div>
+                                        <div className='chosen_options_right'>{OPTIONS_MAP.get(1)}</div>
+                                      </div>
+                                      <div className='chosen_options_subcontainer'>
+                                        <div className='chosen_options_left'>{displayResponse(item.opt2)}</div>
+                                        <div className='chosen_options_right'>{OPTIONS_MAP.get(2)}</div>
+                                      </div>
+                                      <div className='chosen_options_subcontainer'>
+                                        <div className='chosen_options_left'>{displayResponse(item.opt3)}</div>
+                                        <div className='chosen_options_right'>{OPTIONS_MAP.get(3)}</div>
+                                      </div>
+                                      <div className='chosen_options_subcontainer'>
+                                        <div className='chosen_options_left'>{displayResponse(item.opt4)}</div>
+                                        <div className='chosen_options_right'>{OPTIONS_MAP.get(4)}</div>
+                                      </div>
+                                      <div className='chosen_options_subcontainer'>
+                                        <div className='chosen_options_left'>{displayResponse(item.opt5)}</div>
+                                        <div className='chosen_options_right'>{OPTIONS_MAP.get(5)}</div>
+                                      </div>
+                                    </div>
                                     <div className='request_update_container'>
                                       <button className='update_settings_button' onClick={() => updateRequest(item.context)}>Request Update</button>
                                     </div>
