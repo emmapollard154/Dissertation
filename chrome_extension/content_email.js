@@ -9,6 +9,7 @@ let CHOICES = new Map(); // store current pending links and corresponding choice
 let CURRENT_PARENT = ''; // variable to store click event target
 let MODIFIED_HTML = new Map(); // map to store modified html for pages containing pending links
 let ORIGINAL_HTML = new Map(); // map to store original html results for regular clicks
+let ORIGINAL_LINKS = new Map(); // map to store original links for actions that are unblocked
 let CLICKED_BEFORE = [];
 
 // References to html elements
@@ -48,9 +49,9 @@ function processOutcome(url, outcome) {
 
         // remove from pending actions
         console.log('content_email.js: removing from pending actions.');
-        console.log("MODIFIED_HTML size: ", MODIFIED_HTML.size);
-        console.log("CHOICES size: ", CHOICES.size);
-        console.log("PARENT_LINKS size: ", PARENT_LINKS.size);
+        console.log("MODIFIED_HTML: ", MODIFIED_HTML);
+        console.log("CHOICES: ", CHOICES);
+        console.log("PARENT_LINKS: ", PARENT_LINKS);
 
         MODIFIED_HTML.delete(elem); // reset html for element
         CHOICES.delete(url);
@@ -66,21 +67,13 @@ function processOutcome(url, outcome) {
             PENDING_ACTIONS.splice(j, 1);
         }
 
-        console.log("MODIFIED_HTML size: ", MODIFIED_HTML.size);
-        console.log("CHOICES size: ", CHOICES.size);
-        console.log("PARENT_LINKS size: ", PARENT_LINKS.size);
+        document.documentElement.innerHTML = ORIGINAL_HTML.get(url); // switch to original link
 
     }
     else if (choice === '4') {
         if (outcome === 'Y') {
 
-
-            // remove from pending actions
-
             console.log('content_email.js: removing from pending actions.');
-            console.log("MODIFIED_HTML size: ", MODIFIED_HTML.size);
-            console.log("CHOICES size: ", CHOICES.size);
-            console.log("PARENT_LINKS size: ", PARENT_LINKS.size);
 
             MODIFIED_HTML.delete(elem); // reset html for element
             CHOICES.delete(url);
@@ -96,13 +89,11 @@ function processOutcome(url, outcome) {
                 PENDING_ACTIONS.splice(j, 1);
             }
 
-            console.log("MODIFIED_HTML size: ", MODIFIED_HTML.size);
-            console.log("CHOICES size: ", CHOICES.size);
-            console.log("PARENT_LINKS size: ", PARENT_LINKS.size);
+            document.documentElement.innerHTML = ORIGINAL_HTML.get(url); // switch to original link
 
         }
         if (outcome === 'N') {
-
+            // remains blocked
         }
     }
     else {
@@ -418,8 +409,14 @@ function loadAll() {
 
             if (!clickedBefore && !flagged && !popupElement) {
                 console.log('content_email.js: storing original html.');
-                console.log("CURRENT_PARENT: ", CURRENT_PARENT);
-                ORIGINAL_HTML.set(CURRENT_PARENT, document.documentElement.innerHTML);
+                console.log("event.target: ", event.target);
+                if (event.target.matches('a')) { // link pressed
+                    const dest = event.target.href;
+                    if (!dest.includes(`localhost:${EMAIL_PORT}`)) {
+                        console.log("setting original html for link: ", event.target.href);
+                        ORIGINAL_HTML.set(event.target.href, document.documentElement.innerHTML);
+                    }
+                }
             }
 
             flagged = false;
@@ -442,8 +439,10 @@ function loadAll() {
                             choice: CHOICES.get(LINK.name)
                         });
                     }
-
                     return;
+                }
+                else {
+                    ORIGINAL_LINKS.set(LINK.href, LINK.outerHTML);
                 }
 
                 await injectInfoHtml(LINK);
