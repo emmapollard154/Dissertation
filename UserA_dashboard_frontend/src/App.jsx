@@ -582,6 +582,7 @@ function App() {
       socket.off('b_update_request');
       socket.off('b_message');
       socket.off('b_response');
+      socket.off('b_view');
       socket.off('connect');
       socket.off('connect_error');
       socket.off('welcome');

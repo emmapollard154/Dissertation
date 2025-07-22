@@ -454,8 +454,8 @@ function viewID() {
       fetchActionData();
     });
 
-    socket.on('b_view', (data) => {
-      console.log('App.jsx (B): browsing history view detected: ', data);
+    socket.on('b_view', () => {
+      console.log('App.jsx (B): browsing history view detected.');
       fetchActionData();
     });
 
@@ -467,6 +467,7 @@ function viewID() {
       socket.off('a_message');
       socket.off('b_response');
       socket.off('b_message');
+      socket.off('b_view');
       socket.off('a_update_request');
       socket.off('b_update_request');
       socket.off('connect');

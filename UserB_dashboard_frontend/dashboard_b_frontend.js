@@ -81,16 +81,8 @@ window.addEventListener('message', function(event) {
     }
 
     if (event.data && event.data.type === 'USER_B_VIEW') {
-        
-        const actionID = event.data.payload.actionID;
-        const context = event.data.payload.context;
-        const time = event.data.payload.time;
 
-        console.log(event.data)
-        console.log(event.data.payload)
-
-
-        console.log('dashboard_b_frontend.js: received message USER_B_VIEW');
+        console.log('dashboard_b_frontend.js: received message USER_B_VIEW.');
 
         const data = {
             data: event.data,
