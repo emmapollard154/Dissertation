@@ -944,9 +944,19 @@
 }
 
 .education_content {
-    text-align: center;
+    text-align: left;
+    font-size: 2.5vh;
     overflow: auto;
     margin-right: 5%;
+}
+
+.education_content h2 {
+  font-size: 2.5vh;
+  font-weight: bold;
+}
+
+.education_content hyper {
+  text-align: right;
 }
 
 .education_header_container {

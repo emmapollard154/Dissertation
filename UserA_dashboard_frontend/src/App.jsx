@@ -941,16 +941,43 @@ function App() {
                         <div className='education_popup' id='settingsPopup'>
                           <div className='bottom_scrollbar'>
                             <div className='education_content'>
-                              <div className='education_header_container'>
 
+                              <div className='education_header_container'>
                                 <div className='popup_subtitle'>More information</div>
                                 <div className='okay_education_top' >
                                 <button className='popup_button' onClick={switchEducationVisibility}>Okay</button>
                                 </div>
-
                               </div>
 
-                                <p>Education Data</p>
+                                <h2>For more information about staying safe online, the following websites may be helpful.</h2>
+
+                                <p><a href='https://www.ncsc.gov.uk/cyberaware/home' target="_blank" class="text-blue-500 hover:underline">National Cyber Security Centre</a>
+                                &emsp;Advice on how to stay secure online</p>
+
+                                <p><a href='https://ico.org.uk/for-the-public/online/spam-emails/' target="_blank" class="text-blue-500 hover:underline">Information Commissioner's Office</a>
+                                &emsp;Advice for the public regarding spam emails</p>
+
+                                <p><a href='https://www.ageuk.org.uk/information-advice/work-learning/technology-internet/internet-security/' target="_blank" class="text-blue-500 hover:underline">Age UK</a>
+                                &emsp;Online safety advice targeted towards older Internet users</p>
+
+                                <p><a href='https://www.mencap.org.uk/easyread/internet-online-safety' target="_blank" class="text-blue-500 hover:underline">Mencap</a>
+                                &emsp;'Easy read' online safety tips targeting users with learning disabilities</p>
+
+                                <h2><br></br>These videos explain basic online safety principles.</h2>
+
+                                <p><a href='https://www.youtube.com/watch?v=NJxJYBAjkJU' target="_blank" class="text-blue-500 hover:underline">Email Security</a>
+                                &emsp;Nixu Corporation (2 minutes)</p>
+
+                                <p><a href='https://www.youtube.com/watch?v=o0btqyGWIQw' target="_blank" class="text-blue-500 hover:underline">Spot Phishing Emails</a>
+                                &emsp;IT Governance LTD (2 minutes)</p>
+
+                                <h2><br></br>These interactive educational resource may help improve your Internet safety skills.</h2>
+
+                                <p><a href='https://www.egress.com/blog/phishing/spot-the-phish' target="_blank" class="text-blue-500 hover:underline">Spot the Phish</a>
+                                &emsp;egress (interactive quiz)</p>
+
+                                <p><a href='https://beinternetawesome.withgoogle.com/en_uk/interland/landing/reality-river' target="_blank" class="text-blue-500 hover:underline">Interland - Reality River</a>
+                                &emsp;Google (gamified quiz for detecting spam)</p>
 
                             </div>
                           </div>
