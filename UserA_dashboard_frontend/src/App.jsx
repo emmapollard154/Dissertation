@@ -9,16 +9,16 @@ const socket = io(`http://localhost:${A_BACKEND}`);
 const OPTIONS_MAP = new Map([
   [1 , 'Continue (no interference).'],
   [2 , 'Record action for User B too see later. Continue with action.'],
-  [3 , 'Ask User B to check (accept or reject) this action. Do not continue with action at the moment.'],
-  [4 , 'Ask User B to check (accept or reject) this action. Block action if User B rejects request.'],
+  [3 , 'Ask User B for advice (accept / reject) regarding this action. Do not continue with action at the moment.'],
+  [4 , 'Ask User B for advice (accept / reject) regarding this action. Block action if User B rejects request.'],
   [5 , 'Block this action. Prevent action being carried out in the future. User B will not be informed.'],
 ]);
 
 const CHOICE_MAP = new Map([
   ['0', 'User B checked your browsing history.'],
   ['2', 'You clicked on a link in an email.'],
-  ['3', 'You requested you to approve or reject clicking on an email link (one time request).'],
-  ['4', 'You requested you to approve or reject clicking on an email link (link will be blocked if rejected).'],
+  ['3', 'You requested confirmation from User B to click on an email link (one time request).'],
+  ['4', 'You requested confirmation from User B to click on an email link (link will be blocked if rejected).'],
   ['Y', 'Setting configuration updated.'],
 ]);
 
@@ -193,6 +193,16 @@ function App() {
       return '../icons/browsing_action_icon.png'
     }
   }
+
+  function getMessageIcon(user) {
+    if (user === 'A') {
+      return '../icons/icon_a_white.png'
+    }
+    if (user === 'B') {
+      return '../icons/icon_b_solid.png'
+    }
+  }
+
 
   const fetchBrowserData = async () => {
     try {
@@ -645,6 +655,9 @@ function App() {
                   </div>
 
                     <p>Help Information</p>
+                    <p>Dashboard navigation</p>
+                    <p>Extension navigation</p>
+                    <p>when menu will be flagged</p>
 
                 </div>
               </div>
@@ -698,6 +711,7 @@ function App() {
                         <span className="checkmark"></span>
                       </label>
                     </form>
+                    <p>Intervention will be activated when you click any link contained in an email. If you choose to involve User B, they will be able to see the time of your request and the link you want to access.</p>
                   </div>
 
                   <div className='settings_save_container'>
@@ -804,6 +818,7 @@ function App() {
                                           <span className="checkmark"></span>
                                         </label>
                                       </form>
+                                      <p>Intervention will be activated when you click any link contained in an email. If you choose to involve User B, they will be able to see the time of your request and the link you want to access.</p>
                                     </div>
 
                                     <div className='settings_save_container'>
@@ -866,7 +881,7 @@ function App() {
                 {messageData.map((item) => (
                   <div className='msg_content_container'>
                     <div className='msg_icon_container'>
-                      <img src='../icons/icon_A_solid.png' className='icon_image'></img>
+                      <img src={getMessageIcon(item.userID)} className='icon_image'></img>
                     </div>
                     <div className='msg_data_container'>
                       <div className='msg_meta_container'>User {item.userID}&emsp;{item.time}</div>
@@ -1063,6 +1078,7 @@ function App() {
                                         <div className='chosen_options_left'>{displayResponse(item.opt5)}</div>
                                         <div className='chosen_options_right'>{OPTIONS_MAP.get(5)}</div>
                                       </div>
+                                      <p>Intervention will be activated when you click any link contained in an email. If you choose to involve User B, they will be able to see the time of your request and the link you want to access.</p>
                                     </div>
                                     <div className='request_update_container'>
                                       <button className='update_settings_button' onClick={() => updateRequest(item.context)}>Request Update</button>

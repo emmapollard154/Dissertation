@@ -10,16 +10,16 @@ const socket = io(`http://localhost:${B_BACKEND}`);
 const OPTIONS_MAP = new Map([
   [1 , 'Continue (no interference).'],
   [2 , 'Record action for User B too see later. Continue with action.'],
-  [3 , 'Ask User B to check (accept or reject) this action. Do not continue with action at the moment.'],
-  [4 , 'Ask User B to check (accept or reject) this action. Block action if User B rejects request.'],
+  [3 , 'Ask User B for advice (accept / reject) regarding this action. Do not continue with action at the moment.'],
+  [4 , 'Ask User B for advice (accept / reject) regarding this action. Block action if User B rejects request.'],
   [5 , 'Block this action. Prevent action being carried out in the future. User B will not be informed.'],
 ]);
 
 const CHOICE_MAP = new Map([
   ['0', 'You checked the browsing history of User A.'],
   ['2', 'User A clicked on a link in an email.'],
-  ['3', 'User A requested you to approve or reject clicking on an email link (one time request).'],
-  ['4', 'User A requested you to approve or reject clicking on an email link (link will be blocked if rejected).'],
+  ['3', 'User A requested confirmation to click on an email link (one time request).'],
+  ['4', 'User A requested confirmation to click on an email link (link will be blocked if rejected).'],
   ['Y', 'Setting configuration updated.'],
 
 ]);
@@ -132,6 +132,14 @@ function App() {
     }
   }
 
+  function getMessageIcon(user) {
+    if (user === 'A') {
+      return '../icons/icon_a_solid.png'
+    }
+    if (user === 'B') {
+      return '../icons/icon_b_white.png'
+    }
+  }
 
   const fetchSettingsData = async () => {
     try {
@@ -532,6 +540,9 @@ function viewID() {
                   </div>
 
                     <p>Help Information</p>
+                    <p>Dashboard navigation</p>
+                    <p>Extension navigation</p>
+                    <p>when menu will be flagged</p>
 
                 </div>
               </div>
@@ -622,7 +633,7 @@ function viewID() {
                 {messageData.map((item) => (
                   <div className='msg_content_container'>
                     <div className='msg_icon_container'>
-                      <img src='../icons/icon_A_solid.png' className='icon_image'></img>
+                      <img src={getMessageIcon(item.userID)} className='icon_image'></img>
                     </div>
                     <div className='msg_data_container'>
                         <div className='msg_meta_container'>User {item.userID}&emsp;{item.time}</div>
@@ -720,7 +731,7 @@ function viewID() {
                   
 
                   <div className='account_container'>
-                    <div className='account_left'>Click on the button to the right to view your browsing history.</div>
+                    <div className='account_left'>Click on the button to the right to view the browsing history of User A. User A will be able to see that you looked.</div>
                     <div className='account_right'><button onClick={switchHistoryVisibility}>View Browsing History</button></div>
                   </div>
 
@@ -793,6 +804,7 @@ function viewID() {
                                         <div className='chosen_options_left'>{displayResponse(item.opt5)}</div>
                                         <div className='chosen_options_right'>{OPTIONS_MAP.get(5)}</div>
                                       </div>
+                                      <p>Intervention will be activated when User A clicks any link contained in an email. You will be able to see the time of request and the link clicked on if User A chooses to notify you of their action.</p>
                                     </div>
                                     <div className='request_update_container'>
                                       <button className='update_settings_button' onClick={() => updateRequest(item.context)}>Request Update</button>

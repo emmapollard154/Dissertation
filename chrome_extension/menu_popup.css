@@ -48,6 +48,11 @@
   height: 70%;
 }
 
+.menu_form_container p {
+  margin-bottom: 2.5vh;
+  font-size: 2vh;
+}
+
 .menu_button_container {
   height: 15%;
   bottom: 0%;
