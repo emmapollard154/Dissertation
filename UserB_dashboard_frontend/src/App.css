@@ -954,6 +954,13 @@
   height: 100%;
 }
 
+.chosen_options_container p {
+  margin-bottom: 2.5vh;
+  font-size: 2vh;
+  margin-left: 5%;
+  text-align: left;
+}
+
 .chosen_options_subcontainer {
   box-sizing: border-box;
   word-wrap: break-word;

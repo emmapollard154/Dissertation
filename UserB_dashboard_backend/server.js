@@ -111,7 +111,6 @@ app.post('/api/data-b-frontend', async (req, res) => {
         const response = await axios.post(`http://localhost:${A_BACK}/api/data-from-b`, data, {
             headers: {
                 'Content-Type': 'application/json',
-                // 'X-API-Key': API_KEY_FOR_A // Include the API key for authentication
             }
         });
 

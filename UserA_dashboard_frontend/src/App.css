@@ -261,7 +261,7 @@
   position: relative;
   padding-left: 35px;
   margin-top: 3%;
-  height: 6.5vh;
+  /* height: 6.5vh; */
   cursor: pointer;
   font-size: 2vh;
   overflow: hidden;
@@ -318,6 +318,11 @@
 
 .settings_options_container {
   height: 80%;
+}
+
+.settings_options_container p {
+  margin-bottom: 2.5vh;
+  font-size: 2vh;
 }
 
 .settings_save_container {
@@ -944,9 +949,19 @@
 }
 
 .education_content {
-    text-align: center;
+    text-align: left;
+    font-size: 2.5vh;
     overflow: auto;
     margin-right: 5%;
+}
+
+.education_content h2 {
+  font-size: 2.5vh;
+  font-weight: bold;
+}
+
+.education_content hyper {
+  text-align: right;
 }
 
 .education_header_container {
@@ -1145,6 +1160,13 @@
   flex-direction: column;
   width: 70%;
   height: 100%;
+}
+
+.chosen_options_container p {
+  margin-bottom: 2.5vh;
+  font-size: 2vh;
+  margin-left: 5%;
+  text-align: left;
 }
 
 .chosen_options_subcontainer {

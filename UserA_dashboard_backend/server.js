@@ -479,6 +479,7 @@ app.post('/api/data-from-b', (req, res) => {
             console.error('server.js (A): database insertion error: ', err.message);
             return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
         }
+        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
         io.emit('b_view', data.payload);
 
     }
