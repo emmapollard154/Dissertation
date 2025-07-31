@@ -530,19 +530,36 @@ function viewID() {
             <div className='help_popup' id='helpPopup'>
               <div className='bottom_scrollbar'>
                 <div className='help_content'>
-                  <div className='help_header_container'>
 
+                  <div className='help_header_container'>
                     <div className='popup_subtitle'>Help Centre</div>
                     <div className='okay_help_top' >
                       <button className='popup_button' onClick={switchHelpVisibility}>Okay</button>
                     </div>
-
                   </div>
 
-                    <p>Help Information</p>
-                    <p>Dashboard navigation</p>
-                    <p>Extension navigation</p>
-                    <p>when menu will be flagged</p>
+                  <div className='dashboard_navigation'>
+                    <div className='dashboard_navigation_text'>
+                      <p><b>Dashboard Navigation</b></p>
+                      <p><b>Status</b>&emsp;Any current requests and actions will be shown here</p>
+                      <p><b>Messages</b>&emsp;Send messages to each other and view your message history</p>
+                      <p><b>History</b>&emsp;Both users can view the history of requests and actions once resolved</p>
+                      <p><b>Account</b>&emsp;Access additional safety information, view the browsing history of User A (they will be notified), and view / request to update your account settings.</p>
+                      <p><b>?</b>&emsp;Help Centre (here)</p>
+                    </div>
+                    <img src='../icons/dash_map.png' className='dashboard_navigation_img'></img>
+                  </div>
+
+                  <div className='extension_navigation'>
+                    <div className='extension_navigation_text'>
+                      <p><b>Extension Navigation</b></p>
+                      <p>The system requires User A to install and use a Chrome extension that includes a side panel. The extension monitors online activity and prompts intervention when it detects that an email link has been clicked on. </p>
+                      <p>When flagged, the click will be suspended and User A will be presented with information on the risk and a menu of options of how to respond which may include requesting your advice.</p>
+                      <p>The speech bubble will display concise information and reminders relevant to the user's current situation.</p>
+                      <p>The buttons in the panel will change appearance to notify the user of any updated. The dashboard can be accessed by clicking on any button in the panel.</p>
+                    </div>
+                    <img src='../icons/side_panel.png' className='extension_navigation_img'></img>
+                  </div>
 
                 </div>
               </div>
@@ -704,31 +721,62 @@ function viewID() {
                     <div className='account_right'><button onClick={switchEducationVisibility}>Safety Information</button></div>
                   </div>
 
-                    {educationVisible && (
-                      <div className='education_background' id='educationBackground'>
-                        <div className='education_popup' id='settingsPopup'>
-                          <div className='bottom_scrollbar'>
-                            <div className='education_content'>
-                              <div className='education_header_container'>
+                  {educationVisible && (
+                    <div className='education_background' id='educationBackground'>
+                      <div className='education_popup' id='settingsPopup'>
+                        <div className='bottom_scrollbar'>
+                          <div className='education_content'>
 
-                                <div className='popup_subtitle'>Safety Information</div>
-                                <div className='okay_education_top' >
-                                <button className='popup_button' onClick={switchEducationVisibility}>Okay</button>
-                                </div>
-
+                            <div className='education_header_container'>
+                              <div className='popup_subtitle'>More information</div>
+                              <div className='okay_education_top' >
+                              <button className='popup_button' onClick={switchEducationVisibility}>Okay</button>
                               </div>
-
-                                <p>Education Data</p>
-
                             </div>
+
+                            <h2>For more information about staying safe online, the following websites may be helpful.</h2>
+
+                            <p><a href='https://www.ncsc.gov.uk/cyberaware/home' target="_blank" class="text-blue-500 hover:underline">National Cyber Security Centre</a>
+                            &emsp;Advice on how to stay secure online</p>
+
+                            <p><a href='https://ico.org.uk/for-the-public/online/spam-emails/' target="_blank" class="text-blue-500 hover:underline">Information Commissioner's Office</a>
+                            &emsp;Advice for the public regarding spam emails</p>
+
+                            <p><a href='https://www.ageuk.org.uk/information-advice/work-learning/technology-internet/internet-security/' target="_blank" class="text-blue-500 hover:underline">Age UK</a>
+                            &emsp;Online safety advice targeted towards older Internet users</p>
+
+                            <p><a href='https://www.mencap.org.uk/easyread/internet-online-safety' target="_blank" class="text-blue-500 hover:underline">Mencap</a>
+                            &emsp;'Easy read' online safety tips targeting users with learning disabilities</p>
+
+                            <h2><br></br>These videos explain basic online safety principles.</h2>
+
+                            <p><a href='https://www.youtube.com/watch?v=NJxJYBAjkJU' target="_blank" class="text-blue-500 hover:underline">Email Security</a>
+                            &emsp;Nixu Corporation (2 minutes)</p>
+
+                            <p><a href='https://www.youtube.com/watch?v=o0btqyGWIQw' target="_blank" class="text-blue-500 hover:underline">Spot Phishing Emails</a>
+                            &emsp;IT Governance LTD (2 minutes)</p>
+
+                            <h2><br></br>These interactive educational resource may help improve your Internet safety skills.</h2>
+
+                            <p><a href='https://www.egress.com/blog/phishing/spot-the-phish' target="_blank" class="text-blue-500 hover:underline">Spot the Phish</a>
+                            &emsp;Egress (interactive quiz)</p>
+
+                            <p><a href='https://beinternetawesome.withgoogle.com/en_uk/interland/landing/reality-river' target="_blank" class="text-blue-500 hover:underline">Interland - Reality River</a>
+                            &emsp;Google (gamified quiz for detecting spam)</p>
+
+                            <h2><br></br>If you believe you have received or been victim to a spam email, you can report the incident.</h2>
+
+                            <p><a href='https://www.actionfraud.police.uk/' target="_blank" class="text-blue-500 hover:underline">Action Fraud</a>
+                            &emsp;UK national cybercrime reporting centre</p>
+
+                            <p><a href='0808 808 1111' target="_blank" class="text-blue-500 hover:underline">0808 808 1111</a>
+                            &emsp;Mencap‘s Learning Disability Helpline</p>
+
                           </div>
                         </div>
                       </div>
-                    )}
-
-
-
-                  
+                    </div>
+                  )}
 
                   <div className='account_container'>
                     <div className='account_left'>Click on the button to the right to view the browsing history of User A. User A will be able to see that you looked.</div>

@@ -3,7 +3,8 @@
 const A_FRONTEND = 5173;
 const EMAIL_PORT = 5174;
 
-const EMAIL_ANNOUNCEMENT = 'You are on the email webpage';
+const EMAIL_ANNOUNCEMENT = 'Do you trust the sender?\n\nAre you being asked to give away personal information?\n\nAre you being made to feel panicked?\n\nUnsure?\nMessage User B (click below)\nYou can report a cybercrime at https://www.actionfraud.police.uk/';
+
 const CHOICE_SPEECH = new Map([
     ['1', 'You chose to click on an email link without informing User B.'],
     ['2', 'You chose to click on an email link. User B will be able to see the link you clicked.'],
@@ -39,11 +40,13 @@ function removeUpdate(btn) {
 
 // Function to alert user of new update
 function statusAlert() {
+    document.getElementById('speechContent').innerText = 'You have an update!';
     setUpdate('statBtn');
 }
 
 // Function to alert user of new message
 function messageAlert() {
+    document.getElementById('speechContent').innerText = 'You have a new message!';
     setUpdate('msgBtn');
 }
 
@@ -305,7 +308,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             }
             return true;
         } else {
-            document.getElementById('speechContent').innerText = '';
+            document.getElementById('speechContent').innerText = 'Press ? in the top right corner of the dashboard for help';
             setNums(-1, 0); // clear updates
             removeUpdate('statBtn');
             removeUpdate('msgBtn');
