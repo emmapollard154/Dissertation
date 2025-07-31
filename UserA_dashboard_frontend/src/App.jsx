@@ -989,10 +989,18 @@ function App() {
                                 <h2><br></br>These interactive educational resource may help improve your Internet safety skills.</h2>
 
                                 <p><a href='https://www.egress.com/blog/phishing/spot-the-phish' target="_blank" class="text-blue-500 hover:underline">Spot the Phish</a>
-                                &emsp;egress (interactive quiz)</p>
+                                &emsp;Egress (interactive quiz)</p>
 
                                 <p><a href='https://beinternetawesome.withgoogle.com/en_uk/interland/landing/reality-river' target="_blank" class="text-blue-500 hover:underline">Interland - Reality River</a>
                                 &emsp;Google (gamified quiz for detecting spam)</p>
+
+                                <h2><br></br>If you believe you have received or been victim to a spam email, you can report the incident.</h2>
+
+                                <p><a href='https://www.actionfraud.police.uk/' target="_blank" class="text-blue-500 hover:underline">Action Fraud</a>
+                                &emsp;UK national cybercrime reporting centre</p>
+
+                                <p><a href='0808 808 1111' target="_blank" class="text-blue-500 hover:underline">0808 808 1111</a>
+                                &emsp;Mencap‘s Learning Disability Helpline</p>
 
                             </div>
                           </div>

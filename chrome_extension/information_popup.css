@@ -48,7 +48,16 @@
   padding-left: 5%;
 }
 
+.info_url {
+  font-size: 2vh;
+  color: blue;
+}
+
 .info_text_container p {
+  font-size: 2vh;
+}
+
+.info_text_container li {
   font-size: 2vh;
 }
 
