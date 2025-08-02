@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
-import './App.css'
+import './App.css';
 import io from 'socket.io-client';
+import emailjs from '@emailjs/browser';
 
 const A_BACKEND = 5000;
 const A_FRONTEND = 5173;
 const socket = io(`http://localhost:${A_BACKEND}`);
+
+const TEMP_EMAIL = 'userb.dissertation@gmail.com' // TEMPORARY
+const PUBLIC_KEY = 'MbD1TfUYBUIs2uf4M';
+const SERVICE_ID = 'service_s7t5kss';
+const TEMPLATE_ID = 'template_vnl7keb';
 
 const OPTIONS_MAP = new Map([
   [1 , 'Continue (no interference).'],
@@ -442,6 +448,33 @@ function App() {
     }, `http://localhost:${A_FRONTEND}`);
   }
 
+  // Function to send automatic email alert to User B
+  function sendAlertEmail() {
+
+    const emailContent = {
+      user_name: 'User A',
+      user_email: TEMP_EMAIL,
+      message: 'TRIAL MESSAGE',
+    }
+
+    emailjs
+      .send(
+        SERVICE_ID,
+        TEMPLATE_ID,
+        emailContent,
+        PUBLIC_KEY
+      )
+      .then(
+        (response) => {
+          console.log('App.jsx (A): email sent successfully - ', response.status, response.text);
+        },
+        (error) => {
+          console.error('App.jsx (A): email failed to send - ', error);
+        }
+      );
+
+  };
+
   // Function to send message to backend A
   function sendMessage() {
     const messageInput = document.getElementById('messageInput')
@@ -553,6 +586,7 @@ function App() {
 
     socket.on('auto_message', () => {
       console.log('App.jsx (A): User A sent an automatic message.');
+      sendAlertEmail();
       sendHelpMessage();
       fetchMessageData();
     });

@@ -342,9 +342,9 @@ function App() {
 
 // Function to get unique ID for viewing actions
 function viewID() {
-    const now = new Date().toISOString(); // timestamp (unique)
-    var id = now.replace(/\D/g, ""); // keep only numeric values from timestamp
-    return `v${id}`; // v signifies viewing action
+  const now = new Date().toISOString(); // timestamp (unique)
+  var id = now.replace(/\D/g, ""); // keep only numeric values from timestamp
+  return `v${id}`; // v signifies viewing action
 }
 
   // Function to add browsing history to action table
