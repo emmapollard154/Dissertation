@@ -3,12 +3,13 @@
 const A_FRONTEND = 5173;
 const EMAIL_PORT = 5174;
 
-const EMAIL_ANNOUNCEMENT = 'You are on the email webpage';
+const EMAIL_ANNOUNCEMENT = 'Do you trust the sender?\n\nAre you being asked to give away personal information?\n\nUnsure? Ask User B (click below)';
+
 const CHOICE_SPEECH = new Map([
     ['1', 'You chose to click on an email link without informing User B.'],
     ['2', 'You chose to click on an email link. User B will be able to see the link you clicked.'],
-    ['3', 'Waiting for User B to accept or reject clicking on this link. If User B rejects the action, you can try again.'],
-    ['4', 'Waiting for User B to accept or reject clicking on this link. If User B rejects the action, the action will be blocked.'],
+    ['3', 'Waiting for User B to accept or reject clicking on this link. If User B rejects the action, you can try again.\n\nWould it help to message User B with more detail?'],
+    ['4', 'Waiting for User B to accept or reject clicking on this link. If User B rejects the action, the action will be blocked.\n\nWould it help to message User B with more detail?'],
     ['5', 'You chose to block this action independently.'],
 ]);
 
@@ -39,12 +40,14 @@ function removeUpdate(btn) {
 
 // Function to alert user of new update
 function statusAlert() {
+    document.getElementById('speechContent').innerText = 'You have an update!';
     setUpdate('statBtn');
 }
 
 // Function to alert user of new message
 function messageAlert() {
-    setUpdate('msgBtn');
+    document.getElementById('speechContent').innerText = 'You have a new message!';
+    setUpdate('statBtn');
 }
 
 // Function to get stored data (updates and pending requests)
@@ -179,15 +182,6 @@ chrome.tabs.onActivated.addListener(active => {
 
         // Refresh tabs for specific URLs to correctly configure content
         if (tab.url) {
-            // if (tab.url.startsWith(`http://localhost:${EMAIL_PORT}/`)) {
-            //     chrome.tabs.reload(id, { bypassCache: false }, () => {
-            //         if (chrome.runtime.lastError) {
-            //         console.error("side_panel.js: ", chrome.runtime.lastError.message);
-            //         } else {
-            //         console.log(`background.js:  ${id} reloaded.`);
-            //         }
-            //     });
-            // }  
 
             if (tab.url.startsWith(`http://localhost:${EMAIL_PORT}/`)) {
                 // send message to the content script in the active tab
@@ -200,16 +194,6 @@ chrome.tabs.onActivated.addListener(active => {
                 });
             }
 
-
-            if (tab.url.startsWith(`http://localhost:${A_FRONTEND}/`)) {
-                chrome.tabs.reload(id, { bypassCache: false }, () => {
-                    if (chrome.runtime.lastError) {
-                    console.error("side_panel.js: ", chrome.runtime.lastError.message);
-                    } else {
-                    console.log(`background.js:  ${id} reloaded.`);
-                    }
-                });
-            }  
         }
     });
 });
@@ -305,10 +289,9 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             }
             return true;
         } else {
-            document.getElementById('speechContent').innerText = '';
+            document.getElementById('speechContent').innerText = 'Press ? in the top right corner of the dashboard for help';
             setNums(-1, 0); // clear updates
             removeUpdate('statBtn');
-            removeUpdate('msgBtn');
         }
     }
 
@@ -427,22 +410,18 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 document.getElementById('dashBtn').addEventListener('click', async function() {
     setNums(-1, 0);
     removeUpdate('statBtn');
-    removeUpdate('msgBtn');
     chrome.runtime.sendMessage({ action: "openDashboard"});
 });
 
 document.getElementById('statBtn').addEventListener('click', async function() {
     setNums(-1, 0);
     removeUpdate('statBtn');
-    removeUpdate('msgBtn');
     chrome.runtime.sendMessage({ action: "openDashboard"});
 });
 
 document.getElementById('msgBtn').addEventListener('click', async function() {
-    setNums(-1, 0);
-    removeUpdate('statBtn');
-    removeUpdate('msgBtn');
-    chrome.runtime.sendMessage({ action: "openDashboard"});
+    // TO DO: send generic message to user b
+    chrome.runtime.sendMessage({ action: "sendHelpMessage"});
 });
 
 

@@ -383,14 +383,14 @@ app.post('/api/dashboard-data', (req, res) => {
 
     }
 
+    if (target === 'AUTO_MESSAGE') {
+        console.log("HERE HERE")
+        io.emit('auto_message', ''); // respond to frontend
+    }
+
 });
 
 app.post('/api/data-from-b', (req, res) => {
-    // Basic API Key Authentication (add more robust validation in production)
-    // const apiKey = req.headers['x-api-key'];
-    // if (!apiKey || apiKey !== API_KEY_SECRET) {
-    //     return res.status(401).json({ message: 'Unauthorized: Invalid API Key' });
-    // }
 
     const target = req.body.target;
     const data = req.body.data;

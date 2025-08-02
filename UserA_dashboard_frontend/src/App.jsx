@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
-import './App.css'
+import './App.css';
 import io from 'socket.io-client';
+import emailjs from '@emailjs/browser';
 
 const A_BACKEND = 5000;
 const A_FRONTEND = 5173;
 const socket = io(`http://localhost:${A_BACKEND}`);
+
+const TEMP_EMAIL = 'userb.dissertation@gmail.com' // TEMPORARY
+const PUBLIC_KEY = 'MbD1TfUYBUIs2uf4M';
+const SERVICE_ID = 'service_s7t5kss';
+const TEMPLATE_ID = 'template_vnl7keb';
 
 const OPTIONS_MAP = new Map([
   [1 , 'Continue (no interference).'],
@@ -431,6 +437,44 @@ function App() {
     }
   }
 
+  // Function to send auto message to backend A
+  function sendHelpMessage() {
+    const message = '(automatic message) User A has asked for help. Please contact User A.'
+    const timeISO = new Date().toISOString();
+    const time = simplifyTime(timeISO);
+    window.postMessage({
+      type: 'USER_A_MESSAGE',
+      payload: { message, time },
+    }, `http://localhost:${A_FRONTEND}`);
+  }
+
+  // Function to send automatic email alert to User B
+  function sendAlertEmail() {
+
+    const emailContent = {
+      user_name: 'User A',
+      user_email: TEMP_EMAIL,
+      message: 'TRIAL MESSAGE',
+    }
+
+    emailjs
+      .send(
+        SERVICE_ID,
+        TEMPLATE_ID,
+        emailContent,
+        PUBLIC_KEY
+      )
+      .then(
+        (response) => {
+          console.log('App.jsx (A): email sent successfully - ', response.status, response.text);
+        },
+        (error) => {
+          console.error('App.jsx (A): email failed to send - ', error);
+        }
+      );
+
+  };
+
   // Function to send message to backend A
   function sendMessage() {
     const messageInput = document.getElementById('messageInput')
@@ -540,6 +584,13 @@ function App() {
       fetchMessageData();
     });
 
+    socket.on('auto_message', () => {
+      console.log('App.jsx (A): User A sent an automatic message.');
+      sendAlertEmail();
+      sendHelpMessage();
+      fetchMessageData();
+    });
+
     socket.on('a_update_request', (data) => {
       console.log('App.jsx (A): settings update request received: ', data);
       fetchRequestData();
@@ -587,6 +638,7 @@ function App() {
       socket.off('a_browser');
       socket.off('a_choice');
       socket.off('a_message');
+      socket.off('auto_message');
       socket.off('email_settings');
       socket.off('a_update_request');
       socket.off('b_update_request');
@@ -645,19 +697,36 @@ function App() {
             <div className='help_popup' id='helpPopup'>
               <div className='bottom_scrollbar'>
                 <div className='help_content'>
-                  <div className='help_header_container'>
 
+                  <div className='help_header_container'>
                     <div className='popup_subtitle'>Help Centre</div>
                     <div className='okay_help_top' >
                       <button className='popup_button' onClick={switchHelpVisibility}>Okay</button>
                     </div>
-
                   </div>
 
-                    <p>Help Information</p>
-                    <p>Dashboard navigation</p>
-                    <p>Extension navigation</p>
-                    <p>when menu will be flagged</p>
+                  <div className='dashboard_navigation'>
+                    <div className='dashboard_navigation_text'>
+                      <p><b>Dashboard Navigation</b></p>
+                      <p><b>Status</b>&emsp;Any current requests and actions will be shown here</p>
+                      <p><b>Messages</b>&emsp;Send messages to each other and view your message history</p>
+                      <p><b>History</b>&emsp;Both users can view the history of requests and actions once resolved</p>
+                      <p><b>Account</b>&emsp;Access additional safety information, view the browsing history of User A (they will be notified), and view / request to update your account settings. Browsing history includes webpages loaded when the extension is running only.</p>
+                      <p><b>?</b>&emsp;Help Centre (here)</p>
+                    </div>
+                    <img src='../icons/dash_map.png' className='dashboard_navigation_img'></img>
+                  </div>
+
+                  <div className='extension_navigation'>
+                    <div className='extension_navigation_text'>
+                      <p><b>Extension Navigation</b></p>
+                      <p>The system requires User A to install and use a Chrome extension that includes a side panel. The extension monitors online activity and prompts intervention when it detects that an email link has been clicked on. </p>
+                      <p>When flagged, the click will be suspended and User A will be presented with information on the risk and a menu of options of how to respond which may include requesting your advice.</p>
+                      <p>The speech bubble will display concise information and reminders relevant to the user's current situation.</p>
+                      <p>The buttons in the panel will change appearance to notify the user of any updates. The dashboard can be accessed by clicking on any button in the panel.</p>
+                    </div>
+                    <img src='../icons/side_panel.png' className='extension_navigation_img'></img>
+                  </div>
 
                 </div>
               </div>
@@ -964,35 +1033,43 @@ function App() {
                                 </div>
                               </div>
 
-                                <h2>For more information about staying safe online, the following websites may be helpful.</h2>
+                              <h2>For more information about staying safe online, the following websites may be helpful.</h2>
 
-                                <p><a href='https://www.ncsc.gov.uk/cyberaware/home' target="_blank" class="text-blue-500 hover:underline">National Cyber Security Centre</a>
-                                &emsp;Advice on how to stay secure online</p>
+                              <p><a href='https://www.ncsc.gov.uk/cyberaware/home' target="_blank" class="text-blue-500 hover:underline">National Cyber Security Centre</a>
+                              &emsp;Advice on how to stay secure online</p>
 
-                                <p><a href='https://ico.org.uk/for-the-public/online/spam-emails/' target="_blank" class="text-blue-500 hover:underline">Information Commissioner's Office</a>
-                                &emsp;Advice for the public regarding spam emails</p>
+                              <p><a href='https://ico.org.uk/for-the-public/online/spam-emails/' target="_blank" class="text-blue-500 hover:underline">Information Commissioner's Office</a>
+                              &emsp;Advice for the public regarding spam emails</p>
 
-                                <p><a href='https://www.ageuk.org.uk/information-advice/work-learning/technology-internet/internet-security/' target="_blank" class="text-blue-500 hover:underline">Age UK</a>
-                                &emsp;Online safety advice targeted towards older Internet users</p>
+                              <p><a href='https://www.ageuk.org.uk/information-advice/work-learning/technology-internet/internet-security/' target="_blank" class="text-blue-500 hover:underline">Age UK</a>
+                              &emsp;Online safety advice targeted towards older Internet users</p>
 
-                                <p><a href='https://www.mencap.org.uk/easyread/internet-online-safety' target="_blank" class="text-blue-500 hover:underline">Mencap</a>
-                                &emsp;'Easy read' online safety tips targeting users with learning disabilities</p>
+                              <p><a href='https://www.mencap.org.uk/easyread/internet-online-safety' target="_blank" class="text-blue-500 hover:underline">Mencap</a>
+                              &emsp;'Easy read' online safety tips targeting users with learning disabilities</p>
 
-                                <h2><br></br>These videos explain basic online safety principles.</h2>
+                              <h2><br></br>These videos explain basic online safety principles.</h2>
 
-                                <p><a href='https://www.youtube.com/watch?v=NJxJYBAjkJU' target="_blank" class="text-blue-500 hover:underline">Email Security</a>
-                                &emsp;Nixu Corporation (2 minutes)</p>
+                              <p><a href='https://www.youtube.com/watch?v=NJxJYBAjkJU' target="_blank" class="text-blue-500 hover:underline">Email Security</a>
+                              &emsp;Nixu Corporation (2 minutes)</p>
 
-                                <p><a href='https://www.youtube.com/watch?v=o0btqyGWIQw' target="_blank" class="text-blue-500 hover:underline">Spot Phishing Emails</a>
-                                &emsp;IT Governance LTD (2 minutes)</p>
+                              <p><a href='https://www.youtube.com/watch?v=o0btqyGWIQw' target="_blank" class="text-blue-500 hover:underline">Spot Phishing Emails</a>
+                              &emsp;IT Governance LTD (2 minutes)</p>
 
-                                <h2><br></br>These interactive educational resource may help improve your Internet safety skills.</h2>
+                              <h2><br></br>These interactive educational resource may help improve your Internet safety skills.</h2>
 
-                                <p><a href='https://www.egress.com/blog/phishing/spot-the-phish' target="_blank" class="text-blue-500 hover:underline">Spot the Phish</a>
-                                &emsp;egress (interactive quiz)</p>
+                              <p><a href='https://www.egress.com/blog/phishing/spot-the-phish' target="_blank" class="text-blue-500 hover:underline">Spot the Phish</a>
+                              &emsp;Egress (interactive quiz)</p>
 
-                                <p><a href='https://beinternetawesome.withgoogle.com/en_uk/interland/landing/reality-river' target="_blank" class="text-blue-500 hover:underline">Interland - Reality River</a>
-                                &emsp;Google (gamified quiz for detecting spam)</p>
+                              <p><a href='https://beinternetawesome.withgoogle.com/en_uk/interland/landing/reality-river' target="_blank" class="text-blue-500 hover:underline">Interland - Reality River</a>
+                              &emsp;Google (gamified quiz for detecting spam)</p>
+
+                              <h2><br></br>If you believe you have received or been victim to a spam email, you can report the incident.</h2>
+
+                              <p><a href='https://www.actionfraud.police.uk/' target="_blank" class="text-blue-500 hover:underline">Action Fraud</a>
+                              &emsp;UK national cybercrime reporting centre</p>
+
+                              <p><a href='0808 808 1111' target="_blank" class="text-blue-500 hover:underline">0808 808 1111</a>
+                              &emsp;Mencap‘s Learning Disability Helpline</p>
 
                             </div>
                           </div>

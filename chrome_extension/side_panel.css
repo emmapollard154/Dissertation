@@ -50,12 +50,12 @@
     left: 5%;
     background: var(--gray_blue);
 	border-radius: .4em;
-    height: 45%;
+    min-height: 45%;
     font-family: Arial;
     text-align: center;
-    padding: 20px;
+    padding: 1%;
     margin-bottom: 25%;
-    font-size: 2vh;
+    font-size: 3.5vh;
     color: #ffffff;
 }
 
@@ -72,6 +72,13 @@
 	border-right: 0;
 	margin-left: -4px;
 	margin-bottom: -8px;
+}
+
+.speech_bubble a {
+    color: #e8e812ff;
+    font-weight: bold;
+    word-wrap: break-word;
+    overflow-wrap: break-word; 
 }
 
 .button_panel {

@@ -47,7 +47,6 @@ window.addEventListener('message', function(event) {
     }
 
     if (event.data && event.data.type === 'USER_A_CHOICE') {
-        console.log('USER A CHOICE DATA: ', event.data);
         const receivedData = event.data.payload;
         console.log('dashboard_a_frontend.js: received data from Chrome extension: ', receivedData);
 
@@ -89,6 +88,17 @@ window.addEventListener('message', function(event) {
         const data = {
             data: event.data,
             target: 'UPDATE_REQUEST'
+        }
+        sendDataToBackend(data);
+    }
+
+    if (event.data && event.data.type === 'AUTO_MESSAGE') {
+        const receivedData = event.data.payload;
+        console.log('dashboard_a_frontend.js: received data from Chrome extension: ', receivedData);
+
+        const data = {
+            data: receivedData,
+            target: 'AUTO_MESSAGE'
         }
         sendDataToBackend(data);
     }

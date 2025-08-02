@@ -37,17 +37,6 @@ const emails = [
     category: 'inbox',
   },
   {
-    id: '3',
-    from: 'Unknown <qwerty@example.com>',
-    subject: 'URGENT',
-    body: `
-      <p>We have your bank details for account ending 1234. Reply to this email to arrange payment £20,000 in Bitcoin before your account is emptied.</p>
-      <p>You have one week.</p>
-    `,
-    date: '28/07/2025',
-    category: 'inbox',
-  },
-  {
     id: '4',
     from: 'Spam Mail <spam@example.com>',
     subject: 'YOU HAVE WON A MILLION POUNDS!!!',

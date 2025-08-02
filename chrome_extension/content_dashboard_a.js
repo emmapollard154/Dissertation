@@ -53,12 +53,18 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         sendResponse({ status: 'content_processed' });
     }
 
+    if (request.action === 'sendHelpMessage') { 
+        const receivedData = request;
+        console.log('content_dashboard_a.js: processing data from side_panel: ', receivedData);
+
+        window.postMessage({
+            type: 'AUTO_MESSAGE',
+            payload: receivedData
+        }, `http://localhost:${A_FRONTEND}`); // dashboard origin
+
+        sendResponse({ status: 'content_processed', dataProcessed: receivedData });
+    }
+
 });
 
 console.log('content_dashboard_a.js: loaded and listening for messages.');
-
-// Display default alert when tab closed (chrome security inhibits custom message)
-window.addEventListener('beforeunload', function(e) {
-    e.preventDefault();
-    return;
-});

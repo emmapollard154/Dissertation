@@ -4,7 +4,7 @@ console.log('Starting service worker');
 
 const A_FRONTEND = 5173;
 const EMAIL_ENV = 'http://localhost:5174';
-// const BANKING_ENV = "https://www.google.com/";
+const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom'; // TEMPORARY
 
 // Set side panel behaviour
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false })
@@ -125,3 +125,41 @@ function setNums(pending, updates) {
     console.log('background.js: initialising NUM_UPDATES to ', updates);
     });
 }
+
+// Create listener for messages from external web pages
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+	if (sender.id === EXTENSION_ID) {
+		console.log('background.js: request receieved from side panel.');
+		if (request.action === 'sendHelpMessage') {
+			console.log('background.js: sendHelpMessage request receieved.')
+			// TO DO: send message to A frontend
+
+
+            chrome.tabs.query({ url: `http://localhost:${A_FRONTEND}/*` }, (tabs) => {
+                if (tabs && tabs.length > 0) {
+                    const activeTab = tabs[0];
+
+                    chrome.tabs.sendMessage(activeTab.id, { 
+                        action: 'sendHelpMessage'
+                    }, function(response) {
+                        if (chrome.runtime.lastError) {
+                            console.error("background.js: ", chrome.runtime.lastError.message);
+                            sendResponse({ status: 'failed', error: chrome.runtime.lastError.message });
+                        } else {
+                            sendResponse({ status: 'success', contentScriptResponse: response });
+                        }
+                    });
+                } else {
+                    alert("Please open dashboard");
+                    console.warn('side_panel.js : no active tab found to send message to.');
+                    sendResponse({ status: 'failed', error: 'No active tab found' });
+                }
+            });
+
+		}
+	}
+	else {
+    	console.warn('background.js: request receieved from external source - ', request, sender);
+	}
+  });

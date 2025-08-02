@@ -182,9 +182,9 @@
 }
 
 .help_content {
-    text-align: center;
-    overflow: auto;
-    margin-right: 5%;
+  text-align: left;
+  overflow: auto;
+  margin-right: 5%;
 }
 
 .help_header_container {
@@ -200,6 +200,46 @@
   justify-content: flex-end;
   width: 25%;
   margin-left: 25%;
+}
+
+.dashboard_navigation {
+  display: flex;
+  flex-direction: row;
+  box-sizing: border-box;
+  border-bottom: 2px solid var(--gray_blue);
+}
+
+.dashboard_navigation_text {
+  width: 50%;
+}
+
+.dashboard_navigation_img {
+  margin-top: 5%;
+  margin-bottom: 5%;
+  margin-left: 10%;
+  border: 1px solid var(--gray_blue);
+  width: 50%;
+  height: 50%;
+}
+
+.extension_navigation {
+  display: flex;
+  flex-direction: row;
+  box-sizing: border-box;
+  border-bottom: 2px solid var(--gray_blue);
+}
+
+.extension_navigation_text {
+  width: 70%;
+}
+
+.extension_navigation_img {
+  width: 30%;
+  height: 80%;
+  margin-top: 5%;
+  margin-bottom: 5%;
+  margin-left: 10%;
+  border: 1px solid var(--gray_blue);
 }
 
 .top_panel {
@@ -487,6 +527,7 @@
   box-sizing: border-box;
   width: 15%;
   height: 100%;
+  margin-right: 3%;
 }
 
 .icon_image {
@@ -758,9 +799,19 @@
 }
 
 .education_content {
-    text-align: center;
+    text-align: left;
+    font-size: 2.5vh;
     overflow: auto;
     margin-right: 5%;
+}
+
+.education_content h2 {
+  font-size: 2.5vh;
+  font-weight: bold;
+}
+
+.education_content hyper {
+  text-align: right;
 }
 
 .education_header_container {
