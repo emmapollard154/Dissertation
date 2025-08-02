@@ -3,13 +3,13 @@
 const A_FRONTEND = 5173;
 const EMAIL_PORT = 5174;
 
-const EMAIL_ANNOUNCEMENT = 'Do you trust the sender?\n\nAre you being asked to give away personal information?\n\nAre you being made to feel panicked?\n\nUnsure?\nMessage User B (click below)\nYou can report a cybercrime at https://www.actionfraud.police.uk/';
+const EMAIL_ANNOUNCEMENT = 'Do you trust the sender?\n\nAre you being asked to give away personal information?\n\nUnsure? Ask User B (click below)';
 
 const CHOICE_SPEECH = new Map([
     ['1', 'You chose to click on an email link without informing User B.'],
     ['2', 'You chose to click on an email link. User B will be able to see the link you clicked.'],
-    ['3', 'Waiting for User B to accept or reject clicking on this link. If User B rejects the action, you can try again.'],
-    ['4', 'Waiting for User B to accept or reject clicking on this link. If User B rejects the action, the action will be blocked.'],
+    ['3', 'Waiting for User B to accept or reject clicking on this link. If User B rejects the action, you can try again.\n\nWould it help to message User B with more detail?'],
+    ['4', 'Waiting for User B to accept or reject clicking on this link. If User B rejects the action, the action will be blocked.\n\nWould it help to message User B with more detail?'],
     ['5', 'You chose to block this action independently.'],
 ]);
 
@@ -182,15 +182,6 @@ chrome.tabs.onActivated.addListener(active => {
 
         // Refresh tabs for specific URLs to correctly configure content
         if (tab.url) {
-            // if (tab.url.startsWith(`http://localhost:${EMAIL_PORT}/`)) {
-            //     chrome.tabs.reload(id, { bypassCache: false }, () => {
-            //         if (chrome.runtime.lastError) {
-            //         console.error("side_panel.js: ", chrome.runtime.lastError.message);
-            //         } else {
-            //         console.log(`background.js:  ${id} reloaded.`);
-            //         }
-            //     });
-            // }  
 
             if (tab.url.startsWith(`http://localhost:${EMAIL_PORT}/`)) {
                 // send message to the content script in the active tab
@@ -203,16 +194,6 @@ chrome.tabs.onActivated.addListener(active => {
                 });
             }
 
-
-            if (tab.url.startsWith(`http://localhost:${A_FRONTEND}/`)) {
-                chrome.tabs.reload(id, { bypassCache: false }, () => {
-                    if (chrome.runtime.lastError) {
-                    console.error("side_panel.js: ", chrome.runtime.lastError.message);
-                    } else {
-                    console.log(`background.js:  ${id} reloaded.`);
-                    }
-                });
-            }  
         }
     });
 });
