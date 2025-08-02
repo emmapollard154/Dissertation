@@ -431,6 +431,17 @@ function App() {
     }
   }
 
+  // Function to send auto message to backend A
+  function sendHelpMessage() {
+    const message = '(automatic message) User A has asked for help. Please contact User A.'
+    const timeISO = new Date().toISOString();
+    const time = simplifyTime(timeISO);
+    window.postMessage({
+      type: 'USER_A_MESSAGE',
+      payload: { message, time },
+    }, `http://localhost:${A_FRONTEND}`);
+  }
+
   // Function to send message to backend A
   function sendMessage() {
     const messageInput = document.getElementById('messageInput')
@@ -540,6 +551,12 @@ function App() {
       fetchMessageData();
     });
 
+    socket.on('auto_message', () => {
+      console.log('App.jsx (A): User A sent an automatic message.');
+      sendHelpMessage();
+      fetchMessageData();
+    });
+
     socket.on('a_update_request', (data) => {
       console.log('App.jsx (A): settings update request received: ', data);
       fetchRequestData();
@@ -587,6 +604,7 @@ function App() {
       socket.off('a_browser');
       socket.off('a_choice');
       socket.off('a_message');
+      socket.off('auto_message');
       socket.off('email_settings');
       socket.off('a_update_request');
       socket.off('b_update_request');

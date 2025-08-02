@@ -47,7 +47,7 @@ function statusAlert() {
 // Function to alert user of new message
 function messageAlert() {
     document.getElementById('speechContent').innerText = 'You have a new message!';
-    setUpdate('msgBtn');
+    setUpdate('statBtn');
 }
 
 // Function to get stored data (updates and pending requests)
@@ -292,7 +292,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             document.getElementById('speechContent').innerText = 'Press ? in the top right corner of the dashboard for help';
             setNums(-1, 0); // clear updates
             removeUpdate('statBtn');
-            removeUpdate('msgBtn');
         }
     }
 
@@ -411,22 +410,18 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 document.getElementById('dashBtn').addEventListener('click', async function() {
     setNums(-1, 0);
     removeUpdate('statBtn');
-    removeUpdate('msgBtn');
     chrome.runtime.sendMessage({ action: "openDashboard"});
 });
 
 document.getElementById('statBtn').addEventListener('click', async function() {
     setNums(-1, 0);
     removeUpdate('statBtn');
-    removeUpdate('msgBtn');
     chrome.runtime.sendMessage({ action: "openDashboard"});
 });
 
 document.getElementById('msgBtn').addEventListener('click', async function() {
-    setNums(-1, 0);
-    removeUpdate('statBtn');
-    removeUpdate('msgBtn');
-    chrome.runtime.sendMessage({ action: "openDashboard"});
+    // TO DO: send generic message to user b
+    chrome.runtime.sendMessage({ action: "sendHelpMessage"});
 });
 
 
