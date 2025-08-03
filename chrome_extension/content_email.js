@@ -23,6 +23,12 @@ let menuChoice = null; // radio
 let okayMenu = null;
 let backMenu = null;
 
+// Strip tags for email preview
+function stripTags(email) {
+  const tags = /(<([^>]+)>)/gi;
+  return email.replace(tags, "");
+}
+
 // Function to process User B decision
 function processOutcome(url, outcome) {
     if (!url || !outcome) {
@@ -229,7 +235,6 @@ function attachInfoListeners(informationPopup, link) {
         }
     }
 
-
     if (okayInfo) {
         okayInfo.addEventListener('click', function(event) {
             console.log("okayInfo clicked");
@@ -400,119 +405,136 @@ function loadAll() {
         let popupElement = false;
 
         document.addEventListener('click', async function(event) {
+            if (event.target.id !== 'captureTrigger') {
+                if (!clickedBefore && !flagged && !popupElement) {
+                    console.log('content_email.js: storing original html.');
+                    console.log("event.target: ", event.target);
+                    if (event.target.matches('a')) { // link pressed
+                        const dest = event.target.href;
+                        if (!dest.includes(`localhost:${EMAIL_PORT}`)) {
+                            console.log("setting original html for link: ", event.target.href);
+                            ORIGINAL_HTML.set(event.target.href, document.documentElement.innerHTML);
+                        }
+                    }
+                }
 
-            if (!clickedBefore && !flagged && !popupElement) {
-                console.log('content_email.js: storing original html.');
-                console.log("event.target: ", event.target);
+                flagged = false;
+                clickedBefore = false;
+                popupElement = false;
+
                 if (event.target.matches('a')) { // link pressed
-                    const dest = event.target.href;
-                    if (!dest.includes(`localhost:${EMAIL_PORT}`)) {
-                        console.log("setting original html for link: ", event.target.href);
-                        ORIGINAL_HTML.set(event.target.href, document.documentElement.innerHTML);
-                    }
-                }
-            }
 
-            flagged = false;
-            clickedBefore = false;
-            popupElement = false;
+                    event.preventDefault();
+                    LINK = event.target;
+                    console.log('content_email.js: link element pressed - ', LINK);
 
-            if (event.target.matches('a')) { // link pressed
+                    if (LINK.href === `http://localhost:${EMAIL_PORT}/`) { // clicked link to own page
+                        console.log('content_email.js: link to own page clicked.');
 
-                event.preventDefault();
-                LINK = event.target;
-                console.log('content_email.js: link element pressed - ', LINK);
-
-                if (LINK.href === `http://localhost:${EMAIL_PORT}/`) { // clicked link to own page
-                    console.log('content_email.js: link to own page clicked.');
-
-                    if (PENDING_ACTIONS.includes(LINK.name)) { // clicked on blocked link
-                        console.log('content_email.js: pending link clicked. Updating side panel.');
-                        chrome.runtime.sendMessage({ // send message to side panel to remind user of choice
-                            action: "displaySpeechContent", 
-                            choice: CHOICES.get(LINK.name)
-                        });
-                    }
-                    return;
-                }
-                else {
-                    ORIGINAL_LINKS.set(LINK.href, LINK.outerHTML);
-                }
-
-                await injectInfoHtml(LINK);
-                await injectMenuHtml(LINK);
-                
-                if (infoBackground) {
-                    infoBackground.style.display = 'block'; // show popup
-                } else {
-                    console.warn('content_email.js: infoBackground not found.');
-                }
-
-            }
-            else {
-                console.log('content_email.js: non-link element pressed - ', event.target);
-
-                let eventID = event.target.id;
-
-                if (!eventID.includes('menu') && !eventID.includes('info') && !eventID.includes('Menu') && !eventID.includes('Info') && !eventID.includes('option')) { // ignore popup content
-
-                    for (const className of event.target.classList) {
-                        if (!className.includes('menu') && !className.includes('info') && !className.includes('checkmark') && !className.includes('option')) {
-                            // do nothing
+                        if (PENDING_ACTIONS.includes(LINK.name)) { // clicked on blocked link
+                            console.log('content_email.js: pending link clicked. Updating side panel.');
+                            chrome.runtime.sendMessage({ // send message to side panel to remind user of choice
+                                action: "displaySpeechContent", 
+                                choice: CHOICES.get(LINK.name)
+                            });
                         }
-                        else {
-                            console.log('content_email.js: popup element pressed.');
-                            popupElement = true;
-                        }
+                        return;
+                    }
+                    else {
+                        ORIGINAL_LINKS.set(LINK.href, LINK.outerHTML);
+                    }
+
+                    await injectInfoHtml(LINK);
+                    await injectMenuHtml(LINK);
+                    
+                    if (infoBackground) {
+                        infoBackground.style.display = 'block'; // show popup
+                    } else {
+                        console.warn('content_email.js: infoBackground not found.');
                     }
 
                 }
                 else {
-                    console.log('content_email.js: popup element pressed.');
-                    popupElement = true;
-                }
+                    console.log('content_email.js: non-link element pressed - ', event.target);
 
-                if (!popupElement) {
+                    let eventID = event.target.id;
 
-                    console.log('content_email.js: non-popup element pressed.');
-                    CURRENT_PARENT = event.target.outerHTML; // html of event target
+                    if (!eventID.includes('menu') && !eventID.includes('info') && !eventID.includes('Menu') && !eventID.includes('Info') && !eventID.includes('option')) { // ignore popup content
 
-                    if (CLICKED_BEFORE.includes(CURRENT_PARENT)) {
-                        console.log('content_email.js: element has been clicked before.');
-
-                        // Check if element is already parent to a pending link
-                        for (const key of MODIFIED_HTML.keys()) {
-                            if (key.includes(CURRENT_PARENT)) {
-                                console.log('content_email.js: manually overriding html.');
-                                document.documentElement.innerHTML = MODIFIED_HTML.get(key);
-                                flagged = true;
-                                return;
+                        for (const className of event.target.classList) {
+                            if (!className.includes('menu') && !className.includes('info') && !className.includes('checkmark') && !className.includes('option')) {
+                                // do nothing
+                            }
+                            else {
+                                console.log('content_email.js: popup element pressed.');
+                                popupElement = true;
                             }
                         }
 
-                        if(!flagged) {
-                            console.log('content_email.js: fresh parent clicked.');
+                    }
+                    else {
+                        console.log('content_email.js: popup element pressed.');
+                        popupElement = true;
+                    }
 
-                            for (const key of ORIGINAL_HTML.keys()) {
+                    if (!popupElement) {
+
+                        console.log('content_email.js: non-popup element pressed.');
+                        CURRENT_PARENT = event.target.outerHTML; // html of event target
+
+                        if (CLICKED_BEFORE.includes(CURRENT_PARENT)) {
+                            console.log('content_email.js: element has been clicked before.');
+
+                            // Check if element is already parent to a pending link
+                            for (const key of MODIFIED_HTML.keys()) {
                                 if (key.includes(CURRENT_PARENT)) {
-                                    console.log('content_email.js: loading original html.');
-                                    document.documentElement.innerHTML = ORIGINAL_HTML.get(key);
-                                    clickedBefore = true;
+                                    console.log('content_email.js: manually overriding html.');
+                                    document.documentElement.innerHTML = MODIFIED_HTML.get(key);
+                                    flagged = true;
                                     return;
                                 }
                             }
+
+                            if(!flagged) {
+                                console.log('content_email.js: fresh parent clicked.');
+
+                                for (const key of ORIGINAL_HTML.keys()) {
+                                    if (key.includes(CURRENT_PARENT)) {
+                                        console.log('content_email.js: loading original html.');
+                                        document.documentElement.innerHTML = ORIGINAL_HTML.get(key);
+                                        clickedBefore = true;
+                                        return;
+                                    }
+                                }
+                            }
+
+                        } else {
+                            console.log("content_email.js: current parent has not been clicked before");
+                            CLICKED_BEFORE.push(CURRENT_PARENT);
                         }
-
-
-                    } else {
-                        console.log("CURRENT PARENT has NOT been clicked before");
-                    
-                        CLICKED_BEFORE.push(CURRENT_PARENT);
                     }
+
                 }
-
             }
+            else {
+                console.log('content_email.js: capture trigger clicked');
+                // Capture email content
+                document.getElementById('captureTrigger').addEventListener('click', function() {
+                    console.log("trigger clicked");
+                    try {
+                        var subject = document.getElementById('captureSubject').innerHTML;
+                        var from = document.getElementById('captureFrom').innerHTML;
+                        var date = document.getElementById('captureDate').innerHTML;
+                        var body = document.getElementById('captureBody').innerHTML;
+                        var strippedBody = stripTags(body);
 
+                        console.log(subject, from, date, strippedBody);
+                    }
+                    catch(err) {
+                        console.error(err);
+                    }
+                });
+            }
         }, true);
 
         return;
@@ -635,6 +657,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
     sendResponse({ status: 'content_processed', dataProcessed: request });
 });
+
 
 console.log("content_email.js: email content script loaded and listening for messages");
 

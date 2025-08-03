@@ -185,14 +185,14 @@ const EmailDetail = ({ email }) => {
   return (
     <div className="flex-1 p-6 bg-white overflow-y-auto shadow-xl rounded-lg">
       <div className="mb-6 pb-4 border-b border-gray-200">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">{email.subject}</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2" id='captureSubject'>{email.subject}</h2>
         <div className="flex items-center text-gray-600 text-sm">
           <span className="font-semibold mr-2">From:</span>
-          <span>{email.from}</span>
-          <span className="ml-auto text-xs">{email.date}</span>
+          <span id='captureFrom'>{email.from}</span>
+          <span className="ml-auto text-xs" id='captureDate'>{email.date}</span>
         </div>
       </div>
-      <div className="email-body text-gray-800 leading-relaxed text-base" dangerouslySetInnerHTML={{ __html: email.body }}></div>
+      <div className="email-body text-gray-800 leading-relaxed text-base" dangerouslySetInnerHTML={{ __html: email.body }} id='captureBody'></div>
       <div className="mt-8 pt-4 border-t border-gray-200 flex space-x-4">
         <button className="px-6 py-2 bg-blue-600 text-gray-700 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200 flex items-center">
           <Reply className="mr-2 w-4 h-4" /> Reply
