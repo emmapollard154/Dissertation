@@ -154,3 +154,29 @@
 .options_container input:disabled ~ .checkmark:after {
     display: none;
 }
+
+.menu_forward_container {
+  display: flex;
+  flex-direction: row;
+}
+
+.menu_forward_text {
+  width: 65%;
+}
+
+.menu_forward_button {
+  width: 35%;
+}
+
+.menu_forward_button button {
+  background-color: var(--gray_blue);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 2vh;
+  width: 60%;
+  height: 30%;
+  margin-top: 2%;
+  margin-left: 20%;
+}

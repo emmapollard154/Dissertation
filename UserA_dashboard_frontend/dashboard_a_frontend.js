@@ -103,6 +103,17 @@ window.addEventListener('message', function(event) {
         sendDataToBackend(data);
     }
 
+    if (event.data && event.data.type === 'EMAIL_CONTENT') {
+        const receivedData = event.data.payload;
+        console.log('dashboard_a_frontend.js: received data from Chrome extension: ', receivedData);
+
+        const data = {
+            data: receivedData.content,
+            target: 'EMAIL_CONTENT'
+        }
+        sendDataToBackend(data);
+    }
+
 });
 
 console.log('dashboard_a_frontend.js loaded and listening for messages.');

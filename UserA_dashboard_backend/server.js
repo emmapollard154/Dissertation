@@ -384,8 +384,12 @@ app.post('/api/dashboard-data', (req, res) => {
     }
 
     if (target === 'AUTO_MESSAGE') {
-        console.log("HERE HERE")
         io.emit('auto_message', ''); // respond to frontend
+    }
+
+    if (target === 'EMAIL_CONTENT') {
+        console.log(data)
+        io.emit('email_content', data); // respond to frontend
     }
 
 });

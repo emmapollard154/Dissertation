@@ -420,7 +420,6 @@ document.getElementById('statBtn').addEventListener('click', async function() {
 });
 
 document.getElementById('msgBtn').addEventListener('click', async function() {
-    // TO DO: send generic message to user b
     chrome.runtime.sendMessage({ action: "sendHelpMessage"});
 });
 

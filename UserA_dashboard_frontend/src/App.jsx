@@ -83,8 +83,6 @@ function App() {
         console.log('App.jsx (A): setting configurations already exist.');
         disableWelcomeVisibility();
         disableUpdateVisibility();
-        
-        // TO DO: check settings configuration, process settings
       }
     }
   }
@@ -448,13 +446,23 @@ function App() {
     }, `http://localhost:${A_FRONTEND}`);
   }
 
+  // Function to send auto message to backend A
+  function sendEmailContent(content) {
+    const message = `Email content for link: ${content.link}\nSubject: ${content.subject}\nFrom: ${content.from}\nDate: ${content.date}\nContent: ${content.body}`;
+    const timeISO = new Date().toISOString();
+    const time = simplifyTime(timeISO);
+    window.postMessage({
+      type: 'USER_A_MESSAGE',
+      payload: { message, time },
+    }, `http://localhost:${A_FRONTEND}`);
+  }
+
   // Function to send automatic email alert to User B
   function sendAlertEmail() {
 
     const emailContent = {
       user_name: 'User A',
       user_email: TEMP_EMAIL,
-      message: 'TRIAL MESSAGE',
     }
 
     emailjs
@@ -576,18 +584,25 @@ function App() {
 
     socket.on('a_choice', (data) => {
       console.log('App.jsx (A): User A made choice: ', data);
+      sendAlertEmail();
       fetchActionData();
     });
 
     socket.on('a_message', (data) => {
       console.log('App.jsx (A): User A sent message: ', data);
+      sendAlertEmail();
       fetchMessageData();
     });
 
     socket.on('auto_message', () => {
       console.log('App.jsx (A): User A sent an automatic message.');
-      sendAlertEmail();
       sendHelpMessage();
+      fetchMessageData();
+    });
+
+    socket.on('email_content', (data) => {
+      console.log('App.jsx (A): User A sent email content: ', data);
+      sendEmailContent(data);
       fetchMessageData();
     });
 
@@ -639,6 +654,7 @@ function App() {
       socket.off('a_choice');
       socket.off('a_message');
       socket.off('auto_message');
+      socket.off('email_content');
       socket.off('email_settings');
       socket.off('a_update_request');
       socket.off('b_update_request');
@@ -954,7 +970,7 @@ function App() {
                     </div>
                     <div className='msg_data_container'>
                       <div className='msg_meta_container'>User {item.userID}&emsp;{item.time}</div>
-                      <div className='msg_text_container'>{item.message}</div>
+                      <div className='msg_text_container' style={{ whiteSpace: 'pre-wrap' }}>{item.message}</div>
                     </div>
                   </div>
                 ))}

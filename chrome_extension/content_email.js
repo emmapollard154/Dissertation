@@ -516,19 +516,28 @@ function loadAll() {
 
                 }
             }
-            else {
+            else { // capture email content
                 console.log('content_email.js: capture trigger clicked');
-                // Capture email content
                 document.getElementById('captureTrigger').addEventListener('click', function() {
-                    console.log("trigger clicked");
                     try {
-                        var subject = document.getElementById('captureSubject').innerHTML;
-                        var from = document.getElementById('captureFrom').innerHTML;
-                        var date = document.getElementById('captureDate').innerHTML;
-                        var body = document.getElementById('captureBody').innerHTML;
-                        var strippedBody = stripTags(body);
+                        const subject = document.getElementById('captureSubject').innerHTML;
+                        const from = document.getElementById('captureFrom').innerHTML;
+                        const date = document.getElementById('captureDate').innerHTML;
+                        const body = document.getElementById('captureBody').innerHTML;
+                        const strippedBody = stripTags(body);
 
-                        console.log(subject, from, date, strippedBody);
+                        const emailContent = {
+                            'subject': subject,
+                            'from': from,
+                            'date': date,
+                            'body': strippedBody,
+                            'link': LINK.href
+                        }
+                        chrome.runtime.sendMessage({
+                            action: "sendEmailContent",
+                            content: emailContent
+                        });
+
                     }
                     catch(err) {
                         console.error(err);
