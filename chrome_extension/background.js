@@ -91,6 +91,24 @@ chrome.runtime.onMessageExternal.addListener(
 		return true;
 	}
 
+	// if (request.type === 'SET_TRUSTED') {
+	// 	chrome.runtime.sendMessage({ action: 'setTrustedContacts' , addresses: request.payload});
+	// 	sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });
+	// 	return true;
+	// }
+
+    if (request.type === 'ADD_TRUSTED') {
+		chrome.runtime.sendMessage({ action: 'addTrustedContact' , address: request.payload});
+		sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });
+		return true;
+	}
+
+    if (request.type === 'REMOVE_TRUSTED') {
+		chrome.runtime.sendMessage({ action: 'removeTrustedContact' , address: request.payload});
+		sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });
+		return true;
+	}
+
     if (request.type === 'USER_B_MESSAGE') {
 		chrome.runtime.sendMessage({ action: 'updateNumUpdates' });
 		sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });

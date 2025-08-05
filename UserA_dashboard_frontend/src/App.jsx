@@ -35,8 +35,10 @@ function App() {
   const [requestData, setRequestData] = useState([]);
   const [messageData, setMessageData] = useState([]);
   const [settingsData, setSettingsData] = useState([]);
+  const [trustedData, setTrustedData] = useState([]);
   const [welcomeVisible, setWelcomeVisible] = useState(false);
   const [togetherVisible, setTogetherVisible] = useState(false);
+  const [trustedVisible, setTrustedVisible] = useState(false);
   const [updateVisible, setUpdateVisible] = useState(false);
   const [helpVisible, setHelpVisible] = useState(false);
   const [educationVisible, setEducationVisible] = useState(false);
@@ -45,30 +47,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  let UNRESOLVED = [];
   const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom'; // TEMPORARY
-
-  function processActionID(data) {
-    const action_ids = data.map(row => [row.actionID, row.resolved]);
-    for (let i=0; i < action_ids.length; i++) {
-      if (action_ids[i][1] === 'N' && !UNRESOLVED.includes(action_ids[i][0])) {
-        UNRESOLVED.push(action_ids[i][0]);
-      } // collect unresolved actions
-      if (action_ids[i][1] === 'Y' && UNRESOLVED.includes(action_ids[i][0])) {
-        UNRESOLVED = UNRESOLVED.filter(item => item !== action_ids[i][0]);
-      } // remove resolved actions
-    }
-
-    const length = UNRESOLVED.length;
-
-    if (length > 0) {
-      document.getElementById('unresolved_number_statement').innerHTML = length + ' unresolved action(s)';
-    } else {
-      document.getElementById('unresolved_number_statement').innerHTML = 'No unresolved actions';
-    }
-    sendToExt('NUM_PENDING', JSON.stringify(length));
-    return UNRESOLVED;
-  }
 
   function checkSettings(data) {
     if (!data) {
@@ -100,6 +79,12 @@ function App() {
       }
       if (user === 'B' && env === 'E') {
         text = 'User B requested to update email settings';
+      }
+      if (user === 'A' && env === 'T') {
+        text = 'You requested to update trusted contacts';
+      }
+      if (user === 'B' && env === 'T') {
+        text = 'User B requested to update trusted contacts';
       }
       return text;
     }
@@ -301,6 +286,24 @@ function App() {
     }
   };
 
+  const fetchTrustedData = async () => {
+    try {
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/trusted`);
+      if (!response.ok) {
+        throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
+      }
+      const result = await response.json();
+      setTrustedData(result.data); // update the state with the fetched data
+    } catch (e) {
+      console.error('App.jsx (A): error fetching dashboard data (trusted): ', e);
+      setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Function to get unique ID for email actions
   function settingID() {
       const now = new Date().toISOString(); // timestamp (unique)
@@ -363,6 +366,59 @@ function App() {
       console.warn('App.jsx (A): "Save" button not found in welcome popup.');
     }
 
+    if (!context) {
+      enableTrustedVisibility();
+    }
+
+  }
+
+  // Function to add trusted contact
+  function updateTrustedData(context) {
+
+    if (!context) {
+      let address = document.getElementById('updateTrusted').value;
+      document.getElementById('updateTrusted').value = '';
+      if (!address) {
+        address = document.getElementById('updateTrusted2').value;
+        document.getElementById('updateTrusted2').value = '';
+      }
+      if (address) {
+        window.postMessage({
+          type: 'ADD_TRUSTED',
+          payload: { address },
+        }, `http://localhost:${A_FRONTEND}`);
+        sendToExt('ADD_TRUSTED', address); // send to extension
+
+        // console.log(trustedData);
+        // trustedData.push(address);
+        // console.log(trustedData)
+
+        // window.postMessage({
+        //   type: 'SET_TRUSTED',
+        //   payload: { address },
+        // }, `http://localhost:${A_FRONTEND}`);
+        // sendToExt('SET_TRUSTED', address); // send to extension
+        
+      } else {
+        console.warn('App.jsx (A): trusted address not found.');
+      }
+    }
+    else {
+      console.log('App.jsx (A): removing trusted contact request.');
+      disableTrustedVisibility();
+      cancelUpdateRequest(context);
+    }
+
+    fetchTrustedData();
+  }
+
+  // Function to remove email address from trusted contacts list
+  function removeTrusted(address) {
+    window.postMessage({
+      type: 'REMOVE_TRUSTED',
+      payload: { address },
+    }, `http://localhost:${A_FRONTEND}`);
+    sendToExt('REMOVE_TRUSTED', address); // send to extension
   }
 
   // Function to send messages to chrome extension
@@ -520,7 +576,7 @@ function App() {
   };
 
   function switchTogetherVisibility() {
-    console.log('App.jsx (A): switching visibility of together page.');
+    console.log('App.jsx (A): switching visibility of together popup.');
     setTogetherVisible(!togetherVisible);
   };
 
@@ -544,10 +600,27 @@ function App() {
     setUpdateVisible(false);
   };
 
-  function proceedToUpdate() {
-    console.log('App.jsx (A): proceeding to setting update screen.');
+  function enableTrustedVisibility() {
+    console.log('App.jsx (A): enabling visibility of trusted contacts popup.');
+    setTrustedVisible(true);
+  };
+
+  function disableTrustedVisibility() {
+    console.log('App.jsx (A): disabling visibility of trusted contacts popup.');
+    setTrustedVisible(false);
+  };
+
+  function proceedToUpdate(context) {
     setTogetherVisible(false);
-    enableUpdateVisibility(); // switch to update screen
+    if (context === 'E') {
+      console.log('App.jsx (A): proceeding to setting update screen.');
+      enableUpdateVisibility(); // switch to update screen
+    }
+    if (context === 'T') {
+      console.log('App.jsx (A): proceeding to setting trusted contact screen.');
+      enableTrustedVisibility();
+    }
+
   }
 
   // Hook to fetch data when the component mounts
@@ -559,6 +632,7 @@ function App() {
     fetchBrowserData();
     fetchActionData();
     fetchMessageData();
+    fetchTrustedData();
 
     // Listen for events and messages
     socket.on('connect', () => {
@@ -619,6 +693,16 @@ function App() {
       fetchActionData();
     });
 
+    socket.on('add_trusted', (data) => {
+      console.log('App.jsx (A): trusted contact added: ', data);
+      fetchTrustedData();
+    });
+
+    socket.on('remove_trusted', (data) => {
+      console.log('App.jsx (A): trusted contact removed: ', data);
+      fetchTrustedData();
+    });
+
     socket.on('b_response', (data) => {
       console.log('App.jsx (A): User B sent a response: ', data);
       fetchActionData();
@@ -656,6 +740,8 @@ function App() {
       socket.off('auto_message');
       socket.off('email_content');
       socket.off('email_settings');
+      socket.off('add_trusted');
+      socket.off('remove_trusted');
       socket.off('a_update_request');
       socket.off('b_update_request');
       socket.off('b_message');
@@ -809,6 +895,50 @@ function App() {
           </div>
         )}
 
+        {trustedVisible && (
+          <div className='trusted_background' id='trustedBackground'>
+            <div className='trusted_popup' id='trustedPopup'>
+              <div className='bottom_scrollbar'>
+                <div className='trusted_content'>
+
+                  <div className='trusted_header_container'>
+                    <div className='trusted_subtitle'>Add trusted contacts</div>
+                  </div>
+
+                  <div className='trusted_add_container'>
+                    <div className='trusted_input_container'>
+                      <input className='trusted_input' type='text' id='updateTrusted' placeholder='Enter email'/>
+                    </div>
+                    <div className='add_trusted_container'>
+                      <button className='add_trusted' id="addTrusted" onClick={() => updateTrustedData(null)}>Add</button>
+                    </div>
+                  </div>
+
+                  <div className='trusted_addresses_container'>
+                    {trustedData.map((item) => (
+                    <div className='trusted_display_container'>
+                      <div className='trusted_entry'>
+                        <div className='trusted_item'>
+                            {item.address}
+                        </div>
+                        <div className='trusted_remove'>
+                          <button className='trusted_remove_button' onClick={() => removeTrusted(item.address)}>Remove</button>
+                        </div>
+                      </div>
+                    </div>
+                    ))}
+                  </div>
+
+                  <div className='trusted_okay_container'>
+                    <button className="okay_trusted" id="okayTrusted" onClick={disableTrustedVisibility}>Okay</button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className='top_panel'>
           <div className='top_left_container'>
             <div className='top_container'>
@@ -823,11 +953,10 @@ function App() {
                       <div className='request_data_container'>
                         <div className='request_info_container'>
                           {formatRequest(item)}
-
                         </div>
                         <div className='request_resolve_container'>
                           <div className='request_resolve_subcontainer'>
-                            <button onClick={switchTogetherVisibility}>Update Settings</button>
+                            <button onClick={switchTogetherVisibility}>Update</button>
                           </div>
 
                           {togetherVisible && (
@@ -836,11 +965,11 @@ function App() {
                                 <div className='bottom_scrollbar'>
                                   <div className='together_content'>
                                     <div className='together_header_container'>
-                                      <div className='together_subtitle'>Update Settings</div>
+                                      <div className='together_subtitle'>Update</div>
                                     </div>
 
                                     <div className='together_message_container'>
-                                      To update settings, confirm both users are present at this screen. Settings should be discussed and updated in person.
+                                      To update settings or trusted contacts, confirm both users are present at this screen. Settings should be discussed and updated in person.
                                     </div>
 
                                     <div className='together_save_container'>
@@ -848,7 +977,7 @@ function App() {
                                         <button onClick={switchTogetherVisibility}>Cancel</button>
                                       </div>
                                       <div className='together_button_container'>
-                                        <button onClick={proceedToUpdate}>Confirm</button>
+                                        <button onClick={() => proceedToUpdate(item.context[0])}>Confirm</button>
                                       </div>
                                     </div>
 
@@ -916,6 +1045,50 @@ function App() {
                             </div>
                           )}
 
+                          {trustedVisible && (
+                            <div className='trusted_background' id='trustedBackground'>
+                              <div className='trusted_popup' id='trustedPopup'>
+                                <div className='bottom_scrollbar'>
+                                  <div className='trusted_content'>
+
+                                    <div className='trusted_header_container'>
+                                      <div className='trusted_subtitle'>Add trusted contacts</div>
+                                    </div>
+
+                                    <div className='trusted_add_container'>
+                                      <div className='trusted_input_container'>
+                                        <input className='trusted_input' type='text' id='updateTrusted2' placeholder='Enter email'/>
+                                      </div>
+                                      <div className='add_trusted_container'>
+                                        <button className='add_trusted' id="addTrusted" onClick={() => updateTrustedData(null)}>Add</button>
+                                      </div>
+                                    </div>
+
+                                    <div className='trusted_addresses_container'>
+                                      {trustedData.map((item) => (
+                                      <div className='trusted_display_container'>
+                                        <div className='trusted_entry'>
+                                          <div className='trusted_item'>
+                                              {item.address}
+                                          </div>
+                                          <div className='trusted_remove'>
+                                            <button className='trusted_remove_button' onClick={() => removeTrusted(item.address)}>Remove</button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      ))}
+                                    </div>
+
+                                    <div className='trusted_okay_container'>
+                                      <button className="okay_trusted" id="okayTrusted" onClick={() => updateTrustedData(item.context)}>Okay</button>
+                                    </div>
+
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
                           <div className='request_resolve_subcontainer'>
                             {item.context[1] === 'A' && (
                             <button onClick={() => cancelUpdateRequest(item.context)}>
@@ -928,6 +1101,9 @@ function App() {
                       </div>
                     </div>
                   ))}
+
+
+
 
                   {actionData.filter(item => item.resolved === 'N').map((item) => (
                     <div className='status_content_container'>
@@ -1147,37 +1323,49 @@ function App() {
 
                               </div>
 
-                                {settingsData.map((item) => (
-                                  <div className='settings_entry_container'>
-                                    <div className='context_container'>{displayContext(item.context)}</div>
-                                    <div className='chosen_options_container'>
-                                      <div className='chosen_options_subcontainer'>
-                                        <div className='chosen_options_left'>{displayResponse(item.opt1)}</div>
-                                        <div className='chosen_options_right'>{OPTIONS_MAP.get(1)}</div>
-                                      </div>
-                                      <div className='chosen_options_subcontainer'>
-                                        <div className='chosen_options_left'>{displayResponse(item.opt2)}</div>
-                                        <div className='chosen_options_right'>{OPTIONS_MAP.get(2)}</div>
-                                      </div>
-                                      <div className='chosen_options_subcontainer'>
-                                        <div className='chosen_options_left'>{displayResponse(item.opt3)}</div>
-                                        <div className='chosen_options_right'>{OPTIONS_MAP.get(3)}</div>
-                                      </div>
-                                      <div className='chosen_options_subcontainer'>
-                                        <div className='chosen_options_left'>{displayResponse(item.opt4)}</div>
-                                        <div className='chosen_options_right'>{OPTIONS_MAP.get(4)}</div>
-                                      </div>
-                                      <div className='chosen_options_subcontainer'>
-                                        <div className='chosen_options_left'>{displayResponse(item.opt5)}</div>
-                                        <div className='chosen_options_right'>{OPTIONS_MAP.get(5)}</div>
-                                      </div>
-                                      <p>Intervention will be activated when you click any link contained in an email. If you choose to involve User B, they will be able to see the time of your request and the link you want to access.</p>
+                              {settingsData.map((item) => (
+                                <div className='settings_entry_container'>
+                                  <div className='context_container'>{displayContext(item.context)}</div>
+                                  <div className='chosen_options_container'>
+                                    <div className='chosen_options_subcontainer'>
+                                      <div className='chosen_options_left'>{displayResponse(item.opt1)}</div>
+                                      <div className='chosen_options_right'>{OPTIONS_MAP.get(1)}</div>
                                     </div>
-                                    <div className='request_update_container'>
-                                      <button className='update_settings_button' onClick={() => updateRequest(item.context)}>Request Update</button>
+                                    <div className='chosen_options_subcontainer'>
+                                      <div className='chosen_options_left'>{displayResponse(item.opt2)}</div>
+                                      <div className='chosen_options_right'>{OPTIONS_MAP.get(2)}</div>
                                     </div>
+                                    <div className='chosen_options_subcontainer'>
+                                      <div className='chosen_options_left'>{displayResponse(item.opt3)}</div>
+                                      <div className='chosen_options_right'>{OPTIONS_MAP.get(3)}</div>
+                                    </div>
+                                    <div className='chosen_options_subcontainer'>
+                                      <div className='chosen_options_left'>{displayResponse(item.opt4)}</div>
+                                      <div className='chosen_options_right'>{OPTIONS_MAP.get(4)}</div>
+                                    </div>
+                                    <div className='chosen_options_subcontainer'>
+                                      <div className='chosen_options_left'>{displayResponse(item.opt5)}</div>
+                                      <div className='chosen_options_right'>{OPTIONS_MAP.get(5)}</div>
+                                    </div>
+                                    <p>Intervention will be activated when you click any link contained in an email. If you choose to involve User B, they will be able to see the time of your request and the link you want to access.</p>
                                   </div>
+                                  <div className='request_update_container'>
+                                    <button className='update_settings_button' onClick={() => updateRequest(item.context)}>Request Update</button>
+                                  </div>
+                                </div>
+                              ))}
+
+                              <div className='settings_entry_container'>
+                                <div className='context_container'>Trusted Contacts</div>
+                                <div className='trusted_items_container'>
+                                {trustedData.map((item) => (
+                                  <p>{item.address}</p>
                                 ))}
+                                </div>
+                                <div className='request_update_container'>
+                                  <button className='update_settings_button' onClick={() => updateRequest('T')}>Request Update</button>
+                                </div>
+                              </div>
 
                             </div>
                           </div>

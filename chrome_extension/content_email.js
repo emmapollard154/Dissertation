@@ -11,6 +11,7 @@ let MODIFIED_HTML = new Map(); // map to store modified html for pages containin
 let ORIGINAL_HTML = new Map(); // map to store original html results for regular clicks
 let ORIGINAL_LINKS = new Map(); // map to store original links for actions that are unblocked
 let CLICKED_BEFORE = [];
+let TRUSTED_CONTACTS = [];
 
 // References to html elements
 let infoBackground = null;
@@ -27,6 +28,12 @@ let backMenu = null;
 function stripTags(email) {
   const tags = /(<([^>]+)>)/gi;
   return email.replace(tags, "");
+}
+
+// Strip tags from email sender 
+function stripSender(from) {
+    const stripped = from.replaceAll('&lt;', '').replaceAll('&gt;', '');
+    return stripped;
 }
 
 // Function to process User B decision
@@ -395,6 +402,19 @@ async function getEmailSettings() {
     }
 }
 
+// Function to get trusted contacts
+async function getTrustedContacts() {
+    try {
+        const result = await getStorageData(['TRUSTED_CONTACTS']);
+        const trustedContacts = result.TRUSTED_CONTACTS;
+        TRUSTED_CONTACTS = trustedContacts;
+        return trustedContacts;
+    } catch (error) {
+        console.error('content_email.js: error retrieving TRUSTED_CONTACTS: ', error);
+        throw error;
+    }
+}
+
 // Function to inject html and add listeners
 function loadAll() {
 
@@ -423,36 +443,56 @@ function loadAll() {
                 popupElement = false;
 
                 if (event.target.matches('a')) { // link pressed
-
-                    event.preventDefault();
-                    LINK = event.target;
-                    console.log('content_email.js: link element pressed - ', LINK);
-
-                    if (LINK.href === `http://localhost:${EMAIL_PORT}/`) { // clicked link to own page
-                        console.log('content_email.js: link to own page clicked.');
-
-                        if (PENDING_ACTIONS.includes(LINK.name)) { // clicked on blocked link
-                            console.log('content_email.js: pending link clicked. Updating side panel.');
-                            chrome.runtime.sendMessage({ // send message to side panel to remind user of choice
-                                action: "displaySpeechContent", 
-                                choice: CHOICES.get(LINK.name)
+                    var trusted = false;
+                    const from = document.getElementById('captureFrom').innerHTML;
+                    for (const contact of TRUSTED_CONTACTS) {
+                        if (from.includes(contact)) {
+                            console.log('content_email.js: trusted contact detected.');
+                            chrome.runtime.sendMessage({ // send message to side panel to confirm choice
+                                action: "displayIfTrusted", 
+                                trusted: true
                             });
+                            trusted = true;
+                            break;
                         }
-                        return;
-                    }
-                    else {
-                        ORIGINAL_LINKS.set(LINK.href, LINK.outerHTML);
                     }
 
-                    await injectInfoHtml(LINK);
-                    await injectMenuHtml(LINK);
+                    if (!trusted) {
+                        console.log('content_email.js: non-trusted contact detected.');
+                        chrome.runtime.sendMessage({ // send message to side panel to confirm choice
+                            action: "displayIfTrusted", 
+                            trusted: false
+                        });
                     
-                    if (infoBackground) {
-                        infoBackground.style.display = 'block'; // show popup
-                    } else {
-                        console.warn('content_email.js: infoBackground not found.');
-                    }
+                        event.preventDefault();
+                        LINK = event.target;
+                        console.log('content_email.js: link element pressed - ', LINK);
 
+                        if (LINK.href === `http://localhost:${EMAIL_PORT}/`) { // clicked link to own page
+                            console.log('content_email.js: link to own page clicked.');
+
+                            if (PENDING_ACTIONS.includes(LINK.name)) { // clicked on blocked link
+                                console.log('content_email.js: pending link clicked. Updating side panel.');
+                                chrome.runtime.sendMessage({ // send message to side panel to remind user of choice
+                                    action: "displaySpeechContent", 
+                                    choice: CHOICES.get(LINK.name)
+                                });
+                            }
+                            return;
+                        }
+                        else {
+                            ORIGINAL_LINKS.set(LINK.href, LINK.outerHTML);
+                        }
+
+                        await injectInfoHtml(LINK);
+                        await injectMenuHtml(LINK);
+                        
+                        if (infoBackground) {
+                            infoBackground.style.display = 'block'; // show popup
+                        } else {
+                            console.warn('content_email.js: infoBackground not found.');
+                        }
+                    } 
                 }
                 else {
                     console.log('content_email.js: non-link element pressed - ', event.target);
@@ -522,13 +562,14 @@ function loadAll() {
                     try {
                         const subject = document.getElementById('captureSubject').innerHTML;
                         const from = document.getElementById('captureFrom').innerHTML;
+                        const strippedFrom = stripSender(from);
                         const date = document.getElementById('captureDate').innerHTML;
                         const body = document.getElementById('captureBody').innerHTML;
                         const strippedBody = stripTags(body);
 
                         const emailContent = {
                             'subject': subject,
-                            'from': from,
+                            'from': strippedFrom,
                             'date': date,
                             'body': strippedBody,
                             'link': LINK.href
@@ -655,8 +696,18 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
                 .catch(function(error) {
                     console.error('content_email.js: request to get EMAIL_SETTINGS rejected: ', error);
                 });
+
             });
         });
+
+        const trustedContacts = getTrustedContacts();
+        trustedContacts.then(function(result) {
+            console.log('content_email.js: TRUSTED_CONTACTS - ', result)
+        })
+        .catch(function(error) {
+            console.error('content_email.js: request to get TRUSTED_CONTACTS rejected: ', error);
+        });
+
     }
 
     if (request.action === 'userBResponse') {

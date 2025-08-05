@@ -31,7 +31,9 @@ function App() {
   const [messageData, setMessageData] = useState([]);
   const [requestData, setRequestData] = useState([]);
   const [settingsData, setSettingsData] = useState([]);
+  const [trustedData, setTrustedData] = useState([]);
   const [helpVisible, setHelpVisible] = useState(false);
+  const [trustedVisible, setTrustedVisible] = useState(false);
   const [educationVisible, setEducationVisible] = useState(false);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -59,6 +61,12 @@ function App() {
       }
       if (user === 'A' && env === 'E') {
         text = 'User A requested to update email settings';
+      }
+      if (user === 'A' && env === 'T') {
+        text = 'User A requested to update trusted contacts';
+      }
+      if (user === 'B' && env === 'T') {
+        text = 'You requested to update trusted contacts';
       }
       return text;
     }
@@ -148,10 +156,27 @@ function App() {
         throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      // checkSettings(result.data);
       setSettingsData(result.data); // update the state with the fetched data
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (message): ', e);
+      setError(e.message);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      location.reload();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTrustedData = async () => {
+    try {
+      const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/trusted`);
+      if (!response.ok) {
+        throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
+      }
+      const result = await response.json();
+      setTrustedData(result.data); // update the state with the fetched data
+    } catch (e) {
+      console.error('App.jsx (A): error fetching dashboard data (trusted): ', e);
       setError(e.message);
       await new Promise(resolve => setTimeout(resolve, 100));
       location.reload();
@@ -391,11 +416,14 @@ function viewID() {
 
   // Hook to fetch data when the component mounts
   useEffect(() => {
+
+    // Fetch database data
     fetchSettingsData();
     fetchRequestData();
     fetchBrowserData();
     fetchActionData();
     fetchMessageData();
+    fetchTrustedData();
 
     // Listen for events and messages
     socket.on('connect', () => {
@@ -433,9 +461,6 @@ function viewID() {
     socket.on('a_update_request', (data) => {
       console.log('App.jsx (B): settings update request received: ', data);
       fetchRequestData();
-      // if (data.payload.status === 'Y') { // avoid alerting for cancelled request
-      //   alert("Action Required.");
-      // }
       fetchSettingsData();
       fetchActionData();
     });
@@ -443,6 +468,16 @@ function viewID() {
     socket.on('email_settings', (data) => {
       console.log('App.jsx (B): email settings have been updated: ', data);
       fetchSettingsData();
+    });
+
+    socket.on('add_trusted', (data) => {
+      console.log('App.jsx (B): new trusted contact has been added: ', data);
+      fetchTrustedData();
+    });
+
+    socket.on('remove_trusted', (data) => {
+      console.log('App.jsx (B): trusted contact has been removed: ', data);
+      fetchTrustedData();
     });
 
     socket.on('b_response', (data) => {
@@ -473,6 +508,9 @@ function viewID() {
       socket.off('a_browser');
       socket.off('a_choice');
       socket.off('a_message');
+      socket.off('email_settings');
+      socket.off('add_trusted');
+      socket.off('remove_trusted');
       socket.off('b_response');
       socket.off('b_message');
       socket.off('b_view');
@@ -859,6 +897,18 @@ function viewID() {
                                     </div>
                                   </div>
                                 ))}
+
+                                <div className='settings_entry_container'>
+                                  <div className='context_container'>Trusted Contacts</div>
+                                  <div className='trusted_items_container'>
+                                  {trustedData.map((item) => (
+                                    <p>{item.address}</p>
+                                  ))}
+                                  </div>
+                                  <div className='request_update_container'>
+                                    <button className='update_settings_button' onClick={() => updateRequest('T')}>Request Update</button>
+                                  </div>
+                                </div>
 
                             </div>
                           </div>

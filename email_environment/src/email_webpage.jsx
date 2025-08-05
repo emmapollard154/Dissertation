@@ -37,6 +37,19 @@ const emails = [
     category: 'inbox',
   },
   {
+    id: '3',
+    from: 'Joe Bloggs <joebloggs@mail.com>',
+    subject: 'Holiday Ideas',
+    body: `
+      <p>Hi User A,</p>
+      <p>Here is the link to the holiday house we stayed in last summer.</p>
+      <p><a href="https://example.com/project-x-staging" target="_blank" class="text-blue-500 hover:underline">holidayhomes.co.uk</a>.</p>
+      <p>Joe</p>
+    `,
+    date: '28/07/2025',
+    category: 'inbox',
+  },
+  {
     id: '4',
     from: 'Spam Mail <spam@example.com>',
     subject: 'YOU HAVE WON A MILLION POUNDS!!!',

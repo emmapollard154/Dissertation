@@ -79,10 +79,21 @@ async function getEmailSettings() {
     try {
         const result = await getStorageData(['EMAIL_SETTINGS']);
         const emailSettings = result.EMAIL_SETTINGS;
-        console.log('getEmailSettings: ', emailSettings);
         return emailSettings;
     } catch (error) {
         console.error('content_email.js: error retrieving EMAIL_SETTINGS: ', error);
+        throw error;
+    }
+}
+
+// Function to get trusted contacts
+async function getTrustedContacts() {
+    try {
+        const result = await getStorageData(['TRUSTED_CONTACTS']);
+        const trustedContacts = result.TRUSTED_CONTACTS;
+        return trustedContacts;
+    } catch (error) {
+        console.error('content_email.js: error retrieving TRUSTED_CONTACTS: ', error);
         throw error;
     }
 }
@@ -150,8 +161,6 @@ async function sendToEmail(message) {
     try {
         const tabs = await chrome.tabs.query({});
         for (const tab of tabs) {
-            console.log(url);
-            console.log(tab.url);
             if (tab.url && tab.url === url) {
                 try {
                     const response = await chrome.tabs.sendMessage(tab.id, {
@@ -220,11 +229,53 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         });
         const emailSettings = getEmailSettings();
         emailSettings.then(function(result) {
-            console.log(result);
+            console.log('side_panel.js: email settings retrieved ', result);
         })
         .catch(function(error) {
             console.error('side_panel.js: request to get EMAIL_SETTINGS rejected: ', error);
         });
+    }
+
+    if (message.action === 'addTrustedContact') {
+        console.log('side_panel.js: addTrustedContact received: ', message.address);
+
+        let trustedContacts = getTrustedContacts();
+        trustedContacts.then(function(result) {
+            console.log('side_panel.js: trusted contacts retrieved ', result);
+            if (!result.includes(message.address)) {
+                result.push(message.address);
+                chrome.storage.local.set({ 'TRUSTED_CONTACTS' : result }, function() {
+                    console.log('side_panel.js: setting TRUSTED_CONTACTS to ', result );
+                });
+            }
+            else {
+                console.log('side_panel.js: trusted contacts already includes address', message.address);
+            }
+        })
+        .catch(function(error) {
+            console.error('side_panel.js: request to get EMAIL_SETTINGS rejected: ', error);
+        });
+
+    }
+
+    if (message.action === 'removeTrustedContact') {
+        console.log('side_panel.js: removeTrustedContact received: ', message.address);
+        let trustedContacts = getTrustedContacts();
+        trustedContacts.then(function(result) {
+            console.log('side_panel.js: trusted contacts retrieved ', result);
+            if (result.includes(message.address)) {
+                removed = result.filter(address => address !== message.address);
+                chrome.storage.local.set({ 'TRUSTED_CONTACTS' : removed }, function() {
+                    console.log('content_email.js: setting TRUSTED_CONTACTS to ', removed );
+                });
+            } else {
+                console.log('side_panel.js: removing address that does not exist', message.address);
+            }
+        })
+        .catch(function(error) {
+            console.error('side_panel.js: request to get EMAIL_SETTINGS rejected: ', error);
+        });
+
     }
 
     if (message.action === 'sendUrlToDashboard') {
@@ -335,6 +386,17 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         document.getElementById('speechContent').innerText = CHOICE_SPEECH.get(choice);
     }
 
+    if (message.action === 'displayIfTrusted') {
+        console.log('side_panel.js: updating speech bubble content (trusted contact).');
+        const trusted = message.trusted;
+        if (trusted) {
+            document.getElementById('speechContent').innerText = 'This email is from someone in your trusted contacts.';
+        }
+        else {
+            document.getElementById('speechContent').innerText = 'This email is not from someone in your trusted contacts.';
+        }
+    }
+
     if (message.action === 'displaySpeechResponse') {
         const choice = message.choice;
         const outcome = message.outcome;
@@ -422,5 +484,3 @@ document.getElementById('statBtn').addEventListener('click', async function() {
 document.getElementById('msgBtn').addEventListener('click', async function() {
     chrome.runtime.sendMessage({ action: "sendHelpMessage"});
 });
-
-
