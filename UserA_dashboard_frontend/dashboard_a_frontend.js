@@ -103,6 +103,39 @@ window.addEventListener('message', function(event) {
         sendDataToBackend(data);
     }
 
-});
+    if (event.data && event.data.type === 'EMAIL_CONTENT') {
+        const receivedData = event.data.payload;
+        console.log('dashboard_a_frontend.js: received data from Chrome extension: ', receivedData);
 
+        const data = {
+            data: receivedData.content,
+            target: 'EMAIL_CONTENT'
+        }
+        sendDataToBackend(data);
+    }
+
+    if (event.data && event.data.type === 'ADD_TRUSTED') {
+        const address = event.data.payload;
+        console.log('dashboard_a_frontend.js: received message data from User A: ', address);
+
+        const data = {
+            data: address,
+            target: 'ADD_TRUSTED'
+        }
+        sendDataToBackend(data);
+    }
+
+    if (event.data && event.data.type === 'REMOVE_TRUSTED') {
+        const address = event.data.payload;
+        console.log('dashboard_a_frontend.js: received message data from User A: ', address);
+
+        const data = {
+            data: address,
+            target: 'REMOVE_TRUSTED'
+        }
+        sendDataToBackend(data);
+    }
+
+});
+    
 console.log('dashboard_a_frontend.js loaded and listening for messages.');

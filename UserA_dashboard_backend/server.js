@@ -139,6 +139,16 @@ const db = new sqlite3.Database('../dashboard.db', (err) => {
             }
         });
 
+        db.run(`CREATE TABLE IF NOT EXISTS trusted (
+            address VARCHAR(256)
+        )`, (createErr) => {
+            if (createErr) {
+                console.error('server.js (A): error creating table:', createErr.message);
+            } else {
+                console.log('server.js (A): trusted table created / already exists.');
+            }
+        });
+
     }
 });
 
@@ -207,6 +217,20 @@ app.get('/api/dashboard-data/requests', (req, res) => {
             return;
         }
         console.log('server.js (A): successfully retrieved dashboard-data/requests.');
+        res.json({
+            message: 'Success',
+            data: rows
+        });
+    });
+});
+
+app.get('/api/dashboard-data/trusted', (req, res) => {
+    db.all('SELECT * FROM trusted', [], (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        console.log('server.js (A): successfully retrieved dashboard-data/trusted.');
         res.json({
             message: 'Success',
             data: rows
@@ -321,8 +345,6 @@ app.post('/api/dashboard-data', (req, res) => {
         const resolved = 'Y';
         const responseOutcome = '0';
 
-        console.log(id, time, choice, context, resolved, responseOutcome);
-
         try {
             console.log('server.js (A): inserting into action table.');
             const stmt = db.prepare('INSERT INTO action (actionID, context, userAChoice, time, resolved, responseOutcome) VALUES (?, ?, ?, ?, ?, ?)');
@@ -340,8 +362,6 @@ app.post('/api/dashboard-data', (req, res) => {
     }
 
     if (target === 'UPDATE_REQUEST') {
-
-        console.log("UPDATE_REQUEST recevied ", data.payload)
 
         const env = data.payload.context;
         const user = data.payload.user;
@@ -383,9 +403,49 @@ app.post('/api/dashboard-data', (req, res) => {
 
     }
 
+    if (target === 'ADD_TRUSTED') {
+
+        const address = data.address;
+        
+        try {
+            console.log('server.js (A): inserting into trusted table.');
+            const stmt = db.prepare('INSERT INTO trusted (address) VALUES (?)');
+            stmt.run(address);
+        }
+        catch(err) {
+            console.error('server.js (A): database insertion error: ', err.message);
+            return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
+        }
+        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
+        hubSocket.emit('backendMessage', { event: 'ADD_TRUSTED', data: address }); // message hub
+        io.emit('add_trusted', address); // respond to frontend
+    }
+
+    if (target === 'REMOVE_TRUSTED') {
+
+        const address = data.address;
+        
+        try {
+            console.log('server.js (A): removing entry from trusted table.');
+            const stmt = db.prepare('DELETE FROM trusted WHERE address = ?');
+            stmt.run(address);
+        }
+        catch(err) {
+            console.error('server.js (A): database deletion error: ', err.message);
+            return res.status(500).json({ message: 'Failed to save data to database', error: err.message });
+        }
+        res.status(201).json({ message: 'server.js (A): data saved.', id: this.lastID });
+        hubSocket.emit('backendMessage', { event: 'REMOVE_TRUSTED', data: address }); // message hub
+        io.emit('remove_trusted', address); // respond to frontend
+    }
+
     if (target === 'AUTO_MESSAGE') {
-        console.log("HERE HERE")
         io.emit('auto_message', ''); // respond to frontend
+    }
+
+    if (target === 'EMAIL_CONTENT') {
+        console.log(data)
+        io.emit('email_content', data); // respond to frontend
     }
 
 });

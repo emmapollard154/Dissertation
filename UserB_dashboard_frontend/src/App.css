@@ -1055,6 +1055,16 @@
   margin-top: 1%;
 }
 
+.trusted_items_container {
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  width: 70%;
+  height: 100%;
+}
+
 .footer {
   position: relative;
   left: 50%;

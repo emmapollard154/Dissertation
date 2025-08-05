@@ -91,6 +91,24 @@ chrome.runtime.onMessageExternal.addListener(
 		return true;
 	}
 
+	// if (request.type === 'SET_TRUSTED') {
+	// 	chrome.runtime.sendMessage({ action: 'setTrustedContacts' , addresses: request.payload});
+	// 	sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });
+	// 	return true;
+	// }
+
+    if (request.type === 'ADD_TRUSTED') {
+		chrome.runtime.sendMessage({ action: 'addTrustedContact' , address: request.payload});
+		sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });
+		return true;
+	}
+
+    if (request.type === 'REMOVE_TRUSTED') {
+		chrome.runtime.sendMessage({ action: 'removeTrustedContact' , address: request.payload});
+		sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });
+		return true;
+	}
+
     if (request.type === 'USER_B_MESSAGE') {
 		chrome.runtime.sendMessage({ action: 'updateNumUpdates' });
 		sendResponse({ status: 'success', message: 'background.js: data receieved by extension.' });
@@ -133,8 +151,6 @@ chrome.runtime.onMessage.addListener(
 		console.log('background.js: request receieved from side panel.');
 		if (request.action === 'sendHelpMessage') {
 			console.log('background.js: sendHelpMessage request receieved.')
-			// TO DO: send message to A frontend
-
 
             chrome.tabs.query({ url: `http://localhost:${A_FRONTEND}/*` }, (tabs) => {
                 if (tabs && tabs.length > 0) {
@@ -142,6 +158,31 @@ chrome.runtime.onMessage.addListener(
 
                     chrome.tabs.sendMessage(activeTab.id, { 
                         action: 'sendHelpMessage'
+                    }, function(response) {
+                        if (chrome.runtime.lastError) {
+                            console.error("background.js: ", chrome.runtime.lastError.message);
+                            sendResponse({ status: 'failed', error: chrome.runtime.lastError.message });
+                        } else {
+                            sendResponse({ status: 'success', contentScriptResponse: response });
+                        }
+                    });
+                } else {
+                    alert("Please open dashboard");
+                    console.warn('side_panel.js : no active tab found to send message to.');
+                    sendResponse({ status: 'failed', error: 'No active tab found' });
+                }
+            });
+		}
+	else if (request.action === 'sendEmailContent') {
+			console.log('background.js: sendEmailContent request receieved.')
+
+            chrome.tabs.query({ url: `http://localhost:${A_FRONTEND}/*` }, (tabs) => {
+                if (tabs && tabs.length > 0) {
+                    const activeTab = tabs[0];
+
+                    chrome.tabs.sendMessage(activeTab.id, { 
+                        action: 'sendEmailContent',
+						content: request.content
                     }, function(response) {
                         if (chrome.runtime.lastError) {
                             console.error("background.js: ", chrome.runtime.lastError.message);

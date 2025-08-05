@@ -72,6 +72,19 @@ hubSocket.on('backendMessage', (message) => {
             io.emit('a_update_request', content); // send message to frontend
             console.log('server.js (B): sent update request message to frontend B.');
         }
+
+        if (message.event === 'ADD_TRUSTED') {
+            console.log('server.js (B): User A added trusted contact.');
+            io.emit('add_trusted', content); // send message to frontend
+            console.log('server.js (B): sent new trusted contact message to frontend B.');
+        }
+
+        if (message.event === 'REMOVE_TRUSTED') {
+            console.log('server.js (B): User A removed trusted contact.');
+            io.emit('remove_trusted', content); // send message to frontend
+            console.log('server.js (B): sent remove trusted contact message to frontend B.');
+        }
+
     }
 });
 
