@@ -593,7 +593,7 @@ function viewID() {
                       <p>The system requires User A to install and use a Chrome extension that includes a side panel. The extension monitors online activity and prompts intervention when it detects that an email link from a non-trusted contact has been clicked on. </p>
                       <p>When flagged, the click will be suspended and User A will be presented with information on the risk and a menu of options of how to respond which may include requesting your advice.</p>
                       <p>The speech bubble will display concise information and reminders relevant to the user's current situation.</p>
-                      <p>The buttons in the panel will change appearance to notify the user of any updates. The dashboard can be accessed by clicking on any button in the panel.</p>
+                      <p>The buttons in the panel will change appearance to notify the user of any updates. The dashboard can be accessed by clicking on the 'Status' or 'Dashboard' button.</p>
                     </div>
                     <img src='../icons/side_panel.png' className='extension_navigation_img'></img>
                   </div>

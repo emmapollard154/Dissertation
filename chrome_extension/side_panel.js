@@ -40,13 +40,11 @@ function removeUpdate(btn) {
 
 // Function to alert user of new update
 function statusAlert() {
-    document.getElementById('speechContent').innerText = 'You have an update!';
     setUpdate('statBtn');
 }
 
 // Function to alert user of new message
 function messageAlert() {
-    document.getElementById('speechContent').innerText = 'You have a new message!';
     setUpdate('statBtn');
 }
 
