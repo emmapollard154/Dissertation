@@ -450,7 +450,6 @@ function viewID() {
     socket.on('a_choice', (data) => {
       console.log('App.jsx (B): User A made choice: ', data);
       fetchActionData();
-      alert("Action Required.");
     });
 
     socket.on('a_message', (data) => {
@@ -582,7 +581,7 @@ function viewID() {
                       <p><b>Status</b>&emsp;Any current requests and actions will be shown here</p>
                       <p><b>Messages</b>&emsp;Send messages to each other and view your message history</p>
                       <p><b>History</b>&emsp;Both users can view the history of requests and actions once resolved</p>
-                      <p><b>Account</b>&emsp;Access additional safety information, view the browsing history of User A (they will be notified), and view / request to update your account settings. Browsing history includes webpages loaded when the extension is running only.</p>
+                      <p><b>Account</b>&emsp;Access additional safety information, view the browsing history of User A (they will be notified), and view / request to update your account settings.</p>
                       <p><b>?</b>&emsp;Help Centre (here)</p>
                     </div>
                     <img src='../icons/dash_map.png' className='dashboard_navigation_img'></img>
@@ -591,7 +590,7 @@ function viewID() {
                   <div className='extension_navigation'>
                     <div className='extension_navigation_text'>
                       <p><b>Extension Navigation</b></p>
-                      <p>The system requires User A to install and use a Chrome extension that includes a side panel. The extension monitors online activity and prompts intervention when it detects that an email link has been clicked on. </p>
+                      <p>The system requires User A to install and use a Chrome extension that includes a side panel. The extension monitors online activity and prompts intervention when it detects that an email link from a non-trusted contact has been clicked on. </p>
                       <p>When flagged, the click will be suspended and User A will be presented with information on the risk and a menu of options of how to respond which may include requesting your advice.</p>
                       <p>The speech bubble will display concise information and reminders relevant to the user's current situation.</p>
                       <p>The buttons in the panel will change appearance to notify the user of any updates. The dashboard can be accessed by clicking on any button in the panel.</p>

@@ -15,9 +15,9 @@ const TEMPLATE_ID = 'template_vnl7keb';
 const OPTIONS_MAP = new Map([
   [1 , 'Continue (no interference).'],
   [2 , 'Record action for User B too see later. Continue with action.'],
-  [3 , 'Ask User B for advice (accept / reject) regarding this action. Do not continue with action at the moment.'],
-  [4 , 'Ask User B for advice (accept / reject) regarding this action. Block action if User B rejects request.'],
-  [5 , 'Block this action. Prevent action being carried out in the future. User B will not be informed.'],
+  [3 , 'Ask User B for advice (accept / reject) regarding this action. Pause action.'],
+  [4 , 'Ask User B for advice (accept / reject) regarding this action. Pause action and permanently disable link if rejected.'],
+  [5 , 'Block this action yourself (disable link). User B will not be informed.'],
 ]);
 
 const CHOICE_MAP = new Map([
@@ -813,7 +813,7 @@ function App() {
                       <p><b>Status</b>&emsp;Any current requests and actions will be shown here</p>
                       <p><b>Messages</b>&emsp;Send messages to each other and view your message history</p>
                       <p><b>History</b>&emsp;Both users can view the history of requests and actions once resolved</p>
-                      <p><b>Account</b>&emsp;Access additional safety information, view the browsing history of User A (they will be notified), and view / request to update your account settings. Browsing history includes webpages loaded when the extension is running only.</p>
+                      <p><b>Account</b>&emsp;Access additional safety information, view your browsing history (User A), and view / request to update your account settings.</p>
                       <p><b>?</b>&emsp;Help Centre (here)</p>
                     </div>
                     <img src='../icons/dash_map.png' className='dashboard_navigation_img'></img>
@@ -822,7 +822,7 @@ function App() {
                   <div className='extension_navigation'>
                     <div className='extension_navigation_text'>
                       <p><b>Extension Navigation</b></p>
-                      <p>The system requires User A to install and use a Chrome extension that includes a side panel. The extension monitors online activity and prompts intervention when it detects that an email link has been clicked on. </p>
+                      <p>The system requires User A to install and use a Chrome extension that includes a side panel. The extension monitors online activity and prompts intervention when it detects that an email link from a non-trusted contact has been clicked on. </p>
                       <p>When flagged, the click will be suspended and User A will be presented with information on the risk and a menu of options of how to respond which may include requesting your advice.</p>
                       <p>The speech bubble will display concise information and reminders relevant to the user's current situation.</p>
                       <p>The buttons in the panel will change appearance to notify the user of any updates. The dashboard can be accessed by clicking on any button in the panel.</p>
