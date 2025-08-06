@@ -8,8 +8,8 @@ const EMAIL_ANNOUNCEMENT = 'Do you trust the sender?\n\nAre you being asked to g
 const CHOICE_SPEECH = new Map([
     ['1', 'You chose to click on an email link without informing User B.'],
     ['2', 'You chose to click on an email link. User B will be able to see the link you clicked.'],
-    ['3', 'Waiting for User B to accept or reject clicking on this link. If User B rejects the action, you can try again.\n\nWould it help to message User B with more detail?'],
-    ['4', 'Waiting for User B to accept or reject clicking on this link. If User B rejects the action, the action will be blocked.\n\nWould it help to message User B with more detail?'],
+    ['3', 'User B needs to accept this request in order to proceed. If User B rejects the action, you can try again.\n\nWould it help to message User B with more detail?'],
+    ['4', 'User B needs to accept this request in order to proceed.\n\nWould it help to message User B with more detail?'],
     ['5', 'You chose to block this action independently.'],
 ]);
 
@@ -40,13 +40,11 @@ function removeUpdate(btn) {
 
 // Function to alert user of new update
 function statusAlert() {
-    document.getElementById('speechContent').innerText = 'You have an update!';
     setUpdate('statBtn');
 }
 
 // Function to alert user of new message
 function messageAlert() {
-    document.getElementById('speechContent').innerText = 'You have a new message!';
     setUpdate('statBtn');
 }
 

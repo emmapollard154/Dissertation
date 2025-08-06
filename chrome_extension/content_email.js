@@ -113,6 +113,7 @@ function processOutcome(url, outcome) {
 // Function to respond to user choice
 function completeAction(elem, choice) {
     const url = PARENT_LINKS.get(elem);
+    console.log("HERE ", url);
     if (!url) {
         console.error('content_email.js: no link found for element.');
     }
@@ -249,6 +250,7 @@ function attachInfoListeners(informationPopup, link) {
             if (menuBackground) {
                 informationPopup.style.display = 'none'; // hide info popup
                 menuBackground.style.display = 'block'; // show menu popup
+                document.getElementById('captureTrigger').disabled = false;
             } else {
                 console.warn('content_email.js: cannot find menu popup.');
             }
@@ -291,16 +293,17 @@ function attachMenuListeners(menuPopup, link) {
                 }
                 menuPopup.style.display = 'none';
 
-                if (choice === '3' || choice === '4' || choice === '5') { // store modified html with url as key
-                    console.log('content_email.js: storing modified html');
-                    MODIFIED_HTML.set(CURRENT_PARENT,  document.documentElement.innerHTML);
-                }
+                // if (choice === '3' || choice === '4' || choice === '5') { // store modified html with url as key
+                //     console.log('content_email.js: storing modified html');
+                //     MODIFIED_HTML.set(CURRENT_PARENT,  document.documentElement.innerHTML);
+                // }
 
                 chrome.runtime.sendMessage({ // send message to side panel to confirm choice
                     action: "displaySpeechContent", 
                     choice: choice
                 });
 
+                console.log(CURRENT_PARENT);
                 completeAction(CURRENT_PARENT, choice);
             }
         });
@@ -330,50 +333,79 @@ function emailID() {
 
 // Function to send user selected choice to background script and process choice on page
 function processChoice(choice, link) {
-    const time = new Date().toISOString();
-    const id = emailID();
-
-    chrome.runtime.sendMessage({ 
-        action: "sendChoiceToDashboardA", 
-        id: id, 
-        choice: choice, 
-        time: time, 
-        url: link.href 
-    });
 
     PARENT_LINKS.set(CURRENT_PARENT, link.href);
 
-    if (choice === '3') {
-        link.classList.add('disabled'); // set disabled attribute for CSS
-        link.setAttribute('disabled', 'disabled');
-        link.classList.add('name'); // store href in name attribute
-        link.setAttribute('name', link.href);
-        PENDING_ACTIONS.push(link.href);
-        CHOICES.set(link.href, choice);
-        link.innerHTML = link.href; // display link target
-        link.href = ''; // remove clickable link
+    if (choice === '3' || choice === '4' || choice === '5') { // store modified html with url as key
+        console.log('content_email.js: storing modified html');
+        MODIFIED_HTML.set(CURRENT_PARENT,  document.documentElement.innerHTML);
     }
 
-    if (choice === '4') {
-        link.classList.add('disabled'); // set disabled attribute for CSS
-        link.setAttribute('disabled', 'disabled');
-        link.classList.add('name'); // store href in name attribute
-        link.setAttribute('name', link.href);
-        PENDING_ACTIONS.push(link.href);
-        CHOICES.set(link.href, choice);
-        link.innerHTML = link.href; // display link target
-        link.href = ''; // remove clickable link
-    }
+    let modHtml = MODIFIED_HTML.get(CURRENT_PARENT);
 
-    if (choice === '5') {
-        link.classList.add('disabled'); // set disabled attribute for CSS
-        link.setAttribute('disabled', 'disabled');
-        link.classList.add('name'); // store href in name attribute
-        link.setAttribute('name', link.href);
-        PENDING_ACTIONS.push(link.href);
-        CHOICES.set(link.href, choice);
-        link.innerHTML = link.href; // display link target
-        link.href = ''; // remove clickable link
+    if (modHtml) {
+
+        if (link.href) {
+
+            if (modHtml.includes(link.href)) {
+
+                const time = new Date().toISOString();
+                const id = emailID();
+
+                chrome.runtime.sendMessage({ 
+                    action: "sendChoiceToDashboardA", 
+                    id: id, 
+                    choice: choice, 
+                    time: time, 
+                    url: link.href 
+                });
+
+
+                if (choice === '3') {
+                    link.classList.add('disabled'); // set disabled attribute for CSS
+                    link.setAttribute('disabled', 'disabled');
+                    link.classList.add('name'); // store href in name attribute
+                    link.setAttribute('name', link.href);
+                    PENDING_ACTIONS.push(link.href);
+                    CHOICES.set(link.href, choice);
+                    link.innerHTML = link.href; // display link target
+                    link.href = ''; // remove clickable link
+                }
+
+                if (choice === '4') {
+                    link.classList.add('disabled'); // set disabled attribute for CSS
+                    link.setAttribute('disabled', 'disabled');
+                    link.classList.add('name'); // store href in name attribute
+                    link.setAttribute('name', link.href);
+                    PENDING_ACTIONS.push(link.href);
+                    CHOICES.set(link.href, choice);
+                    link.innerHTML = link.href; // display link target
+                    link.href = ''; // remove clickable link
+                }
+
+                if (choice === '5') {
+                    link.classList.add('disabled'); // set disabled attribute for CSS
+                    link.setAttribute('disabled', 'disabled');
+                    link.classList.add('name'); // store href in name attribute
+                    link.setAttribute('name', link.href);
+                    PENDING_ACTIONS.push(link.href);
+                    CHOICES.set(link.href, choice);
+                    link.innerHTML = link.href; // display link target
+                    link.href = ''; // remove clickable link
+                }
+
+            }
+            else {
+                console.log("STOP PROCESSING HERE");
+            }
+
+        } else {
+            console.log("no link.href found STOP");
+        }
+
+    }
+    else {
+        console.log("No modhtml for ", CURRENT_PARENT);
     }
 
 }
@@ -578,6 +610,8 @@ function loadAll() {
                             action: "sendEmailContent",
                             content: emailContent
                         });
+
+                        document.getElementById('captureTrigger').disabled = true;
 
                     }
                     catch(err) {

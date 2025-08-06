@@ -268,7 +268,7 @@
 }
 
 .welcome_content {
-  height: 95%;
+  height: 100%;
   text-align: center;
   overflow: auto;
   margin-right: 5%;
@@ -277,7 +277,6 @@
 }
 
 .welcome_header_container {
-  height: 100%;
   display: flex;
   flex-direction: row;
   box-sizing: border-box;
@@ -360,7 +359,8 @@
 }
 
 .settings_options_container p {
-  margin-bottom: 2.5vh;
+  margin-top: 5%;
+  margin-bottom: 5%;
   font-size: 2vh;
 }
 
