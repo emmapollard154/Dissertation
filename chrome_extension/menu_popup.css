@@ -161,6 +161,7 @@
 }
 
 .menu_forward_text {
+  margin-left: 2%;
   width: 65%;
 }
 
@@ -179,4 +180,10 @@
   height: 30%;
   margin-top: 2%;
   margin-left: 20%;
+}
+
+.menu_forward_button button:disabled {
+  background-color: var(--gray_blue);
+  opacity: 0.5;
+  cursor: auto;
 }

@@ -249,6 +249,7 @@ function attachInfoListeners(informationPopup, link) {
             if (menuBackground) {
                 informationPopup.style.display = 'none'; // hide info popup
                 menuBackground.style.display = 'block'; // show menu popup
+                document.getElementById('captureTrigger').disabled = false;
             } else {
                 console.warn('content_email.js: cannot find menu popup.');
             }
@@ -578,6 +579,8 @@ function loadAll() {
                             action: "sendEmailContent",
                             content: emailContent
                         });
+
+                        document.getElementById('captureTrigger').disabled = true;
 
                     }
                     catch(err) {
