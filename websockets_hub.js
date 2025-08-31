@@ -5,6 +5,15 @@
  * @version 1.0
  */
 
+/*
+Code adapted from:
+Backend to Frontend Messaging Methods; 
+Google Gemini; 
+2025;  
+Available from: https://gemini.google.com/share/6cc87632397e; 
+Accessed 28 June 2025.
+*/  
+
 const http = require('http');
 const socketIO = require('socket.io');
 const express = require('express');

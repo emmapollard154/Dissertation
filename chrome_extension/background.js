@@ -18,13 +18,13 @@ const A_FRONTEND = 5173;
  * @type {String}
  * @deprecated since version 1.0. Must be updated.
  */
-const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom'; // TEMPORARY
+const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom';
 
-chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }) // Set side panel behaviour
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }) // set side panel behaviour
   .then(() => console.log('background.js: side panel behaviour set.'))
   .catch((error) => console.error('background.js: error setting side panel behaviour: ', error));
 
-chrome.action.onClicked.addListener( async (tab) => { // Open dashboard when extension opened
+chrome.action.onClicked.addListener( async (tab) => { // open dashboard when extension opened
 	console.log(`background.js: extension clicked. Opening dashboard in new tab.`);
 	setNums(0,0); // initialise number of pending actions and updates
 	chrome.sidePanel.open({ tabId: tab.id }) // open side panel	

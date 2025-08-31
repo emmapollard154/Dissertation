@@ -5,9 +5,26 @@
  * @version 1.0
  */
 
+/*
+Code adapted from:
+Email environment template; 
+Google Gemini; 
+2025;  
+Available from: https://gemini.google.com/share/406ea93bc8ca; 
+Accessed 17 June 2025.
+*/
+
 import { useState } from 'react';
 import './email_webpage.css'
 
+/*
+Code adapted from:
+Removing html tags from string in React; 
+Jubayet Hossain; 
+2025;  
+Available from: https://stackoverflow.com/questions/74669280/removing-html-tags-from-string-in-react; 
+Accessed 17 June 2025.
+*/
 /**
  * Strip tags for email preview.
  * @param {String} email The HTML of the email content.

@@ -5,6 +5,15 @@
  * @version 1.0
  */
 
+/*
+Code adapted from:
+HTML Lists and JavaScript Arrays; 
+Google Gemini; 
+2025;  
+Available from: https://g.co/gemini/share/4391392a616d; 
+Accessed 13 June 2025.
+*/
+
 import { useEffect, useState } from 'react';
 import './App.css'
 import io from 'socket.io-client';
@@ -77,6 +86,14 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  /*
+  Code adapted from:
+  JavaScript Array Time Ordering Function; 
+  Google Gemini; 
+  2025;  
+  Available from: https://gemini.google.com/share/4573f8648cdf; 
+  Accessed 6 July 2025.
+  */
   const orderActionData = (data) => { // order actions by most recent
     return [...data].sort((a, b) => {
       const timeA = new Date(a.time);
@@ -221,6 +238,14 @@ function App() {
     }
   }
 
+  /*
+  Code adapted from:
+  AJAX vs. INSERT: A Comparison; 
+  Google Gemini; 
+  2025;  
+  Available from: https://g.co/gemini/share/4bf48d2b872c; 
+  Accessed 17 June 2025.
+  */
   /**
    * Fetch settings data from database.
    * @throws {Error} if the fetch request fails.

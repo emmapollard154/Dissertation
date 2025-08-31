@@ -63,6 +63,14 @@ function removeUpdate(btn) {
     }
 }
 
+/*
+Code adapted from:
+Chrome Extension Data Persistence Methods; 
+Google Gemini; 
+2025;  
+Available from: https://gemini.google.com/share/00bac19789a3; 
+Accessed 2 August 2025.
+*/  
 /**
  * Get data from local chrome storage.
  * @param {String} keys Key to identify targeted data.
