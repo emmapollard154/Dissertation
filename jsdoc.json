@@ -1,0 +1,16 @@
+{
+  "source": {
+    "include": ["websockets_hub.js"],
+    "exclude": ["./node_modules/"]
+  },
+  "opts": {
+    "encoding": "utf8",
+    "readme": "./README.md",
+    "template": "jsdoc-to-markdown/tmpl/default"
+  },
+  "plugins": ["plugins/markdown"],
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false
+  }
+}

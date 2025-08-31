@@ -1,17 +1,66 @@
+/**
+ * @fileoverview Main App component for User A dashboard.
+ * @file email_webpage.jsx
+ * @author Emma Pollard
+ * @version 1.0
+ */
+
 import { useEffect, useState } from 'react';
 import './App.css';
 import io from 'socket.io-client';
 import emailjs from '@emailjs/browser';
 
+/**
+ * Port on which the User A dashboard backend runs.
+ * @global
+ * @type {Number}
+ * @deprecated since version 1.0. May be updated.
+ */
 const A_BACKEND = 5000;
+/**
+ * Port on which User A dashboard frontend runs.
+ * @global
+ * @type {Number}
+ * @deprecated since version 1.0. May be updated.
+ */
 const A_FRONTEND = 5173;
+
 const socket = io(`http://localhost:${A_BACKEND}`);
 
-const TEMP_EMAIL = 'userb.dissertation@gmail.com' // TEMPORARY
+/**
+ * Temporary email address for User B notifications.
+ * @global
+ * @type {String}
+ * @deprecated since version 1.0. Must be updated.
+ */
+const TEMP_EMAIL = 'userb.dissertation@gmail.com'
+/**
+ * Public key for EmailJS.
+ * @global
+ * @type {String}
+ * @deprecated since version 1.0. Must be updated.
+ */
 const PUBLIC_KEY = 'MbD1TfUYBUIs2uf4M';
+/**
+ * Service ID for EmailJS.
+ * @global
+ * @type {String}
+ * @deprecated since version 1.0. Must be updated.
+ */
 const SERVICE_ID = 'service_s7t5kss';
+/**
+ * Template ID for EmailJS.
+ * @global
+ * @type {String}
+ * @deprecated since version 1.0. Must be updated.
+ */
 const TEMPLATE_ID = 'template_vnl7keb';
 
+/**
+ * Mapping between chosen option number and its definition.
+ * @global
+ * @type {Map}
+ */
 const OPTIONS_MAP = new Map([
   [1 , 'Continue (no interference).'],
   [2 , 'Record action for User B too see later. Continue with action.'],
@@ -19,7 +68,11 @@ const OPTIONS_MAP = new Map([
   [4 , 'Ask User B for advice (accept / reject) regarding this action. Pause action and permanently disable link if rejected.'],
   [5 , 'Block this action yourself (disable link). User B will not be informed.'],
 ]);
-
+/**
+ * Mapping between chosen option number and its result.
+ * @global
+ * @type {Map}
+ */
 const CHOICE_MAP = new Map([
   ['0', 'User B checked your browsing history.'],
   ['2', 'You clicked on a link in an email.'],
@@ -28,7 +81,10 @@ const CHOICE_MAP = new Map([
   ['Y', 'Setting configuration updated.'],
 ]);
 
-// Main App component for dashboard
+/**
+ * Main application component.
+ * @component
+ */
 function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
@@ -47,30 +103,43 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom'; // TEMPORARY
+  /**
+   * Chrome extension ID.
+   * @global
+   * @type {String}
+   * @deprecated since version 1.0. Must be updated.
+   */
+  const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom';
 
+  /**
+   * Check settings configuration.
+   * @param {Object} data Fetched settings data.
+   */
   function checkSettings(data) {
-    if (!data) {
+    if (!data) { // settings could not be fetched
       console.error('App.jsx (A): error fetching settings data');
     }
     else {
       if (data.length === 0) { // no settings configured
         console.log('App.jsx (A): no setting configurations exist.');
-        enableWelcomeVisibility();
+        enableWelcomeVisibility(); // show welcome popup
       }
       else {
         console.log('App.jsx (A): setting configurations already exist.');
-        disableWelcomeVisibility();
-        disableUpdateVisibility();
+        disableWelcomeVisibility(); // do not show welcome popup
+        disableUpdateVisibility(); // do not show settings update screen
       }
     }
   }
 
+  /**
+   * Set the description for an update request in the status panel.
+   * @param {Object} request The request data fetched from the database.
+   * @returns {String} A description of the request (user and context).
+   */
   function formatRequest(request) {
-
     let text = '';
     const context = request.context;
-
     if (context) {
       const env = context[0];
       const user = context[1];
@@ -93,21 +162,30 @@ function App() {
     }
   }
 
-  // Format context of settings
+  /**
+   * Display context of settings.
+   * @param {String} context The context code (eg. 'E' for email).
+   * @returns {String} Verbose context description.
+   */
   function displayContext(context) {
     if (context === 'E') {
       return 'Email';
     }
   }
 
-  const orderActionData = (data) => {
+  const orderActionData = (data) => { // order actions by most recent
     return [...data].sort((a, b) => {
       const timeA = new Date(a.time);
       const timeB = new Date(b.time);
-      return timeB - timeA; // ascending order
+      return timeB - timeA;
     });
   }
-
+  
+  /**
+   * Check context.
+   * @param {String} context The context code (eg. 'E' for email).
+   * @returns {String} The context code if it exists.
+   */
   function formatContext(context) {
     let ctxt = '';
     if (context) {
@@ -116,6 +194,12 @@ function App() {
     return ctxt;
   }
 
+  /**
+   * Describe the choice made by User A.
+   * @param {String} choice The choice made by User A.
+   * @param {String} url The url corresponding to the action.
+   * @returns {String} Description of the choice made and the corresponding link.
+   */
   function displayChoice(choice, url) {
     let msg = '';
     let data = '';
@@ -127,7 +211,12 @@ function App() {
     }
     return msg + '\n'+ data;
   }
-
+  
+  /**
+   * Display the outcome for resolved requests.
+   * @param {String} response Letter code corresponding to User B accepting or rejecting.
+   * @returns {String} 'Approved' or 'Rejected' depending on User B response.
+   */
   function displayOutcome(response) {
     if (response === 'Y') {
       return 'Approved';
@@ -138,6 +227,11 @@ function App() {
     return '';
   }
 
+  /**
+   * Display which settings are allowed and blocked.
+   * @param {String} response Letter code corresponding to the setting being allowed or blocked.
+   * @returns {String} A tick or cross depending on if the setting is allowed or blocked.
+   */
   function displayResponse(response) {
     if (response === 'Y') {
       return '✔';
@@ -148,6 +242,10 @@ function App() {
     return '?';
   }
 
+  /**
+   * Send message to backend to register request to update settings.
+   * @param {String} context The context for which the request has been made.
+   */ 
   function updateRequest(context) {
     const user = 'A';
     const status = 'Y';
@@ -159,6 +257,10 @@ function App() {
     }
   }
 
+  /**
+   * Send message to backend to register cancellation of a request to update settings.
+   * @param {String} context The context for which the request has been made.
+   */ 
   function cancelUpdateRequest(context) {
     console.log(context);
     const user = 'A';
@@ -171,6 +273,10 @@ function App() {
     }
   }
 
+  /**
+   * Find the corresponding icon for the action history panel.
+   * @param {String} context The context to which the action corresponds.
+   */  
   function checkContext(context) {
     if (context === 'Email') {
       return '../icons/mail_action_icon.png'
@@ -183,6 +289,10 @@ function App() {
     }
   }
 
+  /**
+   * Find the corresponding icon for message sender.
+   * @param {String} user The identifier of the user.
+   */   
   function getMessageIcon(user) {
     if (user === 'A') {
       return '../icons/icon_a_white.png'
@@ -192,7 +302,10 @@ function App() {
     }
   }
 
-
+  /**
+   * Fetch browsing history data from database.
+   * @throws {Error} if the fetch request fails.
+   */ 
   const fetchBrowserData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/browsingHistory`);
@@ -200,7 +313,7 @@ function App() {
         throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setBrowsingData(result.data.reverse()); // update the state with the fetched data, most recent at top
+      setBrowsingData(result.data.reverse()); // update the state
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (browsing history): ', e);
       setError(e.message);
@@ -211,6 +324,10 @@ function App() {
     }
   };
 
+  /**
+   * Fetch action data from database.
+   * @throws {Error} if the fetch request fails.
+   */ 
   const fetchActionData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/action`);
@@ -219,7 +336,7 @@ function App() {
       }
       const result = await response.json();
       const ordered = orderActionData(result.data);
-      setActionData(ordered); // update the state with the fetched data, most recent at top
+      setActionData(ordered); // update the state
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (action): ', e);
       setError(e.message);
@@ -231,6 +348,10 @@ function App() {
     }
   };
 
+  /**
+   * Fetch request data from database.
+   * @throws {Error} if the fetch request fails.
+   */ 
   const fetchRequestData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/requests`);
@@ -238,7 +359,7 @@ function App() {
         throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setRequestData(result.data.reverse()); // update the state with the fetched data, most recent at the top
+      setRequestData(result.data.reverse()); // update the state
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (requests): ', e);
       setError(e.message);
@@ -249,6 +370,10 @@ function App() {
     }
   };
 
+  /**
+   * Fetch message data from database.
+   * @throws {Error} if the fetch request fails.
+   */ 
   const fetchMessageData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/message`);
@@ -267,6 +392,10 @@ function App() {
     }
   };
 
+  /**
+   * Fetch settings data from database.
+   * @throws {Error} if the fetch request fails.
+   */   
   const fetchSettingsData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/settings`);
@@ -275,7 +404,7 @@ function App() {
       }
       const result = await response.json();
       checkSettings(result.data);
-      setSettingsData(result.data); // update the state with the fetched data
+      setSettingsData(result.data); // update the state
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (message): ', e);
       setError(e.message);
@@ -286,6 +415,10 @@ function App() {
     }
   };
 
+  /**
+   * Fetch trusted contacts data from database.
+   * @throws {Error} if the fetch request fails.
+   */   
   const fetchTrustedData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/trusted`);
@@ -293,7 +426,7 @@ function App() {
         throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setTrustedData(result.data); // update the state with the fetched data
+      setTrustedData(result.data); // update the state
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (trusted): ', e);
       setError(e.message);
@@ -304,18 +437,23 @@ function App() {
     }
   };
 
-  // Function to get unique ID for email actions
+  /**
+   * Create unique ID for settings update actions.
+   * @returns {String} A unique ID.
+   */  
   function settingID() {
-      const now = new Date().toISOString(); // timestamp (unique)
-      var id = now.replace(/\D/g, ""); // keep only numeric values from timestamp
-      return `s${id}`; // e signifies email action
+      const now = new Date().toISOString();
+      var id = now.replace(/\D/g, "");
+      return `s${id}`;
   }
 
+  /**
+   * Update the settings configurations.
+   * @param {String} context The context for the update request to cancel or instigate if null.
+   */ 
   function updateSettingsData(context) {
-
     let settingChoices = null;
     let updateSettings = null;
-
     if (!context) { // initial configuration
       settingChoices = document.getElementById('emailChoice');
       updateSettings = document.getElementById('updateSettings');
@@ -324,16 +462,12 @@ function App() {
       settingChoices = document.getElementById('emailChoiceUpdate');
       updateSettings = document.getElementById('resetSettings');
     }
-
     if (!settingChoices) {
         console.warn('App.jsx (A): cannot find form in welcome popup.');
     }
-
     if (updateSettings) {
-
       const choices = settingChoices.elements['email_choices'];
       const chosen = Array(choices.length);
-
       if (choices) {
         for (let i=0; i < choices.length; i++) {
           if (choices[i].checked) {
@@ -343,38 +477,32 @@ function App() {
             chosen[i] = 'N';
           }
         }
-
         const id = settingID();
         const time = new Date().toISOString();
-
-        window.postMessage({
+        window.postMessage({ // update backend
           type: 'SET_EMAIL_SETTINGS',
           payload: { chosen , id , time },
         }, `http://localhost:${A_FRONTEND}`);
-
         if (context) {
           cancelUpdateRequest(context);
-        }
-
-        sendToExt('EMAIL_SETTINGS', chosen); // send to extension
-
+        } // remove from status panel
+        sendToExt('EMAIL_SETTINGS', chosen); // send new settings to extension
       } else {
         console.warn('App.jsx (A): no choices found.');
       }
-
     } else {
       console.warn('App.jsx (A): "Save" button not found in welcome popup.');
     }
-
     if (!context) {
       enableTrustedVisibility();
-    }
-
+    } // prompt users to configure settings together
   }
 
-  // Function to add trusted contact
+  /**
+   * Add a trusted contact.
+   * @param {String} context The context for the trusted contact.
+   */ 
   function updateTrustedData(context) {
-
     if (!context) {
       let address = document.getElementById('updateTrusted').value;
       document.getElementById('updateTrusted').value = '';
@@ -383,12 +511,11 @@ function App() {
         document.getElementById('updateTrusted2').value = '';
       }
       if (address) {
-        window.postMessage({
+        window.postMessage({ // update backend
           type: 'ADD_TRUSTED',
           payload: { address },
         }, `http://localhost:${A_FRONTEND}`);
-        sendToExt('ADD_TRUSTED', address); // send to extension
-
+        sendToExt('ADD_TRUSTED', address); // send new configuration to extension
       } else {
         console.warn('App.jsx (A): trusted address not found.');
       }
@@ -398,20 +525,26 @@ function App() {
       disableTrustedVisibility();
       cancelUpdateRequest(context);
     }
-
     fetchTrustedData();
   }
 
-  // Function to remove email address from trusted contacts list
+  /**
+   * Remove a trusted contact.
+   * @param {String} address The email address to remove.
+   */ 
   function removeTrusted(address) {
-    window.postMessage({
+    window.postMessage({ // update backend
       type: 'REMOVE_TRUSTED',
       payload: { address },
     }, `http://localhost:${A_FRONTEND}`);
-    sendToExt('REMOVE_TRUSTED', address); // send to extension
+    sendToExt('REMOVE_TRUSTED', address); // send update to extension
   }
 
-  // Function to send messages to chrome extension
+  /**
+   * Send a message to the browser extension.
+   * @param {String} msgType The type of message.
+   * @param {String} msgContent The message content.
+   */ 
   function sendToExt(msgType, msgContent) {
     if (typeof chrome !== 'undefined' && chrome.runtime) {
       try {
@@ -440,33 +573,35 @@ function App() {
     }
   }
 
-  // Function to convert ISO time to simplified format
+  /**
+   * Convert ISO time to simplified format.
+   * @param {String} time Stringified time.
+   * @returns {String} The time in a simplified format.
+   */
   function simplifyTime(time) {
-
     const date = new Date(time);
-
     if (isNaN(date.getTime())) {
       console.error('App.jsx (A): attempting to convert invalid date.');
     }
-
     let hours = date.getHours();
     let minutes = date.getMinutes();
     let day = date.getDate();
     let month = date.getMonth() + 1;
     let year = date.getFullYear() % 100;
-
     const pad = (num) => String(num).padStart(2, '0');
-
     const simpleHours = pad(hours);
     const simpleMinutes = pad(minutes);
     const simpleDay = pad(day);
     const simpleMonth = pad(month);
     const simpleYear = pad(year);
-
     return `${simpleHours}:${simpleMinutes} ${simpleDay}/${simpleMonth}/${simpleYear}`;
   } 
 
-  // Function to strip url of excess information
+  /**
+   * Strip url of excess information.
+   * @param {String} url The full url collected.
+   * @returns {String} The redacted url.
+   */
   function redactURL(url) {
     if (!url) {
       return ''
@@ -481,36 +616,41 @@ function App() {
     }
   }
 
-  // Function to send auto message to backend A
+  /**
+   * Send automatic message to the backend.
+   */
   function sendHelpMessage() {
     const message = '(automatic message) User A has asked for help. Please contact User A.'
     const timeISO = new Date().toISOString();
     const time = simplifyTime(timeISO);
-    window.postMessage({
+    window.postMessage({ // update backend
       type: 'USER_A_MESSAGE',
       payload: { message, time },
     }, `http://localhost:${A_FRONTEND}`);
   }
 
-  // Function to send auto message to backend A
+  /**
+   * Send the email content to the backend.
+   * @param {Object} content The email content.
+   */
   function sendEmailContent(content) {
     const message = `Email content for link: ${content.link}\nSubject: ${content.subject}\nFrom: ${content.from}\nDate: ${content.date}\nContent: ${content.body}`;
     const timeISO = new Date().toISOString();
     const time = simplifyTime(timeISO);
-    window.postMessage({
+    window.postMessage({ // update backend
       type: 'USER_A_MESSAGE',
       payload: { message, time },
     }, `http://localhost:${A_FRONTEND}`);
   }
 
-  // Function to send automatic email alert to User B
+  /**
+   * Send automatic email alert to User B.
+   */
   function sendAlertEmail() {
-
     const emailContent = {
       user_name: 'User A',
       user_email: TEMP_EMAIL,
     }
-
     emailjs
       .send(
         SERVICE_ID,
@@ -526,80 +666,118 @@ function App() {
           console.error('App.jsx (A): email failed to send - ', error);
         }
       );
-
   };
 
-  // Function to send message to backend A
+  /**
+   * Send the content and time of a message from User A to the backend.
+   * @param {Object} content The email content.
+   */
   function sendMessage() {
     const messageInput = document.getElementById('messageInput')
-    const message = messageInput.value;
-
+    const message = messageInput.value; // collect the input to the message bar
     if (message) {
       const timeISO = new Date().toISOString();
       const time = simplifyTime(timeISO);
-      window.postMessage({
+      window.postMessage({ // update backend
         type: 'USER_A_MESSAGE',
         payload: { message, time },
       }, `http://localhost:${A_FRONTEND}`);
-      messageInput.value = '';
+      messageInput.value = ''; // reset the message bar
     }
   };
 
+  /**
+   * Switch the visibility of the settings information.
+   */
   function switchSettingsVisibility() {
     console.log('App.jsx (A): switching visibility of settings information.');
     setSettingsVisible(!settingsVisible);
   };
 
+  /**
+   * Switch the visibility of the help centre.
+   */
   function switchHelpVisibility() {
     console.log('App.jsx (A): switching visibility of help information.');
     setHelpVisible(!helpVisible);
   };
 
+  /**
+   * Switch the visibility of the safety information.
+   */
   function switchEducationVisibility() {
     console.log('App.jsx (A): switching visibility of educational information.');
     setEducationVisible(!educationVisible);
   };
 
+  /**
+   * Switch the visibility of the browsing history information.
+   */  
   function switchHistoryVisibility() {
     console.log('App.jsx (A): switching visibility of browsing history.');
     setHistoryVisible(!historyVisible);
   };
 
+  /**
+   * Switch the visibility of the settings update warning popup.
+   */
   function switchTogetherVisibility() {
     console.log('App.jsx (A): switching visibility of together popup.');
     setTogetherVisible(!togetherVisible);
   };
 
+  /**
+   * Enable the visibility of the settings configuration popup.
+   */  
   function enableWelcomeVisibility() {
     console.log('App.jsx (A): enabling visibility of settings configuration.');
     setWelcomeVisible(true);
   };
 
+  /**
+   * Disable the visibility of the settings configuration popup.
+   */   
   function disableWelcomeVisibility() {
     console.log('App.jsx (A): disabling visibility of settings configuration.');
     setWelcomeVisible(false);
   };
 
+  /**
+   * Enable the visibility of the settings update popup.
+   */   
   function enableUpdateVisibility() {
     console.log('App.jsx (A): enabling visibility of update configuration.');
     setUpdateVisible(true);
   };
 
+  /**
+   * Disable the visibility of the settings update popup.
+   */     
   function disableUpdateVisibility() {
     console.log('App.jsx (A): disabling visibility of update configuration.');
     setUpdateVisible(false);
   };
 
+  /**
+   * Enable the visibility of the trusted settings configuration popup.
+   */     
   function enableTrustedVisibility() {
     console.log('App.jsx (A): enabling visibility of trusted contacts popup.');
     setTrustedVisible(true);
   };
 
+  /**
+   * Disable the visibility of the trusted settings configuration popup.
+   */    
   function disableTrustedVisibility() {
     console.log('App.jsx (A): disabling visibility of trusted contacts popup.');
     setTrustedVisible(false);
   };
 
+  /**
+   * Switch from warning to prompt users to be together to the relevant update popup.
+   * @param {String} context The letter code for the context of the settings update.
+   */    
   function proceedToUpdate(context) {
     setTogetherVisible(false);
     if (context === 'E') {
@@ -610,13 +788,10 @@ function App() {
       console.log('App.jsx (A): proceeding to setting trusted contact screen.');
       enableTrustedVisibility();
     }
-
   }
 
-  // Hook to fetch data when the component mounts
-  useEffect(() => {
+  useEffect(() => { // hook to fetch data when the component mounts
 
-    // Fetch database data
     fetchSettingsData();
     fetchRequestData();
     fetchBrowserData();
@@ -624,7 +799,6 @@ function App() {
     fetchMessageData();
     fetchTrustedData();
 
-    // Listen for events and messages
     socket.on('connect', () => {
         console.log(`App.jsx (A): connected to websockets server on port ${A_BACKEND}`);
     });
@@ -721,8 +895,7 @@ function App() {
       fetchActionData();
     });
 
-    // Clean up the socket connection when the component unmounts
-    return () => {
+    return () => { // clean up the socket connection when the component unmounts
       socket.off('message');
       socket.off('a_browser');
       socket.off('a_choice');
@@ -743,8 +916,7 @@ function App() {
     };
   }, []);
 
-  // Render loading state
-  if (loading) {
+  if (loading) { // render loading state
     return (
       <div className='loading_class'>
         <p className='loading_message'>Loading dashboard data...</p>
@@ -752,8 +924,7 @@ function App() {
     );
   }
 
-  // Render error state
-  if (error) {
+  if (error) { // render error state
     return (
       <div className='error_class'>
         <p className='error_message'>Error: {error}. Please ensure the Node.js backend is running.</p>
@@ -761,7 +932,7 @@ function App() {
     );
   }
 
-  return (
+  return ( // dashboard content
 
     <div className='dashboard_background'>
 
