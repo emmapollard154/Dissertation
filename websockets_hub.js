@@ -1,4 +1,9 @@
-// websockets_hub.js: central hub for A <-> B websockets communication
+/**
+ * @fileoverview Central hub for WebSocket communication between users.
+ * @file websockets_hub.js
+ * @author Emma Pollard
+ * @version 1.0
+ */
 
 const http = require('http');
 const socketIO = require('socket.io');

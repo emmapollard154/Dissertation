@@ -1,4 +1,10 @@
-// server.js
+/**
+ * @fileoverview Server code for User B dashboard.
+ * @file server.js
+ * @author Emma Pollard
+ * @version 1.0
+ */
+
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
@@ -98,11 +104,6 @@ hubSocket.on('connect_error', (error) => {
 
 io.on('connect', (socket) => {
     socket.emit('welcome', 'server.js (B): backend connected');
-
-    socket.on('clientMessage', (data) => { // message from frontend
-        console.log('server.js (B) received message: ', data);
-        socket.emit('message', `server.js (B) recevied: ${data}`); // respond to frontend
-    });
 });
 
 // Connect to database

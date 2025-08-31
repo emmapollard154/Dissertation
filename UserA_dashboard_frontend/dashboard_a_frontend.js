@@ -1,4 +1,9 @@
-// dashboard_a_frontend.js: script running on dashboard page (port 5173)
+/**
+ * @fileoverview Content script for User A dashboard (port 5173).
+ * @file dashboard_a_frontend.js
+ * @author Emma Pollard
+ * @version 1.0
+ */
 
 const A_BACKEND = 5000;
 const A_FRONTEND = 5173;

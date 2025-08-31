@@ -1,10 +1,30 @@
-// sidepanel.js: script for side panel html
+/**
+ * @fileoverview Script to manage chrome extension side panel.
+ * @file side_panel.js
+ * @author Emma Pollard
+ * @version 1.0
+ */
 
+/**
+ * Port on which User A dashboard frontend runs.
+ * @global
+ * @type {Number}
+ * @deprecated since version 1.0. May be updated.
+ */
 const A_FRONTEND = 5173;
+/**
+ * Port on which email webpage frontend runs.
+ * @global
+ * @type {Number}
+ * @deprecated since version 1.0. May be updated.
+ */
 const EMAIL_PORT = 5174;
 
-const EMAIL_ANNOUNCEMENT = 'Do you trust the sender?\n\nAre you being asked to give away personal information?\n\nUnsure? Ask User B (click below)';
-
+/**
+ * Mapping between chosen option and side panel speech content.
+ * @global
+ * @type {Map}
+ */
 const CHOICE_SPEECH = new Map([
     ['1', 'You chose to click on an email link without informing User B.'],
     ['2', 'You chose to click on an email link. User B will be able to see the link you clicked.'],
@@ -13,8 +33,10 @@ const CHOICE_SPEECH = new Map([
     ['5', 'You chose to block this action independently.'],
 ]);
 
-
-// Function to set 'update' in button
+/**
+ * Set an update for a side panel button.
+ * @param {String} btn ID for button element.
+ */
 function setUpdate(btn) {
     const button = document.getElementById(btn);
     if (button) {
@@ -25,7 +47,10 @@ function setUpdate(btn) {
     }
 }
 
-// Function to reset 'update' in button
+/**
+ * Reset updates to zero for a side panel button.
+ * @param {String} btn ID for button element.
+ */
 function removeUpdate(btn) {
     const button = document.getElementById(btn);
     if (button && button.classList.contains('update')) {
@@ -38,17 +63,11 @@ function removeUpdate(btn) {
     }
 }
 
-// Function to alert user of new update
-function statusAlert() {
-    setUpdate('statBtn');
-}
-
-// Function to alert user of new message
-function messageAlert() {
-    setUpdate('statBtn');
-}
-
-// Function to get stored data (updates and pending requests)
+/**
+ * Get data from local chrome storage.
+ * @param {String} keys Key to identify targeted data.
+ * @returns {Promise<result>} A promise that resolves with successful collection.
+ */
 function getStorageData(keys) {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get(keys, function(result) {
@@ -60,7 +79,11 @@ function getStorageData(keys) {
     });
 }
 
-// Function to get the number of pending requests
+/**
+ * Get number of pending requests.
+ * @returns {Number} The number of pending requests.
+ * @throws {Error} If the number of pending requests cannot be retrieved.
+ */
 async function getNumPending() {
     try {
         const result = await getStorageData(['NUM_PENDING']);
@@ -72,7 +95,11 @@ async function getNumPending() {
     }
 }
 
-// Function to get email settings
+/**
+ * Get email settings.
+ * @returns {Array} The allowed and blocked email settings.
+ * @throws {Error} If the email settings cannot be retrieved.
+ */
 async function getEmailSettings() {
     try {
         const result = await getStorageData(['EMAIL_SETTINGS']);
@@ -84,7 +111,11 @@ async function getEmailSettings() {
     }
 }
 
-// Function to get trusted contacts
+/**
+ * Get trusted contacts.
+ * @returns {Array} The trusted email addresses.
+ * @throws {Error} If the trusted contacts cannot be retrieved.
+ */
 async function getTrustedContacts() {
     try {
         const result = await getStorageData(['TRUSTED_CONTACTS']);
@@ -96,7 +127,11 @@ async function getTrustedContacts() {
     }
 }
 
-// Function to get the number of updates
+/**
+ * Get number of updates.
+ * @returns {Number} The number of updates.
+ * @throws {Error} If the number of updates cannot be retrieved.
+ */
 async function getNumUpdates() {
     try {
         const result = await getStorageData(['NUM_UPDATES']);
@@ -108,40 +143,44 @@ async function getNumUpdates() {
     }
 }
 
-// Function to set the number of pending requests and updates
+/**
+ * Set the number of pending requests and updates.
+ * @param {Number} newPending The number of unresolved actions.
+ * @param {Number} newUpdate The number of updates for User A.
+ */
 function setNums(newPending, newUpdate) {
-
     if (newPending >= 0) { // leave unchanged if negative input supplied
         chrome.storage.local.set({ 'NUM_PENDING': newPending }, function() {
         console.log('side_panel.js: setting NUM_PENDING to ', newPending);
         });
     }
-
     chrome.storage.local.set({ 'NUM_UPDATES': newUpdate }, function() {
     console.log('side_panel.js: setting NUM_UPDATES to ', newUpdate);
     });
 }
 
-// Function to update the number of pending requests and modify number of updates
+/**
+ * Update the number of pending requests and modify number of updates.
+ * @param {Number} newPending The number of unresolved actions.
+ */
 async function updateNumPending(newPending) {
-
     try {
         const oldPending = await getNumPending();
         const oldUpdates = await getNumUpdates();
-
         if (oldPending > newPending) { // a request has been resolved
             setNums(newPending, oldUpdates + 1);
-            statusAlert(); // send alert to User A
+            setUpdate('statBtn'); // send alert to User A
         } else {
             setNums(newPending, oldUpdates);
         }
-
     } catch (error) {
         console.error('side_panel.js: error extracting values for pending/updates: ', error);
     }
 }
 
-// Function to add an update
+/**
+ * Add an update.
+ */
 async function addUpdate() {
     console.log('side_panel.js: adding an update.')
     try {
@@ -153,74 +192,39 @@ async function addUpdate() {
     }
 }
 
-// Function to send message to email content script
-async function sendToEmail(message) {
-    const url = `http://localhost:${EMAIL_PORT}/`
-    try {
-        const tabs = await chrome.tabs.query({});
-        for (const tab of tabs) {
-            if (tab.url && tab.url === url) {
-                try {
-                    const response = await chrome.tabs.sendMessage(tab.id, {
-                        action: 'emailSettings', 
-                        message: message
-                }); 
-                    console.log('side_panel.js: received response from email content script: ', response);
-                } catch (error) {
-                    console.error(`side_panel.js: error sending message to tab ${tab.id}: `, error);
-                }
-            }
-        }
-    } catch (error) {
-        console.error('side_panel.js: error querying tabs: ', error);
-    }
-}
-
-// Create listener for tab events
-chrome.tabs.onActivated.addListener(active => {
-
+chrome.tabs.onActivated.addListener(active => { // listener for tab events
     const id = active.tabId;
-
     chrome.tabs.get(id, (tab) => {
         if (chrome.runtime.lastError) {
         console.error("side_panel.js: error getting tab info - ", chrome.runtime.lastError.message);
         return;
         }
-
-        // Refresh tabs for specific URLs to correctly configure content
-        if (tab.url) {
-
-            if (tab.url.startsWith(`http://localhost:${EMAIL_PORT}/`)) {
-                // send message to the content script in the active tab
+        if (tab.url) { // refresh tabs for specific URLs
+            if (tab.url.startsWith(`http://localhost:${EMAIL_PORT}/`)) { // send message to the content script in the active tab
                 chrome.tabs.sendMessage(tab.id, {
                     action: 'extensionLoaded',
                 }, function() {
                     if (chrome.runtime.lastError) {
-                        console.error("side_panel.js: ", chrome.runtime.lastError.message);
+                        console.error('side_panel.js: ', chrome.runtime.lastError.message);
                     }
                 });
             }
-
         }
     });
 });
 
-// Create listener for events on side panel
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-
-    if (message.action === 'updateNumPending') {
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { // listener for events on side panel
+    if (message.action === 'updateNumPending') { // update number of pending requests
         console.log('side_panel.js: updateNumPending received.')
         addUpdate();
-        statusAlert();
+        setUpdate('statBtn');
     }
-
-    if (message.action === 'updateNumUpdates') {
+    if (message.action === 'updateNumUpdates') { // update number of updates
         console.log('side_panel.js: updateNumUpdates received.')
         addUpdate();
-        messageAlert();
+        setUpdate('statBtn');
     }
-
-    if (message.action === 'setEmailSettings') {
+    if (message.action === 'setEmailSettings') { // set email settings
         console.log('side_panel.js: setEmailSettings received.')
         chrome.storage.local.set({ 'EMAIL_SETTINGS' : message.settings }, function() {
             console.log('content_email.js: setting EMAIL_SETTINGS to ', message.settings );
@@ -233,10 +237,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             console.error('side_panel.js: request to get EMAIL_SETTINGS rejected: ', error);
         });
     }
-
-    if (message.action === 'addTrustedContact') {
+    if (message.action === 'addTrustedContact') { // add a trusted contact
         console.log('side_panel.js: addTrustedContact received: ', message.address);
-
         let trustedContacts = getTrustedContacts();
         trustedContacts.then(function(result) {
             console.log('side_panel.js: trusted contacts retrieved ', result);
@@ -253,10 +255,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         .catch(function(error) {
             console.error('side_panel.js: request to get EMAIL_SETTINGS rejected: ', error);
         });
-
     }
-
-    if (message.action === 'removeTrustedContact') {
+    if (message.action === 'removeTrustedContact') { // remove a trusted contact
         console.log('side_panel.js: removeTrustedContact received: ', message.address);
         let trustedContacts = getTrustedContacts();
         trustedContacts.then(function(result) {
@@ -264,7 +264,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             if (result.includes(message.address)) {
                 removed = result.filter(address => address !== message.address);
                 chrome.storage.local.set({ 'TRUSTED_CONTACTS' : removed }, function() {
-                    console.log('content_email.js: setting TRUSTED_CONTACTS to ', removed );
+                    console.log('side_panel.js: setting TRUSTED_CONTACTS to ', removed );
                 });
             } else {
                 console.log('side_panel.js: removing address that does not exist', message.address);
@@ -273,27 +273,19 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         .catch(function(error) {
             console.error('side_panel.js: request to get EMAIL_SETTINGS rejected: ', error);
         });
-
     }
-
-    if (message.action === 'sendUrlToDashboard') {
-
+    if (message.action === 'sendUrlToDashboard') { // update User A browsing history
         const urlReceived =  message.newUrlMessage[0];
         const timeReceived =  message.newUrlMessage[1];
-
-        if (urlReceived != `http://localhost:${A_FRONTEND}/`) { // ignore dashboard in browsing history
-
+        if (urlReceived != `http://localhost:${A_FRONTEND}/`) { // ignore dashboard
             const browserData = {
                 newUrl:  urlReceived,
                 newTime: timeReceived,
             };
-
             chrome.tabs.query({ url: `http://localhost:${A_FRONTEND}/*` }, (tabs) => {
                 if (tabs && tabs.length > 0) {
                     const activeTab = tabs[0];
-
-                    // send message to the content script in the active tab
-                    chrome.tabs.sendMessage(activeTab.id, { 
+                    chrome.tabs.sendMessage(activeTab.id, { // send message to the content script in the active tab
                         action: 'browsingHistoryUpdate',
                         data: browserData
                     }, function(response) {
@@ -310,17 +302,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                     sendResponse({ status: 'failed', error: 'No active tab found' });
                 }
             });
-
             if (urlReceived === `http://localhost:${EMAIL_PORT}/`) { // on email webpage
-
-                document.getElementById('speechContent').innerText = EMAIL_ANNOUNCEMENT;
-
+                document.getElementById('speechContent').innerText = 'Do you trust the sender?\n\nAre you being asked to give away personal information?\n\nUnsure? Ask User B (click below)';
                 chrome.tabs.query({ url: `http://localhost:${EMAIL_PORT}/*` }, (tabs) => {
                     if (tabs && tabs.length > 0) {
                         const activeTab = tabs[0];
-
-                        // send message to the content script in the active tab
-                        chrome.tabs.sendMessage(activeTab.id, {
+                        chrome.tabs.sendMessage(activeTab.id, { // send message to the content script in the active tab
                             action: 'onEmailPage',
                         }, function() {
                             if (chrome.runtime.lastError) {
@@ -343,20 +330,15 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             removeUpdate('statBtn');
         }
     }
-
-    if (message.action === 'sendChoiceToDashboardA') {
-
+    if (message.action === 'sendChoiceToDashboardA') { // send User A choice to dashboard
         const id = message.id;
         const choice = message.choice;
         const time = message.time;
         const url = message.url;
-
         chrome.tabs.query({ url: `http://localhost:${A_FRONTEND}/*` }, (tabs) => {
             if (tabs && tabs.length > 0) {
                 const activeTab = tabs[0];
-
-                // send message to the content script in the active tab
-                chrome.tabs.sendMessage(activeTab.id, {
+                chrome.tabs.sendMessage(activeTab.id, { // send message to the content script in the active tab
                     action: 'emailAChoice',
                     id: id,
                     choice: choice,
@@ -364,7 +346,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                     url: url
                 }, function(response) {
                     if (chrome.runtime.lastError) {
-                        console.error("side_panel.js: ", chrome.runtime.lastError.message);
+                        console.error('side_panel.js: ', chrome.runtime.lastError.message);
                         sendResponse({ status: 'failed', error: chrome.runtime.lastError.message });
                     } else {
                         sendResponse({ status: 'success', contentScriptResponse: response });
@@ -377,14 +359,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             }
         });
     }    
-
-    if (message.action === 'displaySpeechContent') {
+    if (message.action === 'displaySpeechContent') { // update side panel speech bubble
         const choice = message.choice;
         console.log('side_panel.js: updating speech bubble content (chosen ' , choice, ').');
         document.getElementById('speechContent').innerText = CHOICE_SPEECH.get(choice);
     }
-
-    if (message.action === 'displayIfTrusted') {
+    if (message.action === 'displayIfTrusted') { // display if email is from a trusted contact
         console.log('side_panel.js: updating speech bubble content (trusted contact).');
         const trusted = message.trusted;
         if (trusted) {
@@ -394,24 +374,19 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             document.getElementById('speechContent').innerText = 'This email is not from someone in your trusted contacts.';
         }
     }
-
-    if (message.action === 'displaySpeechResponse') {
+    if (message.action === 'displaySpeechResponse') { // update speech bubble when User B responds
         const choice = message.choice;
         const outcome = message.outcome;
         const url = message.url;
-
         console.log('side_panel.js: updating speech bubble content (chosen ' , choice, ' outcome ', outcome, ').');
-
         if (choice === '3') {
             if (outcome === 'Y') {
-
                 document.getElementById('speechContent').innerText = 'User B accepted request to click on link: ';
                 const link = document.createElement('a'); // create clickable link in side panel
                 link.href = url;
                 link.textContent = url;
                 link.target = '_blank';
                 speechContent.appendChild(link);
-
             }
             if (outcome === 'N') {
                 document.getElementById('speechContent').innerText = 'User B rejected request to click on link: ' + url + '. You can ask again if you want to.';
@@ -419,35 +394,27 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         }
         if (choice === '4') {
             if (outcome === 'Y') {
-
                 document.getElementById('speechContent').innerText = 'User B accepted request to click on link: ';
                 const link = document.createElement('a'); // create clickable link in side panel
                 link.href = url;
                 link.textContent = url;
                 link.target = '_blank';
                 speechContent.appendChild(link);
-
             }
             if (outcome === 'N') {
                 document.getElementById('speechContent').innerText = 'User B rejected request to click on link: ' + url + '. This link will stay blocked.';
             }
         }
     }
-
-    if (message.action === 'userBResponse') {
+    if (message.action === 'userBResponse') { // response received from User B
         console.log('side_panel.js: sending response to email webpage - ', message);
-
         const url = message.url;
         const outcome = message.outcome;
-
         console.log('side_panel.js: updating speech bubble content (action ' , url, ' outcome ', outcome, ').');
-
         chrome.tabs.query({ url: `http://localhost:${EMAIL_PORT}/*` }, (tabs) => {
             if (tabs && tabs.length > 0) {
                 const activeTab = tabs[0];
-
-                // send message to the content script in the active tab
-                chrome.tabs.sendMessage(activeTab.id, {
+                chrome.tabs.sendMessage(activeTab.id, { // send message to the content script in the active tab
                     action: 'userBResponse',
                     outcome: message.outcome,
                     url: message.url
@@ -463,22 +430,20 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             }
         });
     }
-
 });
 
-// Clear updates when dashboard accessed
-document.getElementById('dashBtn').addEventListener('click', async function() {
+document.getElementById('dashBtn').addEventListener('click', async function() { // clear updates when dashboard opened
     setNums(-1, 0);
     removeUpdate('statBtn');
     chrome.runtime.sendMessage({ action: "openDashboard"});
 });
 
-document.getElementById('statBtn').addEventListener('click', async function() {
+document.getElementById('statBtn').addEventListener('click', async function() { // clear updates when dashboard accessed
     setNums(-1, 0);
     removeUpdate('statBtn');
     chrome.runtime.sendMessage({ action: "openDashboard"});
 });
 
-document.getElementById('msgBtn').addEventListener('click', async function() {
+document.getElementById('msgBtn').addEventListener('click', async function() { // send automatic message to User B
     chrome.runtime.sendMessage({ action: "sendHelpMessage"});
 });
