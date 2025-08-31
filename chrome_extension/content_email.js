@@ -104,6 +104,15 @@ let menuChoice = null; // radio
 let okayMenu = null;
 let backMenu = null;
 
+
+/*
+Code adapted from:
+Removing html tags from string in React; 
+Jubayet Hossain; 
+2025;  
+Available from: https://stackoverflow.com/questions/74669280/removing-html-tags-from-string-in-react; 
+Accessed 17 June 2025.
+*/
 /**
  * Strip tags for email preview.
  * @param {String} email The HTML of the email content.
