@@ -5,6 +5,15 @@
  * @version 1.0
  */
 
+/*
+Code adapted from:
+Undoing PreventDefault in JavaScript; 
+Google Gemini; 
+2025;  
+Available from: https://gemini.google.com/share/a2f728f3c341; 
+Accessed 19 July 2025.
+*/  
+
 /**
  * Port on which email environment runs.
  * @global
@@ -196,6 +205,14 @@ function completeAction(elem, choice) {
     }
 }
 
+/*
+Code adapted from:
+JavaScript Manipulating HTML Divs; 
+Google Gemini; 
+2025;  
+Available from: https://g.co/gemini/share/f4c5d9a272b9; 
+Accessed 18 June 2025.
+*/  
 /**
  * Fetch and inject HTML for information popup.
  * @param {String} link The HTML corresponding to the current email.
@@ -233,6 +250,14 @@ async function injectInfoHtml(link) {
     return;
 }
 
+/*
+Code adapted from:
+JavaScript Manipulating HTML Divs; 
+Google Gemini; 
+2025;  
+Available from: https://g.co/gemini/share/f4c5d9a272b9; 
+Accessed 18 June 2025.
+*/   
 /**
  * Fetch and inject HTML for menu popup.
  * @param {String} link The HTML corresponding to the current email.
@@ -271,6 +296,14 @@ async function injectMenuHtml(link) {
     return;
 }
 
+/*
+Code adapted from:
+JavaScript Manipulating HTML Divs; 
+Google Gemini; 
+2025;  
+Available from: https://g.co/gemini/share/f4c5d9a272b9; 
+Accessed 18 June 2025.
+*/  
 /**
  * Attach event listeners to the information popup buttons.
  * @param {String} informationPopup The HTML element corresponding to the information popup.
@@ -313,6 +346,14 @@ function attachInfoListeners(informationPopup, link) {
     }
 }
 
+/*
+Code adapted from:
+JavaScript Manipulating HTML Divs; 
+Google Gemini; 
+2025;  
+Available from: https://g.co/gemini/share/f4c5d9a272b9; 
+Accessed 18 June 2025.
+*/  
 /**
  * Attach event listeners to the menu popup buttons.
  * @param {String} informationPopup The HTML element corresponding to the menu popup.
@@ -433,6 +474,14 @@ function processChoice(choice, link) {
     }
 }
 
+/*
+Code adapted from:
+Chrome Extension Data Persistence Methods; 
+Google Gemini; 
+2025;  
+Available from: https://gemini.google.com/share/00bac19789a3; 
+Accessed 2 August 2025.
+*/  
 /**
  * Get data from local chrome storage.
  * @param {String} keys Key to identify targeted data.
