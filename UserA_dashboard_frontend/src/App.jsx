@@ -389,16 +389,6 @@ function App() {
         }, `http://localhost:${A_FRONTEND}`);
         sendToExt('ADD_TRUSTED', address); // send to extension
 
-        // console.log(trustedData);
-        // trustedData.push(address);
-        // console.log(trustedData)
-
-        // window.postMessage({
-        //   type: 'SET_TRUSTED',
-        //   payload: { address },
-        // }, `http://localhost:${A_FRONTEND}`);
-        // sendToExt('SET_TRUSTED', address); // send to extension
-        
       } else {
         console.warn('App.jsx (A): trusted address not found.');
       }

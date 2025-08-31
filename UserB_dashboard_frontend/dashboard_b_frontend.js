@@ -1,4 +1,9 @@
-// dashboard_b_frontend.js: script running on dashboard page (port 8080)
+/**
+ * @fileoverview Content script for User B dashboard (port 8080).
+ * @file dashboard_b_frontend.js
+ * @author Emma Pollard
+ * @version 1.0
+ */
 
 const B_BACKEND = 8080;
 const B_FRONTEND = 6173;

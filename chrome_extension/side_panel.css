@@ -45,7 +45,7 @@
 
 .speech_bubble {
 	position: relative;
-    width: 90%;
+    min-width: 90%;
     top: 5%;
     left: 5%;
     background: var(--gray_blue);
@@ -55,7 +55,7 @@
     text-align: center;
     padding: 1%;
     margin-bottom: 25%;
-    font-size: 3.5vh;
+    font-size: 2.5vh;
     color: #ffffff;
 }
 
