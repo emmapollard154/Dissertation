@@ -1,16 +1,23 @@
-// email_webpage.jsx
+/**
+ * @fileoverview Main App component for the email webpage.
+ * @file email_webpage.jsx
+ * @author Emma Pollard
+ * @version 1.0
+ */
 
 import { useState } from 'react';
 import './email_webpage.css'
 
-// Strip tags for email preview
+/**
+ * Strip tags for email preview.
+ * @param {String} email The HTML of the email content.
+ */
 function stripTags(email) {
   const tags = /(<([^>]+)>)/gi;
   return email.replace(tags, "");
 }
 
-// Dummy data for emails
-const emails = [
+const emails = [ // mock email content
   {
     id: '1',
     from: 'Unknown Sender <acbdefg@example.com>',
@@ -113,8 +120,7 @@ const emails = [
   }
 ];
 
-// Sidebar component for navigation
-const Sidebar = ({ onSelectCategory, activeCategory }) => {
+const Sidebar = ({ onSelectCategory, activeCategory }) => { // sidebar component
   const categories = [
     { name: 'Inbox', icon: 'Mails' },
     { name: 'Sent', icon: 'Send' },
@@ -122,7 +128,6 @@ const Sidebar = ({ onSelectCategory, activeCategory }) => {
     { name: 'Spam', icon: 'Bomb' },
     { name: 'Trash', icon: 'Trash2' },
   ];
-
   return (
     <div className="w-64 p-4 bg-gray-50 border-r border-gray-200 shadow-md">
       <h2 className="text-xl font-semibold mb-6 text-gray-800">Mailbox</h2>
@@ -148,8 +153,7 @@ const Sidebar = ({ onSelectCategory, activeCategory }) => {
   );
 };
 
-// Component to display a list of emails
-const EmailList = ({ emails, onSelectEmail, selectedEmailId }) => {
+const EmailList = ({ emails, onSelectEmail, selectedEmailId }) => { // component for email list
   return (
     <div className="flex-1 overflow-y-auto bg-white border-r border-gray-200 shadow-lg">
       <div className="p-4 border-b border-gray-200">
@@ -185,8 +189,7 @@ const EmailList = ({ emails, onSelectEmail, selectedEmailId }) => {
   );
 };
 
-// Component to show the full email content
-const EmailDetail = ({ email }) => {
+const EmailDetail = ({ email }) => { // component to show the full email content
   if (!email) {
     return (
       <div className="flex-1 flex items-center justify-center bg-gray-100 p-6 rounded-lg shadow-inner">
@@ -194,7 +197,6 @@ const EmailDetail = ({ email }) => {
       </div>
     );
   }
-
   return (
     <div className="flex-1 p-6 bg-white overflow-y-auto shadow-xl rounded-lg">
       <div className="mb-6 pb-4 border-b border-gray-200">
@@ -218,22 +220,21 @@ const EmailDetail = ({ email }) => {
   );
 };
 
-// Icons
-const Mails = (props) => (
+const Mails = (props) => ( // mail icon
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
     <path d="M10 12L2 7V5L10 10L22 5V7L14 12L22 17V19L14 14L2 19V17L10 12Z"></path>
   </svg>
 );
 
-const Send = (props) => (
+const Send = (props) => ( // send icon
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M22 2L11 13"></path>
     <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
   </svg>
 );
 
-const FileText = (props) => (
+const FileText = (props) => ( // icon
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
     <polyline points="14 2 14 8 20 8"></polyline>
@@ -243,7 +244,7 @@ const FileText = (props) => (
   </svg>
 );
 
-const Bomb = (props) => (
+const Bomb = (props) => ( // icon
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <circle cx="12" cy="12" r="10"></circle>
     <line x1="12" y1="16" x2="12" y2="12"></line>
@@ -253,7 +254,7 @@ const Bomb = (props) => (
   </svg>
 );
 
-const Trash2 = (props) => (
+const Trash2 = (props) => ( // icon
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M3 6h18"></path>
     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -262,28 +263,25 @@ const Trash2 = (props) => (
   </svg>
 );
 
-const Reply = (props) => (
+const Reply = (props) => ( // reply button
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <polyline points="10 8 2 12 10 16"></polyline>
     <path d="M21 12H2"></path>
   </svg>
 );
 
-const Forward = (props) => (
+const Forward = (props) => ( // forward button
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <polyline points="14 8 22 12 14 16"></polyline>
     <path d="M2 12H22"></path>
   </svg>
 );
 
-
 // Main App component
 export default function EmailWebPage() {
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [activeCategory, setActiveCategory] = useState('inbox');
-
   const filteredEmails = emails.filter(email => email.category === activeCategory); // filter emails based on the active category
-
   return (
     <div className="min-h-screen bg-gray-100 font-inter antialiased flex flex-col">
       <header className="bg-gradient-to-r from-blue-600 to-purple-700 text-white p-4 shadow-xl">
@@ -299,8 +297,6 @@ export default function EmailWebPage() {
           </div>
         </div>
       </header>
-
-
       <div className="flex flex-1 overflow-hidden container mx-auto my-6 rounded-xl shadow-2xl bg-white">
         <Sidebar onSelectCategory={setActiveCategory} activeCategory={activeCategory} />
         <EmailList emails={filteredEmails} onSelectEmail={setSelectedEmail} selectedEmailId={selectedEmail?.id} />

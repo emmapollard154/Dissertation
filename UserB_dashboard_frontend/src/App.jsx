@@ -1,12 +1,43 @@
+/**
+ * @fileoverview Main App component for User B dashboard.
+ * @file email_webpage.jsx
+ * @author Emma Pollard
+ * @version 1.0
+ */
+
 import { useEffect, useState } from 'react';
 import './App.css'
 import io from 'socket.io-client';
 
+/**
+ * Port on which the User A dashboard backend runs.
+ * @global
+ * @type {Number}
+ * @deprecated since version 1.0. May be updated.
+ */
 const A_BACKEND = 5000;
+/**
+ * Port on which the User B dashboard backend runs.
+ * @global
+ * @type {Number}
+ * @deprecated since version 1.0. May be updated.
+ */
 const B_BACKEND = 8080;
+/**
+ * Port on which User B dashboard frontend runs.
+ * @global
+ * @type {Number}
+ * @deprecated since version 1.0. May be updated.
+ */
 const B_FRONTEND = 6173;
+
 const socket = io(`http://localhost:${B_BACKEND}`);
 
+/**
+ * Mapping between chosen option number and its definition.
+ * @global
+ * @type {Map}
+ */
 const OPTIONS_MAP = new Map([
   [1 , 'Continue (no interference).'],
   [2 , 'Record action for User B too see later. Continue with action.'],
@@ -14,7 +45,11 @@ const OPTIONS_MAP = new Map([
   [4 , 'Ask User B for advice (accept / reject) regarding this action. Block action if User B rejects request.'],
   [5 , 'Block this action. Prevent action being carried out in the future. User B will not be informed.'],
 ]);
-
+/**
+ * Mapping between chosen option number and its result.
+ * @global
+ * @type {Map}
+ */
 const CHOICE_MAP = new Map([
   ['0', 'You checked the browsing history of User A.'],
   ['2', 'User A clicked on a link in an email.'],
@@ -24,7 +59,10 @@ const CHOICE_MAP = new Map([
 
 ]);
 
-// Main App component for dashboard
+/**
+ * Main application component.
+ * @component
+ */
 function App() {
   const [browsingData, setBrowsingData] = useState([]);
   const [actionData, setActionData] = useState([]);
@@ -33,26 +71,28 @@ function App() {
   const [settingsData, setSettingsData] = useState([]);
   const [trustedData, setTrustedData] = useState([]);
   const [helpVisible, setHelpVisible] = useState(false);
-  const [trustedVisible, setTrustedVisible] = useState(false);
   const [educationVisible, setEducationVisible] = useState(false);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const orderActionData = (data) => {
+  const orderActionData = (data) => { // order actions by most recent
     return [...data].sort((a, b) => {
       const timeA = new Date(a.time);
       const timeB = new Date(b.time);
-      return timeB - timeA; // ascending order
+      return timeB - timeA;
     });
   }
 
+  /**
+   * Set the description for an update request in the status panel.
+   * @param {Object} request The request data fetched from the database.
+   * @returns {String} A description of the request (user and context).
+   */
   function formatRequest(request) {
-
     let text = '';
     const context = request.context;
-
     if (context) {
       const env = context[0];
       const user = context[1];
@@ -75,6 +115,10 @@ function App() {
     }
   }
 
+  /**
+   * Send message to backend to register request to update settings.
+   * @param {String} context The context for which the request has been made.
+   */ 
   function updateRequest(context) {
     const user = 'B';
     const status = 'Y';
@@ -86,6 +130,11 @@ function App() {
     }
   }
 
+  /**
+   * Check context.
+   * @param {String} context The context code (eg. 'E' for email).
+   * @returns {String} The context code if it exists.
+   */
   function formatContext(context) {
     let ctxt = '';
     if (context) {
@@ -94,6 +143,12 @@ function App() {
     return ctxt;
   }
 
+  /**
+   * Describe the choice made by User A.
+   * @param {String} choice The choice made by User A.
+   * @param {String} url The url corresponding to the action.
+   * @returns {String} Description of the choice made and the corresponding link.
+   */
   function displayChoice(choice, url) {
     let msg = '';
     let data = '';
@@ -106,6 +161,11 @@ function App() {
     return msg + '\n'+ data;
   }
 
+  /**
+   * Display the outcome for resolved requests.
+   * @param {String} response Letter code corresponding to User B accepting or rejecting.
+   * @returns {String} 'Approved' or 'Rejected' depending on User B response.
+   */
   function displayOutcome(response) {
     if (response === 'Y') {
       return 'Approved';
@@ -116,6 +176,10 @@ function App() {
     return '';
   }
 
+  /**
+   * Send message to backend to register cancellation of a request to update settings.
+   * @param {String} context The context for which the request has been made.
+   */ 
   function cancelUpdateRequest(context) {
     console.log(context);
     const user = 'B';
@@ -128,6 +192,10 @@ function App() {
     }
   }
 
+  /**
+   * Find the corresponding icon for the action history panel.
+   * @param {String} context The context to which the action corresponds.
+   */    
   function checkContext(context) {
     if (context === 'Email') {
       return '../icons/mail_action_icon.png'
@@ -140,6 +208,10 @@ function App() {
     }
   }
 
+  /**
+   * Find the corresponding icon for message sender.
+   * @param {String} user The identifier of the user.
+   */   
   function getMessageIcon(user) {
     if (user === 'A') {
       return '../icons/icon_a_solid.png'
@@ -149,6 +221,10 @@ function App() {
     }
   }
 
+  /**
+   * Fetch settings data from database.
+   * @throws {Error} if the fetch request fails.
+   */  
   const fetchSettingsData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/settings`);
@@ -156,7 +232,7 @@ function App() {
         throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setSettingsData(result.data); // update the state with the fetched data
+      setSettingsData(result.data); // update the state
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (message): ', e);
       setError(e.message);
@@ -167,6 +243,10 @@ function App() {
     }
   };
 
+  /**
+   * Fetch trusted contacts data from database.
+   * @throws {Error} if the fetch request fails.
+   */  
   const fetchTrustedData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/trusted`);
@@ -174,7 +254,7 @@ function App() {
         throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setTrustedData(result.data); // update the state with the fetched data
+      setTrustedData(result.data); // update the state
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (trusted): ', e);
       setError(e.message);
@@ -185,6 +265,10 @@ function App() {
     }
   };
 
+  /**
+   * Fetch browsing history data from database.
+   * @throws {Error} if the fetch request fails.
+   */ 
   const fetchBrowserData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/browsingHistory`);
@@ -192,7 +276,7 @@ function App() {
         throw new Error(`App.jsx (B): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setBrowsingData(result.data.reverse()); // update the state with the fetched data, most recent at top
+      setBrowsingData(result.data.reverse()); // update the state
     } catch (e) {
       console.error('App.jsx (B): error fetching dashboard data (browsing history): ', e);
       setError(e.message);
@@ -203,6 +287,10 @@ function App() {
     }
   };
 
+  /**
+   * Fetch action data from database.
+   * @throws {Error} if the fetch request fails.
+   */ 
   const fetchActionData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/action`);
@@ -211,7 +299,7 @@ function App() {
       }
       const result = await response.json();
       const ordered = orderActionData(result.data);
-      setActionData(ordered); // update the state with the fetched data, most recent at top
+      setActionData(ordered); // update the state
     } catch (e) {
       console.error('App.jsx (B): error fetching dashboard data (action): ', e);
       setError(e.message);
@@ -222,6 +310,10 @@ function App() {
     }
   };
 
+  /**
+   * Fetch request data from database.
+   * @throws {Error} if the fetch request fails.
+   */ 
   const fetchRequestData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/requests`);
@@ -229,7 +321,7 @@ function App() {
         throw new Error(`App.jsx (A): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setRequestData(result.data.reverse()); // update the state with the fetched data, most recent at the top
+      setRequestData(result.data.reverse()); // update the state
     } catch (e) {
       console.error('App.jsx (A): error fetching dashboard data (requests): ', e);
       setError(e.message);
@@ -240,6 +332,10 @@ function App() {
     }
   };
 
+  /**
+   * Fetch message data from database.
+   * @throws {Error} if the fetch request fails.
+   */ 
   const fetchMessageData = async () => {
     try {
       const response = await fetch(`http://localhost:${A_BACKEND}/api/dashboard-data/message`);
@@ -247,7 +343,7 @@ function App() {
         throw new Error(`App.jsx (B): HTTP error. status: ${response.status}`);
       }
       const result = await response.json();
-      setMessageData(result.data.reverse()); // update the state with the fetched data, most recent at top
+      setMessageData(result.data.reverse()); // update the state
     } catch (e) {
       console.error('App.jsx (B): error fetching dashboard data (message): ', e);
       setError(e.message);
@@ -258,66 +354,65 @@ function App() {
     }
   };
 
-  // Function to allow user B to accept/reject a request
+  /**
+   * Allow User B to accept or reject a request.
+   * @param {Object} btn click event target (button).
+   * @param {Object} actionID The request item (unique identifier).
+   */ 
   function responseBtn(btn, actionID) {
-
     if (btn.id === 'btnYes') {
       console.log('App.jsx (B): "Yes" button clicked: ', actionID.item);
-      
       let now = new Date().toISOString();
-      actionID.item.time = now; // update time to user b response
-
-      window.postMessage({
+      actionID.item.time = now; // update time to User B response
+      window.postMessage({ // update backend
         type: 'USER_B_RESPONSE',
         data: actionID.item,
         outcome: 'Y'
       }, `http://localhost:${B_FRONTEND}`);
-
     } else if (btn.id === 'btnNo') {
       console.log('App.jsx (B): "No" button clicked: ', actionID.item);
-
       let now = new Date().toISOString();
-      actionID.item.time = now; // update time to user b response
-
-      window.postMessage({
+      actionID.item.time = now; // update time to User B response
+      window.postMessage({ // update backend
         type: 'USER_B_RESPONSE',
         data: actionID.item,
         outcome: 'N'
       }, `http://localhost:${B_FRONTEND}`);
-
     } else {
       console.warn('App.jsx (B): invalid button found: ', btn.id);
     }
   }
 
-  // Function to convert ISO time to simplified format
+  /**
+   * Convert ISO time to simplified format.
+   * @param {String} time Stringified time.
+   * @returns {String} The time in a simplified format.
+   */
   function simplifyTime(time) {
-
     const date = new Date(time);
-
     if (isNaN(date.getTime())) {
       console.error('App.jsx (B): attempting to convert invalid date.');
       return '';
     }
-
     let hours = date.getHours();
     let minutes = date.getMinutes();
     let day = date.getDate();
     let month = date.getMonth() + 1;
     let year = date.getFullYear() % 100;
-
     const pad = (num) => String(num).padStart(2, '0');
-
     const simpleHours = pad(hours);
     const simpleMinutes = pad(minutes);
     const simpleDay = pad(day);
     const simpleMonth = pad(month);
     const simpleYear = pad(year);
-
     return `${simpleHours}:${simpleMinutes} ${simpleDay}/${simpleMonth}/${simpleYear}`;
   } 
 
-  // Function to strip url of excess information
+  /**
+   * Strip url of excess information.
+   * @param {String} url The full url collected.
+   * @returns {String} The redacted url.
+   */
   function redactURL(url) {
     if (!url) {
       return ''
@@ -332,13 +427,22 @@ function App() {
     }
   }
 
-  // Format context of settings
+  /**
+   * Display context of settings.
+   * @param {String} context The context code (eg. 'E' for email).
+   * @returns {String} Verbose context description.
+   */
   function displayContext(context) {
     if (context === 'E') {
       return 'Email';
     }
   }
 
+  /**
+   * Display which settings are allowed and blocked.
+   * @param {String} response Letter code corresponding to the setting being allowed or blocked.
+   * @returns {String} A tick or cross depending on if the setting is allowed or blocked.
+   */
   function displayResponse(response) {
     if (response === 'Y') {
       return '✔';
@@ -349,75 +453,83 @@ function App() {
     return '?';
   }
 
-  // Function to send message to backend B
+  /**
+   * Send the content and time of a message from User A to the backend.
+   * @param {Object} content The email content.
+   */
   function sendMessage() {
     const messageInput = document.getElementById('messageInput')
-    const message = messageInput.value;
-
+    const message = messageInput.value; // collect the input to the message bar
     if (message) {
       const timeISO = new Date().toISOString();
       const time = simplifyTime(timeISO);
-      window.postMessage({
+      window.postMessage({ // update backend
         type: 'USER_B_MESSAGE',
         payload: { message, time },
       }, `http://localhost:${B_FRONTEND}`);
-      messageInput.value = '';
+      messageInput.value = ''; // reset the message bar
     }
   };
 
-// Function to get unique ID for viewing actions
-function viewID() {
-  const now = new Date().toISOString(); // timestamp (unique)
-  var id = now.replace(/\D/g, ""); // keep only numeric values from timestamp
-  return `v${id}`; // v signifies viewing action
-}
+  /**
+   * Create unique ID for viewing browsing history action.
+   * @returns {String} A unique ID.
+   */  
+  function viewID() {
+    const now = new Date().toISOString();
+    var id = now.replace(/\D/g, "");
+    return `v${id}`;
+  }
 
-  // Function to add browsing history to action table
+  /**
+   * Add browsing history view to action table.
+   */  
   function logBrowsingView() {
-
     const actionID = viewID();
     const context = 'View';
     const time = new Date().toISOString();
-    // const time = simplifyTime(timeISO);
-
-    window.postMessage({
+    window.postMessage({ // update backend
       type: 'USER_B_VIEW',
       payload: { actionID, context, time }
     }, `http://localhost:${B_FRONTEND}`);
   }
 
+  /**
+   * Switch the visibility of the settings information.
+   */
   function switchSettingsVisibility() {
     console.log('App.jsx (B): switching visibility of settings information.');
     setSettingsVisible(!settingsVisible);
   };
 
+  /**
+   * Switch the visibility of the help centre.
+   */
   function switchHelpVisibility() {
     console.log('App.jsx (B): switching visibility of help information.');
     setHelpVisible(!helpVisible);
   };
 
+  /**
+   * Switch the visibility of the safety information.
+   */
   function switchEducationVisibility() {
     console.log('App.jsx (B): switching visibility of educational information.');
     setEducationVisible(!educationVisible);
   };
 
+  /**
+   * Switch the visibility of the browsing history information.
+   */  
   function switchHistoryVisibility() {
     console.log('App.jsx (B): switching visibility of browsing history.');
-    if (!historyVisible) { // User B opens browsing history, add to action history
-      logBrowsingView();
+    if (!historyVisible) { // User B opens browsing history
+      logBrowsingView(); // Add to action history
     }
     setHistoryVisible(!historyVisible);
   };
 
-  function switchSettingsVisibility() {
-    console.log('App.jsx (B): switching visibility of settings.');
-    setSettingsVisible(!settingsVisible);
-  };
-
-  // Hook to fetch data when the component mounts
-  useEffect(() => {
-
-    // Fetch database data
+  useEffect(() => { // hook to fetch data when the component mounts
     fetchSettingsData();
     fetchRequestData();
     fetchBrowserData();
@@ -425,7 +537,6 @@ function viewID() {
     fetchMessageData();
     fetchTrustedData();
 
-    // Listen for events and messages
     socket.on('connect', () => {
       console.log(`App.jsx (B): connected to websockets server on port ${B_BACKEND}.`);
     });
@@ -501,8 +612,7 @@ function viewID() {
       fetchActionData();
     });
 
-    // Clean up the socket connection when the component unmounts
-    return () => {
+    return () => { // clean up the socket connection when the component unmounts
       socket.off('message');
       socket.off('a_browser');
       socket.off('a_choice');
@@ -521,8 +631,7 @@ function viewID() {
     };
   }, []);
 
-  // Render loading state
-  if (loading) {
+  if (loading) { // render loading state
     return (
       <div className="loading_class">
         <p className="loading_message">Loading dashboard data...</p>
@@ -530,8 +639,7 @@ function viewID() {
     );
   }
 
-  // Render error state
-  if (error) {
+  if (error) { // render error state
     return (
       <div className="error_class">
         <p className="error_message">Error: {error}. Please ensure the Node.js backend is running.</p>
@@ -539,7 +647,7 @@ function viewID() {
     );
   }
 
-  return (
+  return ( // dashboard content
 
     <div className='dashboard_background'>
 
