@@ -18,7 +18,7 @@ const A_FRONTEND = 5173;
  * @type {String}
  * @deprecated since version 1.0. Must be updated.
  */
-const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom';
+const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom'; // replace with updated extension ID
 
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }) // set side panel behaviour
   .then(() => console.log('background.js: side panel behaviour set.'))
@@ -146,7 +146,7 @@ chrome.runtime.onMessage.addListener( // listener for messages from external web
   });
 
 
-chrome.tabs.onUpdated.addListener(function (changeInfo) { // event listener for tab updates
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) { // event listener for tab updates
 	if (changeInfo.status === 'complete') {
 		getActiveTabUrl();
 	}

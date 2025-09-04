@@ -42,28 +42,28 @@ const socket = io(`http://localhost:${A_BACKEND}`);
  * @type {String}
  * @deprecated since version 1.0. Must be updated.
  */
-const TEMP_EMAIL = 'userb.dissertation@gmail.com'
+const TEMP_EMAIL = '<FILL IN EMAIL ADDRESS>'
 /**
  * Public key for EmailJS.
  * @global
  * @type {String}
  * @deprecated since version 1.0. Must be updated.
  */
-const PUBLIC_KEY = 'MbD1TfUYBUIs2uf4M';
+const PUBLIC_KEY = '<FILL IN PUBLIC KEY>';
 /**
  * Service ID for EmailJS.
  * @global
  * @type {String}
  * @deprecated since version 1.0. Must be updated.
  */
-const SERVICE_ID = 'service_s7t5kss';
+const SERVICE_ID = '<FILL IN SERVICE ID>';
 /**
  * Template ID for EmailJS.
  * @global
  * @type {String}
  * @deprecated since version 1.0. Must be updated.
  */
-const TEMPLATE_ID = 'template_vnl7keb';
+const TEMPLATE_ID = '<FILL IN TEMPLATE ID>';
 
 /**
  * Mapping between chosen option number and its definition.
@@ -118,7 +118,7 @@ function App() {
    * @type {String}
    * @deprecated since version 1.0. Must be updated.
    */
-  const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom';
+  const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom'; // replace with updated extension ID
 
   /**
    * Check settings configuration.
@@ -855,13 +855,13 @@ function App() {
 
     socket.on('a_choice', (data) => {
       console.log('App.jsx (A): User A made choice: ', data);
-      sendAlertEmail();
+      // sendAlertEmail(); // remove comment if EmailJS account has been created and configured
       fetchActionData();
     });
 
     socket.on('a_message', (data) => {
       console.log('App.jsx (A): User A sent message: ', data);
-      sendAlertEmail();
+      // sendAlertEmail(); // remove comment if EmailJS account has been created and configured
       fetchMessageData();
     });
 
