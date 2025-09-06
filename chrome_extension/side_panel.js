@@ -462,10 +462,10 @@ document.getElementById('msgBtn').addEventListener('click', async function() { /
     chrome.runtime.sendMessage({ action: "sendHelpMessage"});
 });
 
-chrome.storage.local.set({ 'EMAIL_SETTINGS' : ['N', 'N','N', 'N', 'N'] }, function() { // initialise trusted contacts to empty
-    console.log('side_panel.js: setting TRUSTED_CONTACTS to ', result );
-});
+// chrome.storage.local.set({ 'EMAIL_SETTINGS' : ['N', 'N','N', 'N', 'N'] }, function() { // initialise trusted contacts to empty
+//     console.log('side_panel.js: setting TRUSTED_CONTACTS to []');
+// });
 
-chrome.storage.local.set({ 'TRUSTED_CONTACTS' : [] }, function() { // initialise trusted contacts to empty
-    console.log('side_panel.js: setting TRUSTED_CONTACTS to ', result );
-});
+// chrome.storage.local.set({ 'TRUSTED_CONTACTS' : [] }, function() { // initialise trusted contacts to empty
+//     console.log('side_panel.js: setting TRUSTED_CONTACTS to []');
+// });

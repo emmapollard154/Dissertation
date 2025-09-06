@@ -118,7 +118,7 @@ function App() {
    * @type {String}
    * @deprecated since version 1.0. Must be updated.
    */
-  const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom'; // replace with updated extension ID
+  const EXTENSION_ID = 'ikcmngjiokbgamphdmbpfkfohndgnglk'; // replace with updated extension ID
 
   /**
    * Check settings configuration.
