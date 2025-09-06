@@ -250,6 +250,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
         const trustedContacts = getTrustedContacts();
         trustedContacts.then(function(result) {
             console.log('side_panel.js: trusted contacts retrieved ', result);
+            if(!result) {
+                console.log('side_panel.js: no trusted contacts found');
+                chrome.storage.local.set({ 'TRUSTED_CONTACTS' : [message.address] }, function(result) {
+                    console.log('side_panel.js: setting TRUSTED_CONTACTS to ', [message.address] );
+                });
+            }
             if (!result.includes(message.address)) {
                 result.push(message.address);
                 chrome.storage.local.set({ 'TRUSTED_CONTACTS' : result }, function(result) {
@@ -456,10 +462,10 @@ document.getElementById('msgBtn').addEventListener('click', async function() { /
     chrome.runtime.sendMessage({ action: "sendHelpMessage"});
 });
 
-// chrome.storage.local.set({ 'EMAIL_SETTINGS' : ['N', 'N','N', 'N', 'N'] }, function() { // initialise trusted contacts to empty
-//     console.log('side_panel.js: setting TRUSTED_CONTACTS to ', result );
-// });
+chrome.storage.local.set({ 'EMAIL_SETTINGS' : ['N', 'N','N', 'N', 'N'] }, function() { // initialise trusted contacts to empty
+    console.log('side_panel.js: setting TRUSTED_CONTACTS to ', result );
+});
 
-// chrome.storage.local.set({ 'TRUSTED_CONTACTS' : [] }, function() { // initialise trusted contacts to empty
-//     console.log('side_panel.js: setting TRUSTED_CONTACTS to ', result );
-// });
+chrome.storage.local.set({ 'TRUSTED_CONTACTS' : [] }, function() { // initialise trusted contacts to empty
+    console.log('side_panel.js: setting TRUSTED_CONTACTS to ', result );
+});
