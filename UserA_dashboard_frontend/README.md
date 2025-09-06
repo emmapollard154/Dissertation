@@ -1,3 +1,13 @@
+# UserA_dashboard_frontend
+
+## Key Files
+
+### dashboard_a_frontend.js
+<p>Content script for User A dashboard (port 5173).</p>
+
+### ./src/App.jsx
+<p>Main App component for User A dashboard.</p>
+
 ## Constants
 
 <dl>

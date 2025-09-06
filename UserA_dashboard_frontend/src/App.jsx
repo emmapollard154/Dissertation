@@ -1,6 +1,6 @@
 /**
  * @fileoverview Main App component for User A dashboard.
- * @file email_webpage.jsx
+ * @file App.jsx
  * @author Emma Pollard
  * @version 1.0
  */

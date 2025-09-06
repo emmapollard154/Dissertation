@@ -1,0 +1,15 @@
+{
+  "source": {
+    "include": ["src/email_webpage.jsx"]
+  },
+  "opts": {
+    "encoding": "utf8",
+    "readme": "./README.md",
+    "template": "jsdoc-to-markdown/tmpl/default"
+  },
+  "plugins": ["plugins/markdown"],
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false
+  }
+}

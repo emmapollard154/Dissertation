@@ -1,3 +1,10 @@
+# UserB_dashboard_backend
+
+## Key Files
+
+### server.js
+<p>Server code for User B dashboard.</p>
+
 ## Constants
 
 <dl>

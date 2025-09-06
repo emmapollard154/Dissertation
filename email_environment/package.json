@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "docs": "jsdoc2md ./src/email_webpage.jsx > README.md"
   },
   "dependencies": {
     "react": "^19.1.0",
