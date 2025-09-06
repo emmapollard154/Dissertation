@@ -18,7 +18,7 @@ const A_FRONTEND = 5173;
  * @type {String}
  * @deprecated since version 1.0. Must be updated.
  */
-const EXTENSION_ID = 'bcdjfglkdcfeeekbkhbambhhjgdllcom'; // replace with updated extension ID
+const EXTENSION_ID = 'ikcmngjiokbgamphdmbpfkfohndgnglk'; // replace with updated extension ID
 
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }) // set side panel behaviour
   .then(() => console.log('background.js: side panel behaviour set.'))
