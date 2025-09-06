@@ -189,7 +189,7 @@ app.post('/api/data-b-frontend', async (req, res) => { // handler for frontend P
 });
 
 server.listen(B_BACKEND, () => { // start the server
-    console.log(`Backend server (A) running on http://localhost:${B_BACKEND}`);
+    console.log(`Backend server (B) running on http://localhost:${B_BACKEND}`);
 });
 
 process.on('SIGINT', () => { // close gracefully

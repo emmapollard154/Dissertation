@@ -247,12 +247,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
     }
     if (message.action === 'addTrustedContact') { // add a trusted contact
         console.log('side_panel.js: addTrustedContact received: ', message.address);
-        let trustedContacts = getTrustedContacts();
+        const trustedContacts = getTrustedContacts();
         trustedContacts.then(function(result) {
             console.log('side_panel.js: trusted contacts retrieved ', result);
             if (!result.includes(message.address)) {
                 result.push(message.address);
-                chrome.storage.local.set({ 'TRUSTED_CONTACTS' : result }, function() {
+                chrome.storage.local.set({ 'TRUSTED_CONTACTS' : result }, function(result) {
                     console.log('side_panel.js: setting TRUSTED_CONTACTS to ', result );
                 });
             }
@@ -261,17 +261,17 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
             }
         })
         .catch(function(error) {
-            console.error('side_panel.js: request to get EMAIL_SETTINGS rejected: ', error);
+            console.error('side_panel.js: request to get TRUSTED_CONTACTS rejected: ', error);
         });
     }
     if (message.action === 'removeTrustedContact') { // remove a trusted contact
         console.log('side_panel.js: removeTrustedContact received: ', message.address);
-        let trustedContacts = getTrustedContacts();
+        const trustedContacts = getTrustedContacts();
         trustedContacts.then(function(result) {
             console.log('side_panel.js: trusted contacts retrieved ', result);
             if (result.includes(message.address)) {
                 removed = result.filter(address => address !== message.address);
-                chrome.storage.local.set({ 'TRUSTED_CONTACTS' : removed }, function() {
+                chrome.storage.local.set({ 'TRUSTED_CONTACTS' : removed }, function(removed) {
                     console.log('side_panel.js: setting TRUSTED_CONTACTS to ', removed );
                 });
             } else {
@@ -455,3 +455,11 @@ document.getElementById('statBtn').addEventListener('click', async function() { 
 document.getElementById('msgBtn').addEventListener('click', async function() { // send automatic message to User B
     chrome.runtime.sendMessage({ action: "sendHelpMessage"});
 });
+
+// chrome.storage.local.set({ 'EMAIL_SETTINGS' : ['N', 'N','N', 'N', 'N'] }, function() { // initialise trusted contacts to empty
+//     console.log('side_panel.js: setting TRUSTED_CONTACTS to ', result );
+// });
+
+// chrome.storage.local.set({ 'TRUSTED_CONTACTS' : [] }, function() { // initialise trusted contacts to empty
+//     console.log('side_panel.js: setting TRUSTED_CONTACTS to ', result );
+// });

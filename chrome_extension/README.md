@@ -1,3 +1,30 @@
+# chrome_extension
+
+## Key Files
+
+### background.js
+<p>Service worker for chrome extension.</p>
+
+### content_dashboard_a.js
+<p>Content script for User A dashboard.</p>
+
+### side_panel.js
+<p>Script to manage chrome extension side panel.</p>
+
+### content_email.js
+<p>Content script for email webpage.</p>
+
+### side_panel.html
+<p>HTML for browser extension side panel.</p>
+
+### info_popup.html
+<p>HTML for information popup injected into email webpage.</p>
+
+### menu_popup.html
+<p>HTML for option menu popup injected into email webpage.</p>
+
+
+
 ## Members
 
 <dl>

@@ -1,3 +1,14 @@
+# An Autonomy-Preserving Cybersecurity Solution for Vulnerable Internet Users
+
+Please refer to the user manual (pdf) included in this project directory for the project overview, installation instructions, and operational manual.
+
+Each project subdirectory contains a dedicated README file describing the key files, functions, and variables.
+
+## Key Files
+
+### websockets_hub.js
+<p>Central hub for WebSocket communication between users.</p>
+
 ## Constants
 
 <dl>
